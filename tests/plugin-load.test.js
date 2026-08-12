@@ -232,8 +232,8 @@ test("auto language follows Obsidian at plugin load", async () => {
   plugin.initialData = { interfaceLanguage: "auto" };
   await plugin.onload();
   assert.equal(plugin.i18n.locale, "en");
-  assert.equal(plugin.commands[0].name, "Open Dashboard Magic OS");
-  assert.equal(plugin.commands[1].name, "Configure Dashboard Magic OS storage");
+  assert.equal(plugin.commands[0].name, "Open Organizer");
+  assert.equal(plugin.commands[1].name, "Configure storage layout");
   assert.equal(plugin.commands[2].name, "Open Learning Threads");
   assert.equal(plugin.commands[3].name, "Open People & Health");
   assert.equal(plugin.commands[4].name, "Open AI Steward");
@@ -340,7 +340,7 @@ test("manual language persists and refreshes translated command state", async ()
     storageSetupCompleted: false,
     storageSchemaVersion: 1
   });
-  assert.equal(plugin.commands[0].name, "打开 Dashboard Magic OS");
+  assert.equal(plugin.commands[0].name, "打开整理架");
   assert.equal(plugin.commands[2].name, "打开学习脉络");
   assert.equal(plugin.commands[3].name, "打开人物健康");
   assert.equal(plugin.commands[4].name, "打开 AI 管家");
@@ -406,7 +406,7 @@ test("personalization import preserves the active vault binding and applies only
     storageSetupCompleted: true,
     storageSchemaVersion: 1
   });
-  assert.equal(plugin.commands[0].name, "打开 Dashboard Magic OS");
+  assert.equal(plugin.commands[0].name, "打开整理架");
   assert.equal(app.paths.size, 0);
   assert.deepEqual(app.events.at(-1), ["dashboard-magic-os:personalization-imported", 2]);
   assert.equal(notices.at(-1), "已导入 2 项个性化变更");
@@ -430,7 +430,7 @@ test("personalization persistence failure leaves current settings and locale unc
   await assert.rejects(plugin.applyPersonalizationImport(prepared.confirmation), /private disk failure/);
   assert.equal(plugin.settings, before);
   assert.equal(plugin.i18n.locale, "en");
-  assert.equal(plugin.commands[0].name, "Open Dashboard Magic OS");
+  assert.equal(plugin.commands[0].name, "Open Organizer");
   assert.equal(app.events.some(([name]) => name === "dashboard-magic-os:personalization-imported"), false);
 });
 

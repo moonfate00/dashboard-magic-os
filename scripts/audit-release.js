@@ -8,6 +8,7 @@ const IGNORED_DIRECTORIES = new Set([".git", "node_modules", "coverage"]);
 const FORBIDDEN_BASENAMES = new Set(["data.json", ".env", ".env.local", ".DS_Store"]);
 const FORBIDDEN_PATH_PARTS = ["Dashboard/Private/", "Object-History/", "Snapshots/", "dashboard-os-backups/"];
 const AUDIT_FIXTURE_FILES = new Set(["scripts/audit-release.js", "tests/release-audit.test.js"]);
+const FORBIDDEN_ROOT_ENTRIES = new Set(["data.json", ".env", ".env.local"]);
 const CONTENT_RULES = [
   { id: "mac-user-path", pattern: /\/Users\/[A-Za-z0-9._-]+\//g },
   { id: "windows-user-path", pattern: /[A-Za-z]:\\Users\\[^\\\s]+\\/g },
@@ -35,6 +36,12 @@ function walkFiles(root) {
 
 function auditRepository(root) {
   const violations = [];
+  fs.readdirSync(root, { withFileTypes: true }).forEach((entry) => {
+    if (FORBIDDEN_ROOT_ENTRIES.has(entry.name)) violations.push({ file: entry.name, rule: "forbidden-root-entry" });
+    if (entry.isDirectory() && ["Dashboard", ".obsidian", "private", "exports", "runtime", "cache"].includes(entry.name)) {
+      violations.push({ file: entry.name, rule: "forbidden-root-directory" });
+    }
+  });
   walkFiles(root).forEach((file) => {
     const relative = path.relative(root, file).split(path.sep).join("/");
     if (FORBIDDEN_BASENAMES.has(path.basename(file))) violations.push({ file: relative, rule: "forbidden-file" });

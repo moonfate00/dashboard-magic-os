@@ -26,27 +26,27 @@ module.exports = class DashboardMagicOSPlugin extends Plugin {
       locale: this.resolveLocale()
     });
     this.openCommand = this.addCommand({
-      id: "open-dashboard-magic-os",
+      id: "open-organizer",
       name: this.t("command.open.name"),
       callback: () => this.openOrganizer()
     });
     this.storageCommand = this.addCommand({
-      id: "configure-dashboard-magic-os-storage",
+      id: "configure-storage-layout",
       name: this.t("command.storage.name"),
       callback: () => this.openStorageOnboarding()
     });
     this.learningCommand = this.addCommand({
-      id: "open-dashboard-magic-os-learning",
+      id: "open-learning-threads",
       name: this.t("command.learning.name"),
       callback: () => this.openLearning()
     });
     this.peopleHealthCommand = this.addCommand({
-      id: "open-dashboard-magic-os-people-health",
+      id: "open-people-health",
       name: this.t("command.health.name"),
       callback: () => this.openPeopleHealth()
     });
     this.aiStewardCommand = this.addCommand({
-      id: "open-dashboard-magic-os-ai-steward",
+      id: "open-ai-steward",
       name: this.t("command.ai.name"),
       callback: () => this.openAISteward()
     });

@@ -3,9 +3,7 @@
   "name": "Dashboard Magic OS",
   "version": "0.1.0-alpha.0",
   "minAppVersion": "1.5.0",
-  "description": "A bilingual workspace OS for collecting, organizing, applying, archiving, and presenting knowledge and life records.",
+  "description": "A bilingual workspace OS for organizing, learning from, relating, and presenting local knowledge and life records.",
   "author": "77 and Moonfate",
-  "authorUrl": "",
-  "isDesktopOnly": false
+  "isDesktopOnly": true
 }
-

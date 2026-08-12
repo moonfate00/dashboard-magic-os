@@ -2,6 +2,10 @@
   "name": "dashboard-magic-os",
   "version": "0.1.0-alpha.0",
   "private": true,
+  "license": "MIT",
+  "engines": {
+    "node": ">=24"
+  },
   "description": "Bilingual Obsidian workspace OS plugin.",
   "scripts": {
     "build": "node scripts/build.js",
@@ -9,7 +13,11 @@
     "audit:i18n": "node scripts/audit-i18n.js",
     "audit:privacy": "node scripts/audit-privacy.js",
     "audit:release": "node scripts/audit-release.js",
-    "check": "npm run test && npm run audit:i18n && npm run audit:privacy && npm run build && npm run audit:release"
+    "audit:package": "node scripts/audit-package.js",
+    "package:verify": "npm run build && npm run audit:package",
+    "package:community": "npm run build && node scripts/audit-package.js --community",
+    "version": "node scripts/sync-version.js",
+    "check": "npm run test && npm run audit:i18n && npm run audit:privacy && npm run build && npm run audit:release && npm run audit:package"
   },
   "devDependencies": {
     "esbuild": "^0.25.0"

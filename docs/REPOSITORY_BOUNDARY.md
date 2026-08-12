@@ -1,5 +1,7 @@
 # Repository Boundary / 仓库边界
 
+Public source is MIT licensed. Private entitlement services, paid AI Steward adapters, signing infrastructure, operations code, and personal runtime data remain outside this repository and are not relicensed by the public source license.
+
 ## Allowed
 
 - Plugin source and build scripts

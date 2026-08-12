@@ -3,49 +3,53 @@
 ## Product decisions
 
 - [ ] Confirm public product name and repository slug.
-- [ ] Select a license and add `LICENSE`.
+- [x] Select a license and add `LICENSE`.
 - [ ] Confirm author name and public URL.
-- [ ] Define open-core and paid AI Steward boundary.
+- [x] Define open-core and paid AI Steward boundary.
 
 ## Privacy and security
 
-- [ ] `npm run audit:privacy` passes.
-- [ ] Public upgrade registries contain structural metadata only.
-- [ ] Plugin local state remains limited to the documented allowlist.
-- [ ] No `data.json`, personal vault records, histories, snapshots, or backups.
-- [ ] No absolute local user paths.
-- [ ] No API keys, tokens, secrets, or signed entitlement payloads.
+- [x] `npm run audit:privacy` passes.
+- [x] Public upgrade registries contain structural metadata only.
+- [x] Plugin local state remains limited to the documented allowlist.
+- [x] No `data.json`, personal vault records, histories, snapshots, or backups.
+- [x] No absolute local user paths.
+- [x] No API keys, tokens, secrets, or signed entitlement payloads.
 - [x] Personalization export contains only portable preference allowlist fields; import requires preview and confirmation.
 - [ ] AI entitlement mode is not `development`.
-- [ ] Production entitlement defaults locked and accepts only a verified adapter snapshot.
+- [x] Production entitlement defaults locked and accepts only a verified adapter snapshot.
 - [x] Trial reservation/settlement, cancellation, timeout, retry, and in-process rollback tests pass.
 - [ ] Private crash-recovery journal and unresolved rollback recovery UI are verified before real AI writes unlock.
-- [ ] AI jobs and usage metadata contain no prompts, outputs, credentials, signed claims, or user records.
-- [ ] Provider transport is HTTPS/origin-allowlisted, abortable, and response-bounded.
+- [x] AI jobs and usage metadata contain no prompts, outputs, credentials, signed claims, or user records.
+- [x] Provider transport is HTTPS/origin-allowlisted, abortable, and response-bounded.
 - [x] Disconnected Provider sandbox fixes endpoint/model/secret/billing boundaries and rejects caller-defined remote tools.
 - [ ] Live OpenAI and DeepSeek sandbox smoke tests pass in Obsidian desktop and mobile before controls unlock.
 - [ ] Every bundled image has documented redistribution rights.
 
 ## Internationalization
 
-- [ ] `zh-CN` and `en` contain identical translation keys.
-- [ ] No untranslated user-facing text in migrated applications.
-- [ ] Locale auto-detection and manual override both work.
+- [x] `zh-CN` and `en` contain identical translation keys.
+- [x] No untranslated user-facing text in migrated applications.
+- [x] Locale auto-detection and manual override both work.
 - [ ] English layouts tolerate longer labels.
 - [ ] Dates, numbers, and plural wording are reviewed.
 
 ## Compatibility
 
-- [ ] Fresh empty vault initializes successfully.
-- [ ] Existing Chinese vault upgrades without data migration surprises.
-- [ ] Desktop loading passes.
+- [x] Fresh empty vault initializes successfully.
+- [x] Existing Chinese vault upgrades without data migration surprises.
+- [x] Desktop loading passes.
 - [ ] Mobile loading passes or the manifest declares desktop-only.
-- [ ] Install, upgrade, backup, and uninstall docs are complete.
+- [x] Install, upgrade, backup, and uninstall docs are complete.
 
 ## Release
 
-- [ ] Versions match in `package.json`, `manifest.json`, and release tag.
-- [ ] `npm run check` passes.
-- [ ] `npm run build` creates only reviewed artifacts.
-- [ ] English and Chinese README files are current.
-- [ ] Changelog and screenshots are current.
+- [x] Alpha versions match in `package.json`, `manifest.json`, and `versions.json`; CI verifies the release tag.
+- [x] `npm run check` passes.
+- [x] `npm run build` creates only reviewed artifacts.
+- [x] English and Chinese README files are current.
+- [x] Changelog is current.
+- [ ] Reviewed screenshots are added before Community Plugins submission.
+- [ ] Replace alpha version with pure `x.y.z` and pass `npm run package:community`.
+- [ ] Create public GitHub repository, enable security advisories, and replace repository URLs.
+- [ ] Create and inspect the first draft GitHub Release before publishing it.

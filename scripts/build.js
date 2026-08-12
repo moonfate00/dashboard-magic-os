@@ -13,6 +13,10 @@ async function build() {
   const root = path.resolve(__dirname, "..");
   const dist = path.join(root, "dist");
   fs.mkdirSync(dist, { recursive: true });
+  fs.readdirSync(dist).forEach((entry) => {
+    if (entry === ".gitkeep") return;
+    fs.rmSync(path.join(dist, entry), { recursive: true, force: true });
+  });
   await esbuild.build({
     entryPoints: [path.join(root, "src", "main.js")],
     bundle: true,
@@ -33,4 +37,3 @@ build().catch((error) => {
   console.error(error.message || error);
   process.exitCode = 1;
 });
-

@@ -2,12 +2,14 @@
 
 Dashboard Magic OS is a bilingual Obsidian workspace OS for collecting, organizing, applying, archiving, and presenting knowledge and life records.
 
-> Status: core-service alpha foundation. The application interfaces have not been migrated yet. Do not install this repository as a finished plugin.
+> Status: desktop alpha for controlled GitHub and BRAT testing. Organizer, Learning Threads, People & Health, and personalization transfer are usable; AI Steward remains visible but locked.
 
 ## Languages
 
 - English (`en`)
 - Simplified Chinese (`zh-CN`)
+
+[简体中文说明](README.zh-CN.md)
 
 The project uses one codebase and two locale packs. Internal record fields and stable entity IDs remain language-neutral.
 
@@ -21,13 +23,22 @@ npm run check
 npm run build
 ```
 
+## Disclosures
+
+- The public alpha has no telemetry, advertising, user account, or active AI network request.
+- AI Steward is a planned paid feature. Its entrance remains visible, but every action is disabled until a separately delivered, verified entitlement and private runtime are connected.
+- Future AI use will require the user's own supported Provider account and API credential in Obsidian SecretStorage. No Provider credential is bundled or exported.
+- The public repository is MIT licensed. Private entitlement services, paid adapters, and operational infrastructure are separate works and are not included here.
+
+See [Privacy](PRIVACY.md), [Security](SECURITY.md), and [Install, Upgrade, and Uninstall](docs/INSTALL_UPGRADE_UNINSTALL.md).
+
 `npm run check` also enforces the privacy boundary: local settings are allowlisted, public upgrade registries may contain structural metadata only, unreviewed binary assets are rejected, and release artifacts are scanned for private paths and obvious secrets.
 
 ## Repository boundary
 
 This repository contains plugin source, tests, documentation, and distributable assets only. It must never contain a personal Obsidian vault, `data.json`, health records, person cards, API credentials, usage ledgers, snapshots, or backups.
 
-See [Data Boundary](docs/DATA_BOUNDARY.md), [Repository Boundary](docs/REPOSITORY_BOUNDARY.md), [i18n Migration](docs/I18N_MIGRATION.md), [Runtime Migration Plan](docs/MIGRATION_PLAN.md), and [Release Checklist](docs/RELEASE_CHECKLIST.md).
+See [Data Boundary](docs/DATA_BOUNDARY.md), [Repository Boundary](docs/REPOSITORY_BOUNDARY.md), [i18n Migration](docs/I18N_MIGRATION.md), [Runtime Migration Plan](docs/MIGRATION_PLAN.md), [Release Checklist](docs/RELEASE_CHECKLIST.md), and [Release Process](docs/RELEASE_PROCESS.md).
 
 Core-service acceptance evidence is recorded in [P3 Core Services Acceptance](docs/P3_ACCEPTANCE.md).
 
@@ -53,4 +64,4 @@ The credential-free AI lifecycle is verified with a deterministic, non-networked
 
 ## License
 
-No open-source license has been selected yet. Until a license file is added, all rights are reserved. Licensing must be decided before the first public release.
+Public repository source is available under the [MIT License](LICENSE). Private paid-service components are not included in this repository.
