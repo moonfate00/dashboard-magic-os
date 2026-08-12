@@ -172,6 +172,11 @@ test("auto language follows Obsidian at plugin load", async () => {
   assert.equal(plugin.commands[0].name, "Open Dashboard Magic OS");
   assert.equal(plugin.commands[1].name, "Configure Dashboard Magic OS storage");
   assert.equal(plugin.settingTabs.length, 1);
+  assert.equal(typeof plugin.services.mediaPreview.selectMediaPreview, "function");
+  assert.equal(typeof plugin.services.recordQuery.buildRecordQueryIndex, "function");
+  assert.equal(typeof plugin.services.recordRelations.buildRecordRelationIndex, "function");
+  assert.equal(typeof plugin.services.aiProvider.buildOpenAIRequest, "function");
+  assert.equal(plugin.services.storageProfile().id, "portable");
 });
 
 test("manual language persists and refreshes translated command state", async () => {

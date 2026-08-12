@@ -5,11 +5,23 @@ dist/*
 *.log
 *.bak
 *.tmp
+*.private.*
 data.json
 .env
 .env.*
 !.env.example
 coverage/
+private/
+exports/
+runtime/
+cache/
+*.db
+*.sqlite
+*.sqlite3
+settings-export.json
+usage-ledger.json
+entitlement.json
+entitlements.json
 
 # Never publish a personal vault or local OS runtime state.
 Dashboard/
@@ -19,4 +31,5 @@ Dashboard/
 **/Snapshots/
 **/*backup*/
 **/*备份*/
-
+**/*export*/
+**/*导出*/

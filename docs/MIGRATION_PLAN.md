@@ -43,13 +43,23 @@ Acceptance evidence:
 - Existing files and folders are never overwritten, moved, renamed, or deleted.
 - Storage schema, selected profile, and setup completion are persisted independently from interface language.
 
-## P3 — Core services
+## P3 — Core services (complete)
 
 - Migrate media preview core
 - Migrate asset and record query service
 - Migrate record relation query service
 - Migrate AI Provider protocol core
 - Keep paid entitlement adapters behind a public interface
+
+Acceptance evidence:
+
+- Shared helpers no longer belong to Plugin or View classes.
+- Media preview uses injected host capabilities and has no Obsidian dependency.
+- Record classification and indexing live in `record-query`; directional links live in `record-relations`.
+- One relation index serves Organizer membership, Learning Thread cards, and People & Health records.
+- AI provider code contains protocol builders, parsers, redaction, and failure classification only; credentials, entitlements, and usage ledgers are excluded.
+- Plugin applications receive core capabilities through one immutable service entry point.
+- Local settings and public upgrades are checked against the data boundary during every `npm run check` and pre-commit run.
 
 ## P4 — Applications
 

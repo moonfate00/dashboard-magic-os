@@ -2,7 +2,7 @@
 
 Dashboard Magic OS is a bilingual Obsidian workspace OS for collecting, organizing, applying, archiving, and presenting knowledge and life records.
 
-> Status: public-repository foundation. The production runtime has not been migrated into this repository yet. Do not install this repository as a finished plugin.
+> Status: core-service alpha foundation. The application interfaces have not been migrated yet. Do not install this repository as a finished plugin.
 
 ## Languages
 
@@ -21,13 +21,15 @@ npm run check
 npm run build
 ```
 
-`npm run audit:release` blocks personal vault data, runtime settings, local absolute paths, obvious secrets, and development-only entitlement mode from entering a public build.
+`npm run check` also enforces the privacy boundary: local settings are allowlisted, public upgrade registries may contain structural metadata only, unreviewed binary assets are rejected, and release artifacts are scanned for private paths and obvious secrets.
 
 ## Repository boundary
 
 This repository contains plugin source, tests, documentation, and distributable assets only. It must never contain a personal Obsidian vault, `data.json`, health records, person cards, API credentials, usage ledgers, snapshots, or backups.
 
-See [Repository Boundary](docs/REPOSITORY_BOUNDARY.md), [i18n Migration](docs/I18N_MIGRATION.md), [Runtime Migration Plan](docs/MIGRATION_PLAN.md), and [Release Checklist](docs/RELEASE_CHECKLIST.md).
+See [Data Boundary](docs/DATA_BOUNDARY.md), [Repository Boundary](docs/REPOSITORY_BOUNDARY.md), [i18n Migration](docs/I18N_MIGRATION.md), [Runtime Migration Plan](docs/MIGRATION_PLAN.md), and [Release Checklist](docs/RELEASE_CHECKLIST.md).
+
+Core-service acceptance evidence is recorded in [P3 Core Services Acceptance](docs/P3_ACCEPTANCE.md).
 
 ## License
 

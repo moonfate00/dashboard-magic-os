@@ -7,8 +7,9 @@
     "build": "node scripts/build.js",
     "test": "node --test tests/*.test.js",
     "audit:i18n": "node scripts/audit-i18n.js",
+    "audit:privacy": "node scripts/audit-privacy.js",
     "audit:release": "node scripts/audit-release.js",
-    "check": "npm run test && npm run audit:i18n && npm run build && npm run audit:release"
+    "check": "npm run test && npm run audit:i18n && npm run audit:privacy && npm run build && npm run audit:release"
   },
   "devDependencies": {
     "esbuild": "^0.25.0"

@@ -30,3 +30,4 @@ Every migrated slice must pass:
 3. `npm run audit:release`.
 4. Chinese and English interface review.
 
+The lifecycle-level separation between user vault content, minimal local plugin state, and public upgrade metadata is defined in [Data Boundary](DATA_BOUNDARY.md).

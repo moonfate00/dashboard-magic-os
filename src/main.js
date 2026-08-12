@@ -11,6 +11,7 @@ const {
 } = require("./storage/profiles");
 const { createObsidianStorageCapabilities } = require("./storage/adapter");
 const { StorageOnboardingModal } = require("./onboarding");
+const { createCoreServices } = require("./services");
 
 module.exports = class DashboardMagicOSPlugin extends Plugin {
   async onload() {
@@ -32,6 +33,7 @@ module.exports = class DashboardMagicOSPlugin extends Plugin {
     this.addSettingTab(this.settingTab);
     this.storageCapabilities = createObsidianStorageCapabilities(this.app);
     this.storageState = await detectStorageState(this.storageCapabilities, this.settings.storagePreference);
+    this.services = createCoreServices({ storageProfile: () => this.storageProfile() });
     this.app?.workspace?.onLayoutReady?.(() => {
       if (!this.settings.storageSetupCompleted) this.openStorageOnboarding();
     });

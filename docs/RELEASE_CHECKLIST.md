@@ -9,6 +9,9 @@
 
 ## Privacy and security
 
+- [ ] `npm run audit:privacy` passes.
+- [ ] Public upgrade registries contain structural metadata only.
+- [ ] Plugin local state remains limited to the documented allowlist.
 - [ ] No `data.json`, personal vault records, histories, snapshots, or backups.
 - [ ] No absolute local user paths.
 - [ ] No API keys, tokens, secrets, or signed entitlement payloads.
@@ -38,4 +41,3 @@
 - [ ] `npm run build` creates only reviewed artifacts.
 - [ ] English and Chinese README files are current.
 - [ ] Changelog and screenshots are current.
-
