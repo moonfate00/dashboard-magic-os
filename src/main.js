@@ -9,7 +9,7 @@ const {
   initializeStorageProfile,
   storageProfileById
 } = require("./storage/profiles");
-const { createObsidianMediaCapabilities, createObsidianStorageCapabilities } = require("./storage/adapter");
+const { createObsidianMediaCapabilities, createObsidianSecretCapabilities, createObsidianStorageCapabilities } = require("./storage/adapter");
 const { createObsidianRecordCapabilities } = require("./storage/record-source");
 const { StorageOnboardingModal } = require("./onboarding");
 const { createCoreServices } = require("./services");
@@ -51,8 +51,10 @@ module.exports = class DashboardMagicOSPlugin extends Plugin {
     this.storageCapabilities = createObsidianStorageCapabilities(this.app);
     this.recordCapabilities = createObsidianRecordCapabilities(this.app);
     this.mediaCapabilities = createObsidianMediaCapabilities(this.app);
+    this.secretCapabilities = createObsidianSecretCapabilities(this.app);
     this.storageState = await detectStorageState(this.storageCapabilities, this.settings.storagePreference);
     this.services = createCoreServices({ storageProfile: () => this.storageProfile() });
+    this.aiRuntime = this.createAIRuntimeAdapter();
     this.applications = registerApplications(this);
     this.app?.workspace?.onLayoutReady?.(() => {
       if (!this.settings.storageSetupCompleted) this.openStorageOnboarding();
@@ -115,13 +117,16 @@ module.exports = class DashboardMagicOSPlugin extends Plugin {
     return activateApplication(this, this.applications.peopleHealth.viewType);
   }
 
-  aiStewardState() {
-    return Object.freeze({
-      enabled: true,
-      interactiveEnabled: false,
-      providers: [],
-      jobs: []
-    });
+  createAIRuntimeAdapter() {
+    return this.services.aiRuntimeAdapter.createLockedAIRuntimeAdapter();
+  }
+
+  async aiStewardState() {
+    try {
+      return await this.aiRuntime.status();
+    } catch (error) {
+      return this.services.aiRuntimeAdapter.createLockedAIRuntimeAdapter().status();
+    }
   }
 
   async openAISteward() {

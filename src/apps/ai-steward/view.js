@@ -25,7 +25,7 @@ class AIStewardView extends ItemView {
   }
 
   async onOpen() {
-    this.model = buildAIReadModel(this.plugin.aiStewardState?.() || {});
+    this.model = buildAIReadModel(await this.plugin.aiStewardState?.() || {});
     this.render();
   }
 

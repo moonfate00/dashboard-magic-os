@@ -8,6 +8,7 @@ const aiEntitlement = require("./ai-entitlement");
 const aiJobState = require("./ai-job-state");
 const aiTransport = require("./ai-transport");
 const aiUsage = require("./ai-usage");
+const aiRuntimeAdapter = require("./ai-runtime-adapter");
 
 function createCoreServices(options = {}) {
   return Object.freeze({
@@ -19,7 +20,8 @@ function createCoreServices(options = {}) {
     aiEntitlement: Object.freeze({ ...aiEntitlement }),
     aiJobState: Object.freeze({ ...aiJobState }),
     aiTransport: Object.freeze({ ...aiTransport }),
-    aiUsage: Object.freeze({ ...aiUsage })
+    aiUsage: Object.freeze({ ...aiUsage }),
+    aiRuntimeAdapter: Object.freeze({ ...aiRuntimeAdapter })
   });
 }
 

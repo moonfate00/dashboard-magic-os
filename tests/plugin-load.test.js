@@ -289,12 +289,12 @@ test("AI Steward command keeps the paid entrance visible", async () => {
   await plugin.onload();
   await plugin.commands[4].callback();
   assert.deepEqual(app.viewStates, [{ type: "dashboard-magic-os-ai-steward", active: true }]);
-  assert.deepEqual(plugin.aiStewardState(), {
-    enabled: true,
-    interactiveEnabled: false,
-    providers: [],
-    jobs: []
-  });
+  const status = await plugin.aiStewardState();
+  assert.equal(status.entitlement.status, "locked");
+  assert.equal(status.entitlement.source, "unverified");
+  assert.equal(status.interactiveEnabled, false);
+  assert.deepEqual(status.providers, []);
+  assert.deepEqual(status.jobs, []);
 });
 
 test("locked AI Steward renders visible capability buttons that cannot be clicked", async () => {

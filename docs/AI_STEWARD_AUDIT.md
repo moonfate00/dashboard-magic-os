@@ -37,6 +37,7 @@ The paid entitlement implementation remains outside the public core. Its adapter
 4. Use the abortable fetch transport or another adapter that proves equivalent cancellation behavior.
 5. Keep prompts, source records, generated output, and signed entitlement payloads out of persistent usage and job metadata.
 6. Settle every usage ticket exactly once on success or failure; retry persistence before allowing the same reserved quota to be reused.
+7. Read only the fixed OpenAI and DeepSeek SecretStorage slots. The public adapter never enumerates secrets and never accepts arbitrary secret IDs.
 
 ## Remaining release gates
 

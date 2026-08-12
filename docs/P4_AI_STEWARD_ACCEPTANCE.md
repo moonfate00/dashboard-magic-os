@@ -30,3 +30,5 @@ Acceptance requires tests proving:
 6. `npm run check` passes the complete test, i18n, privacy, build, and release gates.
 
 This slice does not authorize model requests. The next AI slice must connect a private verifier and SecretStorage-backed provider adapter through the audited safety services before enabling any action.
+
+The follow-up runtime seam now provides that connection contract in a fail-closed state: it can verify a private entitlement envelope, report whether fixed Provider secret slots are configured, and project safe job metadata. It deliberately returns `interactiveEnabled: false` and does not expose a request method to the public application shell.

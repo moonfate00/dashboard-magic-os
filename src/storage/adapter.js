@@ -30,4 +30,9 @@ function createObsidianMediaCapabilities(app) {
   };
 }
 
-module.exports = { createObsidianMediaCapabilities, createObsidianStorageCapabilities };
+function createObsidianSecretCapabilities(app) {
+  const { createSecretStorageCapabilities } = require("../services/ai-runtime-adapter");
+  return createSecretStorageCapabilities(app?.secretStorage);
+}
+
+module.exports = { createObsidianMediaCapabilities, createObsidianSecretCapabilities, createObsidianStorageCapabilities };

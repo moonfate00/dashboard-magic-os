@@ -32,7 +32,7 @@ function normalizeEntitlement(raw = {}, options = {}) {
   // Missing or misspelled configuration is production, never a paid-feature bypass.
   const mode = options.mode === "development" ? "development" : "production";
   const adapterVerified = options[VERIFIED_ADAPTER_TOKEN] === true;
-  const source = adapterVerified ? "verified-adapter" : "development-simulator";
+  const source = adapterVerified ? "verified-adapter" : mode === "development" ? "development-simulator" : "unverified";
   const nowMs = Number.isFinite(options.nowMs) ? options.nowMs : Date.now();
   let status = ENTITLEMENT_STATUSES.has(String(raw.status || "")) ? String(raw.status) : "locked";
   const expiresAt = String(raw.expiresAt || raw.expires_at || "");
@@ -67,7 +67,8 @@ function normalizeEntitlement(raw = {}, options = {}) {
     verification: verified ? "signature" : source === "development-simulator" ? "development-simulator" : "",
     source,
     sourceLabel: mode === "production" && !verified ? "" : String(raw.sourceLabel || raw.source_label || "").slice(0, 120),
-    subject: verified ? String(raw.subject || "").slice(0, 200) : "",
+    // Subject is verified inside the private adapter but never enters public runtime state.
+    subject: "",
     features: Object.freeze(features.length ? features : mode === "development" ? ["*"] : []),
     expiresAt: publicExpiresAt,
     graceUntil: publicGraceUntil,
