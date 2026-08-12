@@ -1,0 +1,22 @@
+node_modules/
+dist/*
+!dist/.gitkeep
+.DS_Store
+*.log
+*.bak
+*.tmp
+data.json
+.env
+.env.*
+!.env.example
+coverage/
+
+# Never publish a personal vault or local OS runtime state.
+Dashboard/
+.obsidian/
+**/Dashboard/Private/
+**/Object-History/
+**/Snapshots/
+**/*backup*/
+**/*备份*/
+

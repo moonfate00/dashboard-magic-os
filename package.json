@@ -1,0 +1,16 @@
+{
+  "name": "dashboard-magic-os",
+  "version": "0.1.0-alpha.0",
+  "private": true,
+  "description": "Bilingual Obsidian workspace OS plugin.",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "test": "node --test tests/*.test.js",
+    "audit:i18n": "node scripts/audit-i18n.js",
+    "audit:release": "node scripts/audit-release.js",
+    "check": "npm run test && npm run audit:i18n && npm run build && npm run audit:release"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  }
+}

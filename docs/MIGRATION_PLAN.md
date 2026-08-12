@@ -1,0 +1,71 @@
+# Public Runtime Migration Plan
+
+The private runtime remains the production source until each slice is migrated and verified. The public repository does not replace the installed plugin yet.
+
+## P0 — Foundation (complete)
+
+- Independent repository outside the personal vault
+- Git ignore and repository-boundary rules
+- `zh-CN` and `en` locale packs with parity tests
+- Bundled Obsidian output through esbuild
+- Release privacy, secret, local-path, and development-mode audit
+- Bilingual README and release checklist
+
+## P1 — Shared shell and settings (complete)
+
+- Migrate shared pure utilities and the settings shell
+- Add `interfaceLanguage: auto | zh-CN | en`
+- Follow the Obsidian locale when set to `auto`
+- Migrate commands, buttons, notices, dialogs, and shared empty states
+- Add an untranslated-interface-literal audit for migrated source folders
+
+Acceptance evidence:
+
+- `interfaceLanguage: auto | zh-CN | en` is normalized and persisted.
+- Auto mode uses Obsidian's language API; manual preference overrides it.
+- Locale changes update the translation service, command label, settings UI, and emit a workspace refresh event.
+- Shared empty state and translated-button helpers are available for application slices.
+- Locale key parity, settings behavior, plugin loading, and direct user-facing literal audits are automated.
+
+## P2 — Portable storage profile (complete)
+
+- Replace personal `Dashboard/...` constants with a configurable storage profile
+- Add first-run onboarding and folder/template creation
+- Preserve a legacy profile for existing Chinese vaults
+- Add empty-vault initialization and upgrade fixtures
+
+Acceptance evidence:
+
+- New users receive a stable, language-neutral `MagicOS/` profile.
+- Existing `Dashboard/` vaults are detected and offered a compatibility profile.
+- Detection is read-only; no directory is created during plugin load.
+- Initialization creates missing folders only and is idempotent.
+- Existing files and folders are never overwritten, moved, renamed, or deleted.
+- Storage schema, selected profile, and setup completion are persisted independently from interface language.
+
+## P3 — Core services
+
+- Migrate media preview core
+- Migrate asset and record query service
+- Migrate record relation query service
+- Migrate AI Provider protocol core
+- Keep paid entitlement adapters behind a public interface
+
+## P4 — Applications
+
+Migrate one complete application slice at a time:
+
+1. Organizer
+2. Learning Threads
+3. People & Health
+4. AI Steward
+
+Every slice requires Chinese regression, English review, public build, and release audit.
+
+## P5 — Public alpha
+
+- Confirm license, product name, author identity, and public support channels
+- Confirm redistribution rights for all backgrounds and screenshots
+- Add synthetic demo vault and onboarding guide
+- Test desktop and mobile installation
+- Create a GitHub repository only after the first installable alpha passes the release checklist

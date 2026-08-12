@@ -1,0 +1,39 @@
+.mos-empty-state {
+  display: grid;
+  gap: 0.4rem;
+  place-items: center;
+  padding: 2rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.mos-empty-state strong {
+  color: var(--text-normal);
+}
+
+.mos-storage-choices {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.mos-storage-choice {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-m);
+}
+
+.mos-storage-choice.is-recommended {
+  border-color: var(--interactive-accent);
+}
+
+.mos-storage-choice em {
+  color: var(--interactive-accent);
+}
+
+.mos-storage-choice.is-busy {
+  opacity: 0.65;
+  pointer-events: none;
+}
