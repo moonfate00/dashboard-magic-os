@@ -509,3 +509,194 @@
     grid-template-columns: 1fr;
   }
 }
+
+.mos-ai-view {
+  min-height: 100%;
+  padding: clamp(1rem, 3vw, 2.5rem);
+  background:
+    radial-gradient(circle at 90% 0%, color-mix(in srgb, var(--color-purple) 14%, transparent), transparent 32rem),
+    var(--background-primary);
+}
+
+.mos-ai-header {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.mos-ai-heading {
+  display: grid;
+  gap: 0.3rem;
+  max-width: 58rem;
+}
+
+.mos-ai-heading h2,
+.mos-ai-heading p {
+  margin: 0;
+}
+
+.mos-ai-heading p,
+.mos-ai-eyebrow,
+.mos-ai-section > p,
+.mos-ai-provider span,
+.mos-ai-jobs-empty {
+  color: var(--text-muted);
+}
+
+.mos-ai-eyebrow {
+  font-size: var(--font-ui-smaller);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.mos-ai-state {
+  flex: 0 0 auto;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 999px;
+  background: var(--background-secondary);
+  font-size: var(--font-ui-small);
+  font-weight: 700;
+}
+
+.mos-ai-state.is-active,
+.mos-ai-state.is-trial,
+.mos-ai-state.is-grace {
+  border-color: color-mix(in srgb, var(--color-green) 55%, var(--background-modifier-border));
+}
+
+.mos-ai-privacy {
+  display: grid;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--color-purple) 45%, var(--background-modifier-border));
+  border-radius: var(--radius-m);
+  background: color-mix(in srgb, var(--color-purple) 7%, var(--background-secondary));
+}
+
+.mos-ai-privacy span {
+  color: var(--text-muted);
+}
+
+.mos-ai-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.mos-ai-stats > div,
+.mos-ai-section {
+  padding: 1rem;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-l);
+  background: var(--background-secondary);
+}
+
+.mos-ai-stats > div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.mos-ai-stats strong {
+  font-size: 1.25rem;
+}
+
+.mos-ai-stats span {
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+}
+
+.mos-ai-section {
+  margin-top: 1rem;
+}
+
+.mos-ai-section h3,
+.mos-ai-section > p {
+  margin: 0;
+}
+
+.mos-ai-section > p {
+  margin-top: 0.3rem;
+}
+
+.mos-ai-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.mos-ai-feature {
+  display: grid;
+  gap: 0.35rem;
+  padding: 1rem;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-m);
+  background: var(--background-primary);
+  color: var(--text-normal);
+  text-align: left;
+}
+
+.mos-ai-feature:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.mos-ai-feature span,
+.mos-ai-feature small {
+  color: var(--text-muted);
+}
+
+.mos-ai-feature small {
+  margin-top: 0.25rem;
+  color: var(--text-faint);
+}
+
+.mos-ai-provider-list,
+.mos-ai-job-list {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 1rem;
+}
+
+.mos-ai-provider,
+.mos-ai-job {
+  display: grid;
+  grid-template-columns: minmax(10rem, 1fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.75rem;
+  border-radius: var(--radius-s);
+  background: var(--background-primary);
+}
+
+.mos-ai-job {
+  grid-template-columns: minmax(10rem, 1fr) auto auto;
+}
+
+.mos-ai-job span,
+.mos-ai-job small {
+  color: var(--text-muted);
+}
+
+.mos-ai-jobs-empty {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border-radius: var(--radius-s);
+  background: var(--background-primary);
+}
+
+@media (max-width: 600px) {
+  .mos-ai-header {
+    flex-direction: column;
+  }
+
+  .mos-ai-job {
+    grid-template-columns: 1fr;
+  }
+}

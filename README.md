@@ -41,6 +41,8 @@ The second P4 application slice, read-only Learning Threads, is documented in [P
 
 The third P4 application slice, privacy-projected People & Health, is documented in [P4 People & Health Acceptance](docs/P4_PEOPLE_HEALTH_ACCEPTANCE.md).
 
+The fourth P4 application slice keeps the paid AI Steward entrance visible while all model actions remain disabled behind the audited private-runtime boundary. See [P4 AI Steward Shell Acceptance](docs/P4_AI_STEWARD_ACCEPTANCE.md).
+
 ## License
 
 No open-source license has been selected yet. Until a license file is added, all rights are reserved. Licensing must be decided before the first public release.

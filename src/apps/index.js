@@ -3,15 +3,18 @@
 const { ORGANIZER_VIEW_TYPE, OrganizerView } = require("./organizer/view");
 const { LEARNING_VIEW_TYPE, LearningView } = require("./learning/view");
 const { PEOPLE_HEALTH_VIEW_TYPE, PeopleHealthView } = require("./people-health/view");
+const { AI_STEWARD_VIEW_TYPE, AIStewardView } = require("./ai-steward/view");
 
 function registerApplications(plugin) {
   plugin.registerView(ORGANIZER_VIEW_TYPE, (leaf) => new OrganizerView(leaf, plugin));
   plugin.registerView(LEARNING_VIEW_TYPE, (leaf) => new LearningView(leaf, plugin));
   plugin.registerView(PEOPLE_HEALTH_VIEW_TYPE, (leaf) => new PeopleHealthView(leaf, plugin));
+  plugin.registerView(AI_STEWARD_VIEW_TYPE, (leaf) => new AIStewardView(leaf, plugin));
   return Object.freeze({
     organizer: Object.freeze({ id: "organizer", viewType: ORGANIZER_VIEW_TYPE }),
     learning: Object.freeze({ id: "learning", viewType: LEARNING_VIEW_TYPE }),
-    peopleHealth: Object.freeze({ id: "people-health", viewType: PEOPLE_HEALTH_VIEW_TYPE })
+    peopleHealth: Object.freeze({ id: "people-health", viewType: PEOPLE_HEALTH_VIEW_TYPE }),
+    aiSteward: Object.freeze({ id: "ai-steward", viewType: AI_STEWARD_VIEW_TYPE })
   });
 }
 

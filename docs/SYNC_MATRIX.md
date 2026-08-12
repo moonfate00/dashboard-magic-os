@@ -30,6 +30,7 @@ Dashboard Magic OS is developed as three explicit layers. Synchronization moves 
 | Record relation core | public-ahead | `src/services/record-relations.js` | Same marked record-query block | Make public module authoritative after parity fixtures pass |
 | AI Provider protocol | public-ahead | `src/services/ai-provider.js` | Provider protocol plus private runtime | Backport protocol only; never credentials or usage data |
 | AI Steward safety core | public-ahead | `src/services/ai-entitlement.js`, `ai-usage.js`, `ai-transport.js`, `ai-job-state.js` | Paid runtime and existing private workflow | Backport stable IDs and lifecycle guards; keep verification and credentials private |
+| AI Steward visible shell | public-ahead | `src/apps/ai-steward/` | Rich private AI hub and executable workflows | Keep public controls disabled until a reviewed private runtime adapter is connected |
 | Organizer read model and view | public-ahead | `src/apps/organizer/` | Rich read/write shelf implementation | Exercise read path, then add reviewed write operations |
 | Organizer advanced editing | private-ahead | Deferred | Drag, batch, query editor, masonry | Extract as reversible slices after public read path validation |
 | Learning Threads read model and view | public-ahead | `src/apps/learning/` | Rich learning, review, and generation implementation | Exercise read path, then backport the shared model |

@@ -41,6 +41,11 @@ module.exports = class DashboardMagicOSPlugin extends Plugin {
       name: this.t("command.health.name"),
       callback: () => this.openPeopleHealth()
     });
+    this.aiStewardCommand = this.addCommand({
+      id: "open-dashboard-magic-os-ai-steward",
+      name: this.t("command.ai.name"),
+      callback: () => this.openAISteward()
+    });
     this.settingTab = new DashboardMagicOSSettingTab(this.app, this);
     this.addSettingTab(this.settingTab);
     this.storageCapabilities = createObsidianStorageCapabilities(this.app);
@@ -82,6 +87,7 @@ module.exports = class DashboardMagicOSPlugin extends Plugin {
     if (this.storageCommand) this.storageCommand.name = this.t("command.storage.name");
     if (this.learningCommand) this.learningCommand.name = this.t("command.learning.name");
     if (this.peopleHealthCommand) this.peopleHealthCommand.name = this.t("command.health.name");
+    if (this.aiStewardCommand) this.aiStewardCommand.name = this.t("command.ai.name");
     this.app?.workspace?.trigger?.("dashboard-magic-os:locale-changed", locale);
     new Notice(this.t("notice.languageChanged", {
       language: this.t(`language.${locale}`)
@@ -107,6 +113,19 @@ module.exports = class DashboardMagicOSPlugin extends Plugin {
 
   async openPeopleHealth() {
     return activateApplication(this, this.applications.peopleHealth.viewType);
+  }
+
+  aiStewardState() {
+    return Object.freeze({
+      enabled: true,
+      interactiveEnabled: false,
+      providers: [],
+      jobs: []
+    });
+  }
+
+  async openAISteward() {
+    return activateApplication(this, this.applications.aiSteward.viewType);
   }
 
   async openStorageOnboarding() {

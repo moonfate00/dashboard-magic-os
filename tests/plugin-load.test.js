@@ -184,6 +184,42 @@ function createApp() {
   };
 }
 
+class ElementMock {
+  constructor(tag = "div", options = {}) {
+    this.tag = tag;
+    this.options = options;
+    this.children = [];
+    this.classes = [];
+    this.listeners = new Map();
+  }
+
+  empty() {
+    this.children = [];
+  }
+
+  addClass(value) {
+    this.classes.push(value);
+  }
+
+  createDiv(options = {}) {
+    return this.createEl("div", options);
+  }
+
+  createEl(tag, options = {}) {
+    const child = new ElementMock(tag, options);
+    this.children.push(child);
+    return child;
+  }
+
+  addEventListener(type, handler) {
+    this.listeners.set(type, handler);
+  }
+
+  all(predicate) {
+    return [...(predicate(this) ? [this] : []), ...this.children.flatMap((child) => child.all(predicate))];
+  }
+}
+
 test("auto language follows Obsidian at plugin load", async () => {
   appLanguage = "en-US";
   notices.length = 0;
@@ -196,14 +232,18 @@ test("auto language follows Obsidian at plugin load", async () => {
   assert.equal(plugin.commands[1].name, "Configure Dashboard Magic OS storage");
   assert.equal(plugin.commands[2].name, "Open Learning Threads");
   assert.equal(plugin.commands[3].name, "Open People & Health");
+  assert.equal(plugin.commands[4].name, "Open AI Steward");
   assert.equal(plugin.settingTabs.length, 1);
   assert.equal(plugin.views.has("dashboard-magic-os-organizer"), true);
   assert.equal(plugin.views.has("dashboard-magic-os-learning"), true);
   assert.equal(plugin.views.has("dashboard-magic-os-people-health"), true);
+  assert.equal(plugin.views.has("dashboard-magic-os-ai-steward"), true);
   assert.equal(typeof plugin.services.mediaPreview.selectMediaPreview, "function");
   assert.equal(typeof plugin.services.recordQuery.buildRecordQueryIndex, "function");
   assert.equal(typeof plugin.services.recordRelations.buildRecordRelationIndex, "function");
   assert.equal(typeof plugin.services.aiProvider.buildOpenAIRequest, "function");
+  assert.equal(typeof plugin.services.aiEntitlement.evaluateAccess, "function");
+  assert.equal(typeof plugin.services.aiTransport.requestWithTimeout, "function");
   assert.equal(plugin.services.storageProfile().id, "portable");
 });
 
@@ -240,6 +280,43 @@ test("people health command activates its privacy-first application view", async
   assert.deepEqual(app.viewStates, [{ type: "dashboard-magic-os-people-health", active: true }]);
 });
 
+test("AI Steward command keeps the paid entrance visible", async () => {
+  appLanguage = "en-US";
+  const app = createApp();
+  const PluginClass = loadPlugin();
+  const plugin = new PluginClass(app);
+  plugin.initialData = { interfaceLanguage: "auto" };
+  await plugin.onload();
+  await plugin.commands[4].callback();
+  assert.deepEqual(app.viewStates, [{ type: "dashboard-magic-os-ai-steward", active: true }]);
+  assert.deepEqual(plugin.aiStewardState(), {
+    enabled: true,
+    interactiveEnabled: false,
+    providers: [],
+    jobs: []
+  });
+});
+
+test("locked AI Steward renders visible capability buttons that cannot be clicked", async () => {
+  appLanguage = "en-US";
+  const app = createApp();
+  const PluginClass = loadPlugin();
+  const plugin = new PluginClass(app);
+  plugin.initialData = { interfaceLanguage: "auto" };
+  await plugin.onload();
+  const view = plugin.views.get("dashboard-magic-os-ai-steward")({ app });
+  const content = new ElementMock();
+  view.containerEl = { children: [new ElementMock(), content] };
+  await view.onOpen();
+  const featureButtons = content.all((element) => element.tag === "button" && element.options.cls === "mos-ai-feature");
+  assert.equal(featureButtons.length > 0, true);
+  featureButtons.forEach((button) => {
+    assert.equal(Object.hasOwn(button.options.attr, "disabled"), true);
+    assert.equal(button.options.attr["aria-disabled"], "true");
+    assert.equal(button.listeners.has("click"), false);
+  });
+});
+
 test("manual language persists and refreshes translated command state", async () => {
   appLanguage = "en-US";
   notices.length = 0;
@@ -260,6 +337,7 @@ test("manual language persists and refreshes translated command state", async ()
   assert.equal(plugin.commands[0].name, "打开 Dashboard Magic OS");
   assert.equal(plugin.commands[2].name, "打开学习脉络");
   assert.equal(plugin.commands[3].name, "打开人物健康");
+  assert.equal(plugin.commands[4].name, "打开 AI 管家");
   assert.deepEqual(app.events[0], ["dashboard-magic-os:locale-changed", "zh-CN"]);
   assert.equal(notices.at(-1), "界面语言已切换为简体中文");
 });
