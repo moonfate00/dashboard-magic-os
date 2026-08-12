@@ -33,6 +33,8 @@ Core-service acceptance evidence is recorded in [P3 Core Services Acceptance](do
 
 The paid AI Steward migration is gated by the credential-free, fail-closed boundary in [AI Steward Safety Audit](docs/AI_STEWARD_AUDIT.md). Entitlement verification and provider secrets remain private adapters and are never release data.
 
+AI-authored record changes now have a disconnected, test-only confirmation and rollback boundary. See [P4 AI Change Confirmation and Rollback Acceptance](docs/P4_AI_CHANGE_PROTOCOL_ACCEPTANCE.md). Real-provider writes remain locked until private crash-recovery journaling is connected.
+
 The first P4 application slice, a read-only Organizer built on stable asset relations, is documented in [P4 Organizer Acceptance](docs/P4_ORGANIZER_ACCEPTANCE.md).
 
 The private production OS and public core remain isolated during migration. Their ownership and controlled backport direction are tracked in the [Public / Private Sync Matrix](docs/SYNC_MATRIX.md).

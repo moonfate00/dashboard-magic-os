@@ -3,7 +3,8 @@
 const { normalizeFeatureId } = require("./ai-entitlement");
 
 const ERROR_CODES = new Set([
-  "auth", "cancelled", "disabled", "entitlement-verification", "feature-not-entitled", "http",
+  "application-failed", "auth", "cancelled", "confirmation-expired", "confirmation-required",
+  "confirmation-used", "conflict", "disabled", "entitlement-verification", "feature-not-entitled", "http",
   "incomplete", "invalid-json", "locked", "missing-output", "network", "persistence", "provider",
   "provider-not-ready", "provider-origin", "provider-url", "quota", "rate-limit", "refusal",
   "request", "request-in-progress", "response-too-large", "rollback-failed", "simulation-only",

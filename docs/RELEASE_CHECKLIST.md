@@ -17,7 +17,8 @@
 - [ ] No API keys, tokens, secrets, or signed entitlement payloads.
 - [ ] AI entitlement mode is not `development`.
 - [ ] Production entitlement defaults locked and accepts only a verified adapter snapshot.
-- [ ] Trial reservation/settlement, cancellation, timeout, retry, and rollback tests pass.
+- [x] Trial reservation/settlement, cancellation, timeout, retry, and in-process rollback tests pass.
+- [ ] Private crash-recovery journal and unresolved rollback recovery UI are verified before real AI writes unlock.
 - [ ] AI jobs and usage metadata contain no prompts, outputs, credentials, signed claims, or user records.
 - [ ] Provider transport is HTTPS/origin-allowlisted, abortable, and response-bounded.
 - [ ] Every bundled image has documented redistribution rights.

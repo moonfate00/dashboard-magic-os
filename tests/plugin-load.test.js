@@ -241,6 +241,7 @@ test("auto language follows Obsidian at plugin load", async () => {
   assert.equal(typeof plugin.services.mediaPreview.selectMediaPreview, "function");
   assert.equal(typeof plugin.services.recordQuery.buildRecordQueryIndex, "function");
   assert.equal(typeof plugin.services.recordRelations.buildRecordRelationIndex, "function");
+  assert.equal(typeof plugin.services.aiChangePlan.createAIChangeProtocol, "function");
   assert.equal(typeof plugin.services.aiProvider.buildOpenAIRequest, "function");
   assert.equal(typeof plugin.services.aiEntitlement.evaluateAccess, "function");
   assert.equal(typeof plugin.services.aiTransport.requestWithTimeout, "function");
