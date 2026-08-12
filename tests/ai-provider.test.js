@@ -33,6 +33,7 @@ test("OpenAI requests preserve tools, privacy defaults, and strict JSON Schema",
   });
   assert.equal(payload.model, "gpt-test");
   assert.equal(payload.store, false);
+  assert.equal(payload.max_output_tokens, 12000);
   assert.equal(payload.reasoning.effort, "high");
   assert.equal(payload.tool_choice, "auto");
   assert.equal(payload.text.format.name, "bad_name_");

@@ -35,6 +35,8 @@ The paid AI Steward migration is gated by the credential-free, fail-closed bound
 
 AI-authored record changes now have a disconnected, test-only confirmation and rollback boundary. See [P4 AI Change Confirmation and Rollback Acceptance](docs/P4_AI_CHANGE_PROTOCOL_ACCEPTANCE.md). Real-provider writes remain locked until private crash-recovery journaling is connected.
 
+The real Provider execution boundary is assembled in a still-disconnected sandbox with fixed endpoints, SecretStorage scope, bounded input/output, cancellation, accounting, and privacy-safe job projection. See [P4 AI Provider Sandbox Acceptance](docs/P4_AI_PROVIDER_SANDBOX_ACCEPTANCE.md).
+
 The first P4 application slice, a read-only Organizer built on stable asset relations, is documented in [P4 Organizer Acceptance](docs/P4_ORGANIZER_ACCEPTANCE.md).
 
 The private production OS and public core remain isolated during migration. Their ownership and controlled backport direction are tracked in the [Public / Private Sync Matrix](docs/SYNC_MATRIX.md).

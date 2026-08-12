@@ -59,6 +59,7 @@ function buildOpenAIRequest(options = {}) {
     ],
     reasoning: { effort: String(options.reasoning || "medium") }
   };
+  payload.max_output_tokens = boundedInteger(options.maxOutputTokens, 12000, 1024, 131072);
   if (Array.isArray(options.tools) && options.tools.length) {
     payload.tools = options.tools;
     payload.tool_choice = "auto";

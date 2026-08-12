@@ -115,6 +115,7 @@ function createPrivateAIRuntimeAdapter(options = {}) {
     : async () => null;
   const loadJobs = typeof options.loadJobs === "function" ? options.loadJobs : async () => [];
   const providerSecretIds = PROVIDER_SECRET_IDS;
+  const executionEnabled = options.executionEnabled === true;
 
   async function status(statusOptions = {}) {
     let entitlement = normalizeEntitlement({}, { mode: "production", nowMs: statusOptions.nowMs });
@@ -139,7 +140,7 @@ function createPrivateAIRuntimeAdapter(options = {}) {
     }
     return Object.freeze({
       entitlement,
-      interactiveEnabled: false,
+      interactiveEnabled: executionEnabled,
       verificationError,
       providers: Object.freeze(providers),
       jobs: Object.freeze(jobs)

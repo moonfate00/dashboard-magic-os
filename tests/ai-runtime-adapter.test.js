@@ -66,6 +66,7 @@ test("private runtime projects verification, provider, and job state without sec
     }]
   });
   const status = await adapter.status({ nowMs });
+  assert.equal(status.interactiveEnabled, false);
   assert.equal(status.entitlement.status, "active");
   assert.deepEqual(status.providers, [
     { id: "openai", status: "ready" },

@@ -21,6 +21,8 @@
 - [ ] Private crash-recovery journal and unresolved rollback recovery UI are verified before real AI writes unlock.
 - [ ] AI jobs and usage metadata contain no prompts, outputs, credentials, signed claims, or user records.
 - [ ] Provider transport is HTTPS/origin-allowlisted, abortable, and response-bounded.
+- [x] Disconnected Provider sandbox fixes endpoint/model/secret/billing boundaries and rejects caller-defined remote tools.
+- [ ] Live OpenAI and DeepSeek sandbox smoke tests pass in Obsidian desktop and mobile before controls unlock.
 - [ ] Every bundled image has documented redistribution rights.
 
 ## Internationalization

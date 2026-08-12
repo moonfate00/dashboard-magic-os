@@ -34,6 +34,7 @@ Dashboard Magic OS is developed as three explicit layers. Synchronization moves 
 | AI change confirmation and rollback | public-ahead | `src/services/ai-change-plan.js` | Existing private write workflows | Backport the allowlisted plan protocol; keep real writes locked until a private crash-recovery journal is connected |
 | AI private-runtime seam | public-ahead | `src/services/ai-runtime-adapter.js` | Entitlement verifier, SecretStorage, task runtime | Backport contract only; inject private implementation without copying claims, secrets, or jobs |
 | AI simulated execution lifecycle | public-ahead | `src/services/ai-execution-pipeline.js` | Existing private Provider workflows | Backport lifecycle guards only; real network and write actions remain disconnected |
+| AI Provider execution sandbox | public-ahead | `src/services/ai-provider-sandbox.js` | Monolithic private Provider call sites | Replace call sites through the contract; do not migrate runtime data, prompts, keys, or job notes |
 | Organizer read model and view | public-ahead | `src/apps/organizer/` | Rich read/write shelf implementation | Exercise read path, then add reviewed write operations |
 | Organizer advanced editing | private-ahead | Deferred | Drag, batch, query editor, masonry | Extract as reversible slices after public read path validation |
 | Learning Threads read model and view | public-ahead | `src/apps/learning/` | Rich learning, review, and generation implementation | Exercise read path, then backport the shared model |

@@ -11,6 +11,7 @@ const aiUsage = require("./ai-usage");
 const aiRuntimeAdapter = require("./ai-runtime-adapter");
 const aiExecutionPipeline = require("./ai-execution-pipeline");
 const aiChangePlan = require("./ai-change-plan");
+const aiProviderSandbox = require("./ai-provider-sandbox");
 
 function createCoreServices(options = {}) {
   return Object.freeze({
@@ -25,7 +26,8 @@ function createCoreServices(options = {}) {
     aiUsage: Object.freeze({ ...aiUsage }),
     aiRuntimeAdapter: Object.freeze({ ...aiRuntimeAdapter }),
     aiExecutionPipeline: Object.freeze({ ...aiExecutionPipeline }),
-    aiChangePlan: Object.freeze({ ...aiChangePlan })
+    aiChangePlan: Object.freeze({ ...aiChangePlan }),
+    aiProviderSandbox: Object.freeze({ ...aiProviderSandbox })
   });
 }
 

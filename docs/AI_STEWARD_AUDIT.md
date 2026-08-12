@@ -28,6 +28,8 @@ The public core is intentionally not a complete paid AI runtime yet. It now supp
 | Persisted jobs retain prompts or generated content | The persistence projection contains IDs, state, timestamps, attempts, and error codes only. |
 | Mock testing accidentally reaches the network | The execution pipeline accepts only deterministic simulations issued by its own module; caller-shaped transports are rejected. |
 | Validation or persistence failure charges trial quota | Trial quota is charged only after validated output and successful usage persistence; failure paths release or retain a clearly retryable ticket. |
+| UI input overrides Provider endpoint, model, key, billing, or tools | The disconnected Provider sandbox binds fixed endpoints and injected models, uses only SecretStorage scope, forces billable execution, and accepts only parameter-free OpenAI web search. |
+| Provider dispatch bypasses entitlement, cancellation, accounting, or job projection | The sandbox assembles those boundaries into one tested lifecycle and accepts only its own origin-restricted transport. |
 
 ## Required private adapter contract
 
@@ -44,7 +46,7 @@ The paid entitlement implementation remains outside the public core. Its adapter
 ## Remaining release gates
 
 - Implement the private signature-verification adapter and test issuer/audience/key-rotation behavior.
-- Test real provider cancellation in Obsidian desktop and mobile; do not fall back to a request API that ignores abort signals.
+- Test live-provider cancellation in Obsidian desktop and mobile; do not fall back to a request API that ignores abort signals.
 - Add UI tests for double-submit prevention, retry, cancellation, rollback, offline state, and expired entitlement.
 - Keep development simulators out of production source and distribution artifacts.
 - Run `npm run check` after every AI Steward slice and before packaging.
