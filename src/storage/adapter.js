@@ -14,5 +14,20 @@ function createObsidianStorageCapabilities(app) {
   };
 }
 
-module.exports = { createObsidianStorageCapabilities };
+function createObsidianMediaCapabilities(app) {
+  const vault = app?.vault;
+  const metadataCache = app?.metadataCache;
+  return {
+    resolveMediaSource(source) {
+      const value = String(source || "").trim();
+      if (/^https?:/i.test(value)) return value;
+      const file = metadataCache?.getFirstLinkpathDest?.(value, "") || vault?.getAbstractFileByPath?.(value);
+      return file && vault?.getResourcePath ? vault.getResourcePath(file) : "";
+    },
+    isVaultFile(candidate) {
+      return Boolean(candidate && typeof candidate === "object" && typeof candidate.path === "string");
+    }
+  };
+}
 
+module.exports = { createObsidianMediaCapabilities, createObsidianStorageCapabilities };

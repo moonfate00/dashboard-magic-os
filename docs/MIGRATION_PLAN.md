@@ -65,12 +65,14 @@ Acceptance evidence:
 
 Migrate one complete application slice at a time:
 
-1. Organizer
+1. Organizer — read-only application slice complete
 2. Learning Threads
 3. People & Health
 4. AI Steward
 
 Every slice requires Chinese regression, English review, public build, and release audit.
+
+Organizer acceptance evidence is recorded in [P4 Organizer Acceptance](P4_ORGANIZER_ACCEPTANCE.md). Write operations remain deferred until the read-only path has been exercised against both storage profiles.
 
 ## P5 — Public alpha
 

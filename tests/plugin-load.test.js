@@ -15,6 +15,7 @@ class PluginMock {
     this.savedData = null;
     this.commands = [];
     this.settingTabs = [];
+    this.views = new Map();
   }
 
   async loadData() {
@@ -32,6 +33,10 @@ class PluginMock {
 
   addSettingTab(tab) {
     this.settingTabs.push(tab);
+  }
+
+  registerView(type, creator) {
+    this.views.set(type, creator);
   }
 }
 
@@ -55,6 +60,14 @@ class PluginSettingTabMock {
   constructor(app, plugin) {
     this.app = app;
     this.plugin = plugin;
+  }
+}
+
+class ItemViewMock {
+  constructor(leaf) {
+    this.leaf = leaf;
+    this.app = leaf?.app;
+    this.containerEl = null;
   }
 }
 
@@ -113,6 +126,7 @@ const obsidianMock = {
   Plugin: PluginMock,
   Modal: ModalMock,
   PluginSettingTab: PluginSettingTabMock,
+  ItemView: ItemViewMock,
   Setting: SettingMock,
   Notice: class {
     constructor(message) {
@@ -142,10 +156,16 @@ function createApp() {
   const events = [];
   const paths = new Set();
   const layoutReadyCallbacks = [];
+  const viewStates = [];
+  const leaf = {
+    setViewState: async (state) => viewStates.push(state),
+    openFile: async (file) => viewStates.push({ file: file.path })
+  };
   return {
     events,
     paths,
     layoutReadyCallbacks,
+    viewStates,
     vault: {
       getAbstractFileByPath: (path) => paths.has(path) ? { path } : null,
       adapter: { exists: async (path) => paths.has(path) },
@@ -156,7 +176,10 @@ function createApp() {
     },
     workspace: {
       trigger: (...args) => events.push(args),
-      onLayoutReady: (callback) => layoutReadyCallbacks.push(callback)
+      onLayoutReady: (callback) => layoutReadyCallbacks.push(callback),
+      getLeavesOfType: () => [],
+      getLeaf: () => leaf,
+      revealLeaf: () => {}
     }
   };
 }
@@ -172,11 +195,23 @@ test("auto language follows Obsidian at plugin load", async () => {
   assert.equal(plugin.commands[0].name, "Open Dashboard Magic OS");
   assert.equal(plugin.commands[1].name, "Configure Dashboard Magic OS storage");
   assert.equal(plugin.settingTabs.length, 1);
+  assert.equal(plugin.views.has("dashboard-magic-os-organizer"), true);
   assert.equal(typeof plugin.services.mediaPreview.selectMediaPreview, "function");
   assert.equal(typeof plugin.services.recordQuery.buildRecordQueryIndex, "function");
   assert.equal(typeof plugin.services.recordRelations.buildRecordRelationIndex, "function");
   assert.equal(typeof plugin.services.aiProvider.buildOpenAIRequest, "function");
   assert.equal(plugin.services.storageProfile().id, "portable");
+});
+
+test("open command activates the Organizer application view", async () => {
+  appLanguage = "en-US";
+  const app = createApp();
+  const PluginClass = loadPlugin();
+  const plugin = new PluginClass(app);
+  plugin.initialData = { interfaceLanguage: "auto" };
+  await plugin.onload();
+  await plugin.commands[0].callback();
+  assert.deepEqual(app.viewStates, [{ type: "dashboard-magic-os-organizer", active: true }]);
 });
 
 test("manual language persists and refreshes translated command state", async () => {

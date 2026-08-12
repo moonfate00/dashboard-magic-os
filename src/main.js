@@ -9,9 +9,11 @@ const {
   initializeStorageProfile,
   storageProfileById
 } = require("./storage/profiles");
-const { createObsidianStorageCapabilities } = require("./storage/adapter");
+const { createObsidianMediaCapabilities, createObsidianStorageCapabilities } = require("./storage/adapter");
+const { createObsidianRecordCapabilities } = require("./storage/record-source");
 const { StorageOnboardingModal } = require("./onboarding");
 const { createCoreServices } = require("./services");
+const { activateApplication, registerApplications } = require("./apps");
 
 module.exports = class DashboardMagicOSPlugin extends Plugin {
   async onload() {
@@ -22,7 +24,7 @@ module.exports = class DashboardMagicOSPlugin extends Plugin {
     this.openCommand = this.addCommand({
       id: "open-dashboard-magic-os",
       name: this.t("command.open.name"),
-      callback: () => new Notice(this.t("command.open.notice"))
+      callback: () => this.openOrganizer()
     });
     this.storageCommand = this.addCommand({
       id: "configure-dashboard-magic-os-storage",
@@ -32,8 +34,11 @@ module.exports = class DashboardMagicOSPlugin extends Plugin {
     this.settingTab = new DashboardMagicOSSettingTab(this.app, this);
     this.addSettingTab(this.settingTab);
     this.storageCapabilities = createObsidianStorageCapabilities(this.app);
+    this.recordCapabilities = createObsidianRecordCapabilities(this.app);
+    this.mediaCapabilities = createObsidianMediaCapabilities(this.app);
     this.storageState = await detectStorageState(this.storageCapabilities, this.settings.storagePreference);
     this.services = createCoreServices({ storageProfile: () => this.storageProfile() });
+    this.applications = registerApplications(this);
     this.app?.workspace?.onLayoutReady?.(() => {
       if (!this.settings.storageSetupCompleted) this.openStorageOnboarding();
     });
@@ -78,6 +83,10 @@ module.exports = class DashboardMagicOSPlugin extends Plugin {
 
   storageProfile() {
     return storageProfileById(this.activeStorageProfileId());
+  }
+
+  async openOrganizer() {
+    return activateApplication(this, this.applications.organizer.viewType);
   }
 
   async openStorageOnboarding() {

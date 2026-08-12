@@ -31,6 +31,8 @@ See [Data Boundary](docs/DATA_BOUNDARY.md), [Repository Boundary](docs/REPOSITOR
 
 Core-service acceptance evidence is recorded in [P3 Core Services Acceptance](docs/P3_ACCEPTANCE.md).
 
+The first P4 application slice, a read-only Organizer built on stable asset relations, is documented in [P4 Organizer Acceptance](docs/P4_ORGANIZER_ACCEPTANCE.md).
+
 ## License
 
 No open-source license has been selected yet. Until a license file is added, all rights are reserved. Licensing must be decided before the first public release.
