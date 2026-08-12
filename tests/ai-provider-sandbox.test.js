@@ -92,6 +92,8 @@ test("Provider sandbox binds OpenAI endpoint, model, secret scope, privacy defau
     validate: (data) => data
   });
   assert.deepEqual(result.data, { ok: true });
+  assert.deepEqual(result.usage, { input: 4, output: 2, total: 6, cached: 0 });
+  assert.equal(result.requestId, "provider-request-1");
   assert.equal(result.outcome, "completed");
   assert.equal(harness.requests.length, 1);
   assert.equal(harness.requests[0].url, PROVIDER_ENDPOINTS.openai);

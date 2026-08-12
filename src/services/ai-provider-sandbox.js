@@ -217,6 +217,7 @@ function createAIProviderSandbox(options = {}) {
         }
       ));
       const parsed = parseResponse(providerId, response, safeInput);
+      const usage = Object.freeze({ ...parsed.usage });
       await move("response-received", { requestId: parsed.requestId });
       await move("validating");
       const validate = typeof input.validate === "function" ? input.validate : (value) => value;
@@ -226,13 +227,13 @@ function createAIProviderSandbox(options = {}) {
       await move("ready");
       try { await usageManager.settle(ticket, { status: "ready", usage: parsed.usage }); } catch { throw sandboxError("persistence"); }
       try { await move("completed"); } catch {
-        return Object.freeze({ data, outcome: "completed-persistence-pending", jobPersistencePending: true, job: projectPersistentJob(job) });
+        return Object.freeze({ data, usage, requestId: String(parsed.requestId || ""), outcome: "completed-persistence-pending", jobPersistencePending: true, job: projectPersistentJob(job) });
       }
       terminalStatus = "completed";
       try { await move("archived"); } catch {
-        return Object.freeze({ data, outcome: "archive-persistence-pending", jobPersistencePending: true, job: projectPersistentJob(job) });
+        return Object.freeze({ data, usage, requestId: String(parsed.requestId || ""), outcome: "archive-persistence-pending", jobPersistencePending: true, job: projectPersistentJob(job) });
       }
-      return Object.freeze({ data, outcome: terminalStatus, job: projectPersistentJob(job) });
+      return Object.freeze({ data, usage, requestId: String(parsed.requestId || ""), outcome: terminalStatus, job: projectPersistentJob(job) });
     } catch (caught) {
       const error = sandboxError(caught?.code || "request");
       if (ticket?.state === "open") {
