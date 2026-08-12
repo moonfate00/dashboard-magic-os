@@ -194,8 +194,10 @@ test("auto language follows Obsidian at plugin load", async () => {
   assert.equal(plugin.i18n.locale, "en");
   assert.equal(plugin.commands[0].name, "Open Dashboard Magic OS");
   assert.equal(plugin.commands[1].name, "Configure Dashboard Magic OS storage");
+  assert.equal(plugin.commands[2].name, "Open Learning Threads");
   assert.equal(plugin.settingTabs.length, 1);
   assert.equal(plugin.views.has("dashboard-magic-os-organizer"), true);
+  assert.equal(plugin.views.has("dashboard-magic-os-learning"), true);
   assert.equal(typeof plugin.services.mediaPreview.selectMediaPreview, "function");
   assert.equal(typeof plugin.services.recordQuery.buildRecordQueryIndex, "function");
   assert.equal(typeof plugin.services.recordRelations.buildRecordRelationIndex, "function");
@@ -212,6 +214,17 @@ test("open command activates the Organizer application view", async () => {
   await plugin.onload();
   await plugin.commands[0].callback();
   assert.deepEqual(app.viewStates, [{ type: "dashboard-magic-os-organizer", active: true }]);
+});
+
+test("learning command activates the Learning Threads application view", async () => {
+  appLanguage = "en-US";
+  const app = createApp();
+  const PluginClass = loadPlugin();
+  const plugin = new PluginClass(app);
+  plugin.initialData = { interfaceLanguage: "auto" };
+  await plugin.onload();
+  await plugin.commands[2].callback();
+  assert.deepEqual(app.viewStates, [{ type: "dashboard-magic-os-learning", active: true }]);
 });
 
 test("manual language persists and refreshes translated command state", async () => {
@@ -232,6 +245,7 @@ test("manual language persists and refreshes translated command state", async ()
     storageSchemaVersion: 1
   });
   assert.equal(plugin.commands[0].name, "打开 Dashboard Magic OS");
+  assert.equal(plugin.commands[2].name, "打开学习脉络");
   assert.deepEqual(app.events[0], ["dashboard-magic-os:locale-changed", "zh-CN"]);
   assert.equal(notices.at(-1), "界面语言已切换为简体中文");
 });

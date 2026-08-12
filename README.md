@@ -33,6 +33,10 @@ Core-service acceptance evidence is recorded in [P3 Core Services Acceptance](do
 
 The first P4 application slice, a read-only Organizer built on stable asset relations, is documented in [P4 Organizer Acceptance](docs/P4_ORGANIZER_ACCEPTANCE.md).
 
+The private production OS and public core remain isolated during migration. Their ownership and controlled backport direction are tracked in the [Public / Private Sync Matrix](docs/SYNC_MATRIX.md).
+
+The second P4 application slice, read-only Learning Threads, is documented in [P4 Learning Threads Acceptance](docs/P4_LEARNING_ACCEPTANCE.md).
+
 ## License
 
 No open-source license has been selected yet. Until a license file is added, all rights are reserved. Licensing must be decided before the first public release.

@@ -2,6 +2,8 @@
 
 The private runtime remains the production source until each slice is migrated and verified. The public repository does not replace the installed plugin yet.
 
+Cross-edition ownership and backport direction are tracked in the [Public / Private Sync Matrix](SYNC_MATRIX.md).
+
 ## P0 — Foundation (complete)
 
 - Independent repository outside the personal vault
@@ -66,13 +68,15 @@ Acceptance evidence:
 Migrate one complete application slice at a time:
 
 1. Organizer — read-only application slice complete
-2. Learning Threads
+2. Learning Threads — read-only application slice complete
 3. People & Health
 4. AI Steward
 
 Every slice requires Chinese regression, English review, public build, and release audit.
 
 Organizer acceptance evidence is recorded in [P4 Organizer Acceptance](P4_ORGANIZER_ACCEPTANCE.md). Write operations remain deferred until the read-only path has been exercised against both storage profiles.
+
+Learning Threads acceptance evidence is recorded in [P4 Learning Threads Acceptance](P4_LEARNING_ACCEPTANCE.md). Review writeback and AI generation remain separate follow-up slices.
 
 ## P5 — Public alpha
 

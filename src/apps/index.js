@@ -1,10 +1,15 @@
 "use strict";
 
 const { ORGANIZER_VIEW_TYPE, OrganizerView } = require("./organizer/view");
+const { LEARNING_VIEW_TYPE, LearningView } = require("./learning/view");
 
 function registerApplications(plugin) {
   plugin.registerView(ORGANIZER_VIEW_TYPE, (leaf) => new OrganizerView(leaf, plugin));
-  return Object.freeze({ organizer: Object.freeze({ id: "organizer", viewType: ORGANIZER_VIEW_TYPE }) });
+  plugin.registerView(LEARNING_VIEW_TYPE, (leaf) => new LearningView(leaf, plugin));
+  return Object.freeze({
+    organizer: Object.freeze({ id: "organizer", viewType: ORGANIZER_VIEW_TYPE }),
+    learning: Object.freeze({ id: "learning", viewType: LEARNING_VIEW_TYPE })
+  });
 }
 
 async function activateApplication(plugin, viewType) {

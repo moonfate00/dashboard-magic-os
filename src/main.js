@@ -31,6 +31,11 @@ module.exports = class DashboardMagicOSPlugin extends Plugin {
       name: this.t("command.storage.name"),
       callback: () => this.openStorageOnboarding()
     });
+    this.learningCommand = this.addCommand({
+      id: "open-dashboard-magic-os-learning",
+      name: this.t("command.learning.name"),
+      callback: () => this.openLearning()
+    });
     this.settingTab = new DashboardMagicOSSettingTab(this.app, this);
     this.addSettingTab(this.settingTab);
     this.storageCapabilities = createObsidianStorageCapabilities(this.app);
@@ -70,6 +75,7 @@ module.exports = class DashboardMagicOSPlugin extends Plugin {
     await this.saveData(this.settings);
     if (this.openCommand) this.openCommand.name = this.t("command.open.name");
     if (this.storageCommand) this.storageCommand.name = this.t("command.storage.name");
+    if (this.learningCommand) this.learningCommand.name = this.t("command.learning.name");
     this.app?.workspace?.trigger?.("dashboard-magic-os:locale-changed", locale);
     new Notice(this.t("notice.languageChanged", {
       language: this.t(`language.${locale}`)
@@ -87,6 +93,10 @@ module.exports = class DashboardMagicOSPlugin extends Plugin {
 
   async openOrganizer() {
     return activateApplication(this, this.applications.organizer.viewType);
+  }
+
+  async openLearning() {
+    return activateApplication(this, this.applications.learning.viewType);
   }
 
   async openStorageOnboarding() {
