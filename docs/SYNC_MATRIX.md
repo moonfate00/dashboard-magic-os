@@ -33,7 +33,8 @@ Dashboard Magic OS is developed as three explicit layers. Synchronization moves 
 | Organizer advanced editing | private-ahead | Deferred | Drag, batch, query editor, masonry | Extract as reversible slices after public read path validation |
 | Learning Threads read model and view | public-ahead | `src/apps/learning/` | Rich learning, review, and generation implementation | Exercise read path, then backport the shared model |
 | Learning review and AI generation | private-ahead | Deferred | Timed reading, review scheduling, quizzes, knowledge maps, generation pipeline | Extract write and AI behaviors as reversible slices |
-| People and Health | private-ahead | Planned | Social profiles and health relations | Extract metadata-only read slice with strict privacy tests |
+| People and Health read model and view | public-ahead | `src/apps/people-health/` | Rich social profiles and health relations | Exercise privacy-projected read path, then backport the projection boundary |
+| People and Health editing | private-ahead | Deferred | Profile and health-record editors | Extract only after field-level privacy and write-safety design |
 | AI Steward entitlement implementation | private-only | Public interface only | Paid unlock, signed entitlement, provider configuration | Define adapter contract; implementation stays private or separately distributed |
 | Personalization import/export | private-ahead | Planned | Existing private settings workflow | Publish sanitized schema and profile serializer only |
 | Personal records and health content | data-only | Never | User vault | No synchronization |

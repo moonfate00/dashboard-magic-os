@@ -37,6 +37,8 @@ The private production OS and public core remain isolated during migration. Thei
 
 The second P4 application slice, read-only Learning Threads, is documented in [P4 Learning Threads Acceptance](docs/P4_LEARNING_ACCEPTANCE.md).
 
+The third P4 application slice, privacy-projected People & Health, is documented in [P4 People & Health Acceptance](docs/P4_PEOPLE_HEALTH_ACCEPTANCE.md).
+
 ## License
 
 No open-source license has been selected yet. Until a license file is added, all rights are reserved. Licensing must be decided before the first public release.

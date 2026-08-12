@@ -69,7 +69,7 @@ Migrate one complete application slice at a time:
 
 1. Organizer — read-only application slice complete
 2. Learning Threads — read-only application slice complete
-3. People & Health
+3. People & Health — privacy-projected read-only application slice complete
 4. AI Steward
 
 Every slice requires Chinese regression, English review, public build, and release audit.
@@ -77,6 +77,8 @@ Every slice requires Chinese regression, English review, public build, and relea
 Organizer acceptance evidence is recorded in [P4 Organizer Acceptance](P4_ORGANIZER_ACCEPTANCE.md). Write operations remain deferred until the read-only path has been exercised against both storage profiles.
 
 Learning Threads acceptance evidence is recorded in [P4 Learning Threads Acceptance](P4_LEARNING_ACCEPTANCE.md). Review writeback and AI generation remain separate follow-up slices.
+
+People & Health acceptance evidence is recorded in [P4 People & Health Acceptance](P4_PEOPLE_HEALTH_ACCEPTANCE.md). The application uses a strict metadata projection and never receives health details or note bodies.
 
 ## P5 — Public alpha
 
