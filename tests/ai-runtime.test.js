@@ -11,6 +11,7 @@ const tick = () => new Promise((resolve) => setImmediate(resolve));
 test("AI job state machine permits recovery paths and rejects state skipping", () => {
   assert.equal(canTransition("queued", "running"), true);
   assert.equal(canTransition("queued", "ready"), false);
+  assert.equal(canTransition("ready", "failed"), true);
   assert.throws(() => transitionJob({ status: "queued" }, "ready"), /Invalid AI job transition/);
   const failed = transitionJob({ id: "job-1", status: "running" }, "failed", {
     errorCode: "provider",
@@ -176,6 +177,23 @@ test("usage settlement is serialized so concurrent successes cannot lose ledger 
   assert.equal(state.trialRemaining, 0);
   assert.equal(state.ledger.length, 2);
   assert.equal(manager.reservationCount(), 0);
+});
+
+test("usage tickets cap local trial state to the verified balance", async () => {
+  let state = { trialRemaining: 500, ledger: [] };
+  const manager = createUsageManager({
+    readState: () => state,
+    writeState: (next) => { state = next; }
+  });
+  const ticket = manager.begin({
+    providerId: "openai",
+    featureId: "assistant",
+    trial: true,
+    trialRemaining: 1
+  });
+  assert.equal(ticket.trialBalance, 1);
+  await manager.settle(ticket, { status: "ready" });
+  assert.equal(state.trialRemaining, 0);
 });
 
 test("failed persistence rolls state back and leaves a retryable reservation", async () => {

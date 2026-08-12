@@ -28,7 +28,12 @@ function createUsageManager(options = {}) {
   function begin(input = {}) {
     const wantsTrial = input.trial === true && input.billable !== false;
     const current = readState() || {};
-    if (wantsTrial && nonNegativeInteger(current.trialRemaining) <= reservations.size) {
+    const localTrialRemaining = nonNegativeInteger(current.trialRemaining);
+    const signedTrialRemaining = input.trialRemaining === undefined
+      ? localTrialRemaining
+      : nonNegativeInteger(input.trialRemaining);
+    const trustedTrialRemaining = Math.min(localTrialRemaining, signedTrialRemaining);
+    if (wantsTrial && trustedTrialRemaining <= reservations.size) {
       const error = new Error("AI trial quota is exhausted or fully reserved");
       error.code = "trial-ended";
       throw error;
@@ -40,6 +45,7 @@ function createUsageManager(options = {}) {
       featureId: normalizeFeatureId(input.featureId),
       billable: input.billable !== false,
       trialReserved: wantsTrial,
+      trialBalance: wantsTrial ? trustedTrialRemaining : 0,
       startedAt: now().toISOString(),
       get state() { return ticketStates.get(ticket) || "settled"; }
     });
@@ -55,10 +61,13 @@ function createUsageManager(options = {}) {
     }
     const before = readState() || {};
     const succeeded = outcome.status === "ready";
+    const trustedTrialRemaining = ticket.trialReserved
+      ? Math.min(nonNegativeInteger(before.trialRemaining), nonNegativeInteger(ticket.trialBalance))
+      : nonNegativeInteger(before.trialRemaining);
     const next = {
       trialRemaining: succeeded && ticket.trialReserved
-        ? Math.max(0, nonNegativeInteger(before.trialRemaining) - 1)
-        : nonNegativeInteger(before.trialRemaining),
+        ? Math.max(0, trustedTrialRemaining - 1)
+        : trustedTrialRemaining,
       ledger: [{
         id: ticket.id,
         provider: ticket.providerId,

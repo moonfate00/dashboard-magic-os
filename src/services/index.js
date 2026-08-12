@@ -9,6 +9,7 @@ const aiJobState = require("./ai-job-state");
 const aiTransport = require("./ai-transport");
 const aiUsage = require("./ai-usage");
 const aiRuntimeAdapter = require("./ai-runtime-adapter");
+const aiExecutionPipeline = require("./ai-execution-pipeline");
 
 function createCoreServices(options = {}) {
   return Object.freeze({
@@ -21,7 +22,8 @@ function createCoreServices(options = {}) {
     aiJobState: Object.freeze({ ...aiJobState }),
     aiTransport: Object.freeze({ ...aiTransport }),
     aiUsage: Object.freeze({ ...aiUsage }),
-    aiRuntimeAdapter: Object.freeze({ ...aiRuntimeAdapter })
+    aiRuntimeAdapter: Object.freeze({ ...aiRuntimeAdapter }),
+    aiExecutionPipeline: Object.freeze({ ...aiExecutionPipeline })
   });
 }
 

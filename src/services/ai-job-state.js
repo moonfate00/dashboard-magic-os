@@ -3,9 +3,10 @@
 const { normalizeFeatureId } = require("./ai-entitlement");
 
 const ERROR_CODES = new Set([
-  "auth", "cancelled", "entitlement-verification", "http", "incomplete", "invalid-json",
-  "missing-output", "network", "persistence", "provider", "provider-origin", "provider-url",
-  "quota", "rate-limit", "refusal", "request", "response-too-large", "rollback-failed",
+  "auth", "cancelled", "disabled", "entitlement-verification", "feature-not-entitled", "http",
+  "incomplete", "invalid-json", "locked", "missing-output", "network", "persistence", "provider",
+  "provider-not-ready", "provider-origin", "provider-url", "quota", "rate-limit", "refusal",
+  "request", "request-in-progress", "response-too-large", "rollback-failed", "simulation-only",
   "timeout", "transport-unsupported", "trial-ended", "validation"
 ]);
 
@@ -14,7 +15,7 @@ const TRANSITIONS = Object.freeze({
   running: Object.freeze(["response-received", "failed", "timed-out", "cancelled"]),
   "response-received": Object.freeze(["validating", "failed"]),
   validating: Object.freeze(["ready", "invalid", "failed"]),
-  ready: Object.freeze(["applying", "completed", "archived"]),
+  ready: Object.freeze(["applying", "completed", "failed", "archived"]),
   applying: Object.freeze(["applied", "failed", "rollback-required"]),
   "rollback-required": Object.freeze(["rolled-back", "rollback-failed"]),
   failed: Object.freeze(["queued", "archived"]),
@@ -52,14 +53,16 @@ function transitionJob(job = {}, to, detail = {}) {
   const from = String(job.status || "queued");
   const target = String(to || "");
   if (!canTransition(from, target)) throw new Error(`Invalid AI job transition: ${from} -> ${target}`);
-  return Object.freeze({
+  const next = {
     ...job,
     status: target,
     updatedAt: String(detail.updatedAt || new Date().toISOString()),
     errorCode: ["failed", "timed-out", "invalid", "rollback-failed"].includes(target)
       ? normalizeErrorCode(detail.errorCode, target === "timed-out" ? "timeout" : target === "rollback-failed" ? "rollback-failed" : "request")
       : ""
-  });
+  };
+  if (Object.prototype.hasOwnProperty.call(detail, "requestId")) next.requestId = safeOpaqueId(detail.requestId);
+  return Object.freeze(next);
 }
 
 function projectPersistentJob(job = {}) {

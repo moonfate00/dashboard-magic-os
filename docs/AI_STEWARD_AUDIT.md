@@ -26,6 +26,8 @@ The public core is intentionally not a complete paid AI runtime yet. It now supp
 | Provider output or token values poison local state | Multipart output is normalized; non-finite or negative usage becomes zero. |
 | Recovery skips validation or application stages | An explicit job state machine rejects invalid transitions and includes retry/rollback paths. |
 | Persisted jobs retain prompts or generated content | The persistence projection contains IDs, state, timestamps, attempts, and error codes only. |
+| Mock testing accidentally reaches the network | The execution pipeline accepts only deterministic simulations issued by its own module; caller-shaped transports are rejected. |
+| Validation or persistence failure charges trial quota | Trial quota is charged only after validated output and successful usage persistence; failure paths release or retain a clearly retryable ticket. |
 
 ## Required private adapter contract
 

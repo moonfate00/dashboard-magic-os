@@ -43,6 +43,8 @@ The third P4 application slice, privacy-projected People & Health, is documented
 
 The fourth P4 application slice keeps the paid AI Steward entrance visible while all model actions remain disabled behind the audited private-runtime boundary. See [P4 AI Steward Shell Acceptance](docs/P4_AI_STEWARD_ACCEPTANCE.md).
 
+The credential-free AI lifecycle is verified with a deterministic, non-networked simulation in [P4 AI Simulation Pipeline Acceptance](docs/P4_AI_SIMULATION_ACCEPTANCE.md).
+
 ## License
 
 No open-source license has been selected yet. Until a license file is added, all rights are reserved. Licensing must be decided before the first public release.
