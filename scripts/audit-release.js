@@ -15,6 +15,7 @@ const CONTENT_RULES = [
   { id: "github-token", pattern: /\bgh[opsu]_[A-Za-z0-9]{20,}\b/g },
   { id: "private-key", pattern: /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/g },
   { id: "development-entitlement", pattern: /MAGIC_OS_AI_ENTITLEMENT_MODE\s*=\s*["']development["']/g, sourceOnly: true },
+  { id: "development-entitlement-object", pattern: /\bmode\s*:\s*["']development["']/g, sourceOnly: true },
   { id: "private-vault-path", pattern: /Dashboard\/Private\//g, sourceOnly: true }
 ];
 

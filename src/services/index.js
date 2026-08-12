@@ -4,6 +4,10 @@ const mediaPreview = require("./media-preview");
 const recordQuery = require("./record-query");
 const recordRelations = require("./record-relations");
 const aiProvider = require("./ai-provider");
+const aiEntitlement = require("./ai-entitlement");
+const aiJobState = require("./ai-job-state");
+const aiTransport = require("./ai-transport");
+const aiUsage = require("./ai-usage");
 
 function createCoreServices(options = {}) {
   return Object.freeze({
@@ -11,7 +15,11 @@ function createCoreServices(options = {}) {
     mediaPreview: Object.freeze({ ...mediaPreview }),
     recordQuery: Object.freeze({ ...recordQuery }),
     recordRelations: Object.freeze({ ...recordRelations }),
-    aiProvider: Object.freeze({ ...aiProvider })
+    aiProvider: Object.freeze({ ...aiProvider }),
+    aiEntitlement: Object.freeze({ ...aiEntitlement }),
+    aiJobState: Object.freeze({ ...aiJobState }),
+    aiTransport: Object.freeze({ ...aiTransport }),
+    aiUsage: Object.freeze({ ...aiUsage })
   });
 }
 

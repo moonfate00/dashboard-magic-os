@@ -5,17 +5,31 @@ class AIProviderProtocolError extends Error {
     super(String(options.detail || code || "ai-provider-error"));
     this.name = "AIProviderProtocolError";
     this.code = String(code || "request");
-    this.status = Number(options.status || 0);
+    const status = Number(options.status || 0);
+    this.status = Number.isFinite(status) ? status : 0;
     this.detail = String(options.detail || "");
   }
 }
 
 function redactAISecrets(value, secrets = []) {
-  let safe = String(value || "Unknown error").replace(/sk-[A-Za-z0-9_-]+/g, "[secret-redacted]");
+  let safe = String(value || "Unknown error")
+    .replace(/sk-[A-Za-z0-9_-]+/g, "[secret-redacted]")
+    .replace(/(authorization\s*[:=]\s*bearer\s+)[^\s,;]+/gi, "$1[secret-redacted]");
   (Array.isArray(secrets) ? secrets : [secrets]).map(String).filter(Boolean).forEach((secret) => {
     safe = safe.split(secret).join("[secret-redacted]");
   });
   return safe;
+}
+
+function usageNumber(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? Math.max(0, Math.floor(number)) : 0;
+}
+
+function boundedInteger(value, fallback, min, max) {
+  const number = Number(value);
+  const safe = Number.isFinite(number) ? number : fallback;
+  return Math.max(min, Math.min(max, Math.floor(safe)));
 }
 
 function aiHTTPResponseData(response) {
@@ -25,7 +39,11 @@ function aiHTTPResponseData(response) {
     throw new AIProviderProtocolError("http", { status, detail: redactAISecrets(detail) });
   }
   try {
-    return response?.json || JSON.parse(response?.text || "{}");
+    const data = response?.json !== undefined ? response.json : JSON.parse(response?.text || "{}");
+    if (!data || typeof data !== "object" || Array.isArray(data)) {
+      throw new TypeError("AI provider response must be a JSON object");
+    }
+    return data;
   } catch (error) {
     throw new AIProviderProtocolError("invalid-json", { status, detail: error?.message });
   }
@@ -72,20 +90,24 @@ function parseOpenAIResponse(response, options = {}) {
   if (data.status === "incomplete") {
     throw new AIProviderProtocolError("incomplete", { detail: data.incomplete_details?.reason || "unknown" });
   }
-  const message = (data.output || []).find((item) => item?.type === "message");
-  const refusal = message?.content?.find((item) => item?.type === "refusal");
+  const messages = (Array.isArray(data.output) ? data.output : []).filter((item) => item?.type === "message");
+  const content = messages.flatMap((message) => Array.isArray(message?.content) ? message.content : []);
+  const refusal = content.find((item) => item?.type === "refusal");
   if (refusal) throw new AIProviderProtocolError("refusal", { detail: refusal.refusal });
-  const outputText = message?.content?.find((item) => item?.type === "output_text")?.text;
+  const outputText = content
+    .filter((item) => item?.type === "output_text" && typeof item.text === "string")
+    .map((item) => item.text)
+    .join("");
   if (!outputText) throw new AIProviderProtocolError("missing-output");
   return {
     requestId: String(data.id || response?.headers?.["x-request-id"] || response?.headers?.["X-Request-Id"] || ""),
     text: outputText,
     data: parseStructuredText(outputText, options),
     usage: {
-      input: Number(data.usage?.input_tokens || 0),
-      output: Number(data.usage?.output_tokens || 0),
-      total: Number(data.usage?.total_tokens || 0),
-      cached: Number(data.usage?.input_tokens_details?.cached_tokens || 0)
+      input: usageNumber(data.usage?.input_tokens),
+      output: usageNumber(data.usage?.output_tokens),
+      total: usageNumber(data.usage?.total_tokens),
+      cached: usageNumber(data.usage?.input_tokens_details?.cached_tokens)
     }
   };
 }
@@ -105,7 +127,7 @@ function buildDeepSeekRequest(options = {}) {
     ...(schema ? { response_format: { type: "json_object" } } : {}),
     thinking: { type: thinkingEnabled ? "enabled" : "disabled" },
     ...(thinkingEnabled ? { reasoning_effort: String(options.reasoning || "high") } : {}),
-    max_tokens: Math.max(1024, Math.min(131072, Number(options.maxOutputTokens || 12000)))
+    max_tokens: boundedInteger(options.maxOutputTokens, 12000, 1024, 131072)
   };
 }
 
@@ -126,17 +148,18 @@ function parseDeepSeekResponse(response, options = {}) {
     text: outputText,
     data: parseStructuredText(outputText, options),
     usage: {
-      input: Number(data.usage?.prompt_tokens || 0),
-      output: Number(data.usage?.completion_tokens || 0),
-      total: Number(data.usage?.total_tokens || 0),
-      cached: Number(data.usage?.prompt_cache_hit_tokens || 0)
+      input: usageNumber(data.usage?.prompt_tokens),
+      output: usageNumber(data.usage?.completion_tokens),
+      total: usageNumber(data.usage?.total_tokens),
+      cached: usageNumber(data.usage?.prompt_cache_hit_tokens)
     }
   };
 }
 
 function aiProviderFailureInfo(error) {
   const message = redactAISecrets(error?.detail || error?.message || error || "Unknown error").slice(0, 500);
-  const status = Number(error?.status || message.match(/HTTP\s+(\d{3})/i)?.[1] || 0);
+  const rawStatus = Number(error?.status || message.match(/HTTP\s+(\d{3})/i)?.[1] || 0);
+  const status = Number.isFinite(rawStatus) ? rawStatus : 0;
   if (status === 429 && /quota|billing|plan|额度|账单/i.test(message)) return { kind: "quota", status: "blocked", cooldownMs: 0, message };
   if ([401, 403].includes(status)) return { kind: "auth", status: "blocked", cooldownMs: 0, message };
   if (status === 404 && /model|模型/i.test(message)) return { kind: "model", status: "blocked", cooldownMs: 0, message };

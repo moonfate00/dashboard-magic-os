@@ -61,6 +61,21 @@ test("OpenAI responses normalize structured output and usage", () => {
   assert.deepEqual(parsed.usage, { input: 10, output: 4, total: 14, cached: 3 });
 });
 
+test("OpenAI responses combine text parts and normalize unsafe usage values", () => {
+  const parsed = parseOpenAIResponse({
+    status: 200,
+    json: {
+      output: [
+        { type: "message", content: [{ type: "output_text", text: "hello " }] },
+        { type: "message", content: [{ type: "output_text", text: "world" }] }
+      ],
+      usage: { input_tokens: NaN, output_tokens: Infinity, total_tokens: -2 }
+    }
+  });
+  assert.equal(parsed.text, "hello world");
+  assert.deepEqual(parsed.usage, { input: 0, output: 0, total: 0, cached: 0 });
+});
+
 test("OpenAI parser uses structured errors for HTTP, incomplete, and refusal cases", () => {
   assert.throws(() => parseOpenAIResponse({ status: 401, json: { error: { message: "bad key" } } }), (error) => (
     error instanceof AIProviderProtocolError && error.code === "http" && error.status === 401
@@ -73,6 +88,8 @@ test("OpenAI parser uses structured errors for HTTP, incomplete, and refusal cas
     status: 200,
     json: { output: [{ type: "message", content: [{ type: "refusal", refusal: "unsafe" }] }] }
   }), (error) => error.code === "refusal");
+  assert.throws(() => parseOpenAIResponse({ status: 200, json: null }), (error) => error.code === "invalid-json");
+  assert.throws(() => parseOpenAIResponse({ status: 200, json: [] }), (error) => error.code === "invalid-json");
 });
 
 test("DeepSeek builder separates structured and reasoning modes", () => {
@@ -84,6 +101,7 @@ test("DeepSeek builder separates structured and reasoning modes", () => {
   assert.equal(conversational.thinking.type, "enabled");
   assert.equal(conversational.reasoning_effort, "max");
   assert.equal(conversational.max_tokens, 131072);
+  assert.equal(buildDeepSeekRequest({ maxOutputTokens: NaN }).max_tokens, 12000);
 });
 
 test("DeepSeek responses normalize output and reject truncation", () => {
@@ -109,6 +127,7 @@ test("failures are classified, redacted, and localized without retaining credent
   const redacted = redactAISecrets("sk-secret and provider-secret", ["provider-secret"]);
   assert.equal(redacted.includes("sk-secret"), false);
   assert.equal(redacted.includes("provider-secret"), false);
+  assert.equal(redactAISecrets("Authorization: Bearer another-secret").includes("another-secret"), false);
   const zh = createI18n({ locale: "zh-CN" });
   const en = createI18n({ locale: "en" });
   const error = new AIProviderProtocolError("http", { status: 401, detail: "bad key" });

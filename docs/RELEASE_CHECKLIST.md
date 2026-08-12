@@ -16,6 +16,10 @@
 - [ ] No absolute local user paths.
 - [ ] No API keys, tokens, secrets, or signed entitlement payloads.
 - [ ] AI entitlement mode is not `development`.
+- [ ] Production entitlement defaults locked and accepts only a verified adapter snapshot.
+- [ ] Trial reservation/settlement, cancellation, timeout, retry, and rollback tests pass.
+- [ ] AI jobs and usage metadata contain no prompts, outputs, credentials, signed claims, or user records.
+- [ ] Provider transport is HTTPS/origin-allowlisted, abortable, and response-bounded.
 - [ ] Every bundled image has documented redistribution rights.
 
 ## Internationalization

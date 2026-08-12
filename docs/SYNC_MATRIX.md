@@ -29,13 +29,14 @@ Dashboard Magic OS is developed as three explicit layers. Synchronization moves 
 | Record query core | public-ahead | `src/services/record-query.js` | Marked record query block | Make public module authoritative after parity fixtures pass |
 | Record relation core | public-ahead | `src/services/record-relations.js` | Same marked record-query block | Make public module authoritative after parity fixtures pass |
 | AI Provider protocol | public-ahead | `src/services/ai-provider.js` | Provider protocol plus private runtime | Backport protocol only; never credentials or usage data |
+| AI Steward safety core | public-ahead | `src/services/ai-entitlement.js`, `ai-usage.js`, `ai-transport.js`, `ai-job-state.js` | Paid runtime and existing private workflow | Backport stable IDs and lifecycle guards; keep verification and credentials private |
 | Organizer read model and view | public-ahead | `src/apps/organizer/` | Rich read/write shelf implementation | Exercise read path, then add reviewed write operations |
 | Organizer advanced editing | private-ahead | Deferred | Drag, batch, query editor, masonry | Extract as reversible slices after public read path validation |
 | Learning Threads read model and view | public-ahead | `src/apps/learning/` | Rich learning, review, and generation implementation | Exercise read path, then backport the shared model |
 | Learning review and AI generation | private-ahead | Deferred | Timed reading, review scheduling, quizzes, knowledge maps, generation pipeline | Extract write and AI behaviors as reversible slices |
 | People and Health read model and view | public-ahead | `src/apps/people-health/` | Rich social profiles and health relations | Exercise privacy-projected read path, then backport the projection boundary |
 | People and Health editing | private-ahead | Deferred | Profile and health-record editors | Extract only after field-level privacy and write-safety design |
-| AI Steward entitlement implementation | private-only | Public interface only | Paid unlock, signed entitlement, provider configuration | Define adapter contract; implementation stays private or separately distributed |
+| AI Steward entitlement implementation | private-only | Contract in `docs/AI_STEWARD_AUDIT.md` | Paid unlock, signed entitlement, provider configuration | Implement and test signed adapter; implementation stays private or separately distributed |
 | Personalization import/export | private-ahead | Planned | Existing private settings workflow | Publish sanitized schema and profile serializer only |
 | Personal records and health content | data-only | Never | User vault | No synchronization |
 | API keys, entitlements, usage ledgers | private-only / data-only | Never | Local runtime or private adapter | No synchronization into Git or release bundles |
