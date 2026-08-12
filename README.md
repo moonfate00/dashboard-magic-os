@@ -37,6 +37,8 @@ AI-authored record changes now have a disconnected, test-only confirmation and r
 
 The real Provider execution boundary is assembled in a still-disconnected sandbox with fixed endpoints, SecretStorage scope, bounded input/output, cancellation, accounting, and privacy-safe job projection. See [P4 AI Provider Sandbox Acceptance](docs/P4_AI_PROVIDER_SANDBOX_ACCEPTANCE.md).
 
+The settings page can export and import a versioned, privacy-allowlisted personalization package without carrying vault bindings or runtime data. See [P5 Personalization Acceptance](docs/P5_PERSONALIZATION_ACCEPTANCE.md).
+
 The first P4 application slice, a read-only Organizer built on stable asset relations, is documented in [P4 Organizer Acceptance](docs/P4_ORGANIZER_ACCEPTANCE.md).
 
 The private production OS and public core remain isolated during migration. Their ownership and controlled backport direction are tracked in the [Public / Private Sync Matrix](docs/SYNC_MATRIX.md).

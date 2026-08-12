@@ -15,6 +15,7 @@
 - [ ] No `data.json`, personal vault records, histories, snapshots, or backups.
 - [ ] No absolute local user paths.
 - [ ] No API keys, tokens, secrets, or signed entitlement payloads.
+- [x] Personalization export contains only portable preference allowlist fields; import requires preview and confirmation.
 - [ ] AI entitlement mode is not `development`.
 - [ ] Production entitlement defaults locked and accepts only a verified adapter snapshot.
 - [x] Trial reservation/settlement, cancellation, timeout, retry, and in-process rollback tests pass.

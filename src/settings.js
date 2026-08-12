@@ -36,6 +36,16 @@ class DashboardMagicOSSettingTab extends PluginSettingTab {
       .addButton((button) => button
         .setButtonText(t("settings.storage.configure"))
         .onClick(() => this.plugin.openStorageOnboarding()));
+
+    new Setting(containerEl)
+      .setName(t("settings.personalization.name"))
+      .setDesc(t("settings.personalization.description"))
+      .addButton((button) => button
+        .setButtonText(t("settings.personalization.export"))
+        .onClick(() => this.plugin.exportPersonalization()))
+      .addButton((button) => button
+        .setButtonText(t("settings.personalization.import"))
+        .onClick(() => this.plugin.choosePersonalizationImport()));
   }
 }
 

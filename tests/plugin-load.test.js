@@ -74,6 +74,7 @@ class ItemViewMock {
 class SettingMock {
   constructor() {
     this.options = [];
+    this.buttons = [];
     renderedSettings.push(this);
   }
 
@@ -109,15 +110,18 @@ class SettingMock {
   addButton(callback) {
     const button = {
       setButtonText: (value) => {
-        this.buttonText = value;
+        button.text = value;
         return button;
       },
       onClick: (handler) => {
-        this.onClick = handler;
+        button.onClick = handler;
         return button;
       }
     };
+    this.buttons.push(button);
     callback(button);
+    this.buttonText = button.text;
+    this.onClick = button.onClick;
     return this;
   }
 }
@@ -369,6 +373,65 @@ test("settings tab renders auto, Chinese and English choices in the active local
   ]);
   assert.equal(renderedSettings[1].name, "Storage layout");
   assert.equal(renderedSettings[1].buttonText, "Inspect and configure");
+  assert.equal(renderedSettings[2].name, "Personalization backup");
+  assert.deepEqual(renderedSettings[2].buttons.map(({ text }) => text), ["Export preferences", "Import preferences"]);
+});
+
+test("personalization import preserves the active vault binding and applies only confirmed portable preferences", async () => {
+  appLanguage = "en-US";
+  notices.length = 0;
+  const app = createApp();
+  const PluginClass = loadPlugin();
+  const plugin = new PluginClass(app);
+  plugin.initialData = {
+    interfaceLanguage: "en",
+    storagePreference: "auto",
+    storageProfileId: "portable",
+    storageSetupCompleted: true,
+    storageSchemaVersion: 1
+  };
+  await plugin.onload();
+  const prepared = plugin.personalization.prepare(JSON.stringify({
+    format: "dashboard-magic-os-personalization",
+    version: 1,
+    exportedAt: "2026-08-12T00:00:00.000Z",
+    preferences: { interfaceLanguage: "zh-CN", storagePreference: "legacy-dashboard" }
+  }), plugin.settings);
+  const result = await plugin.applyPersonalizationImport(prepared.confirmation);
+  assert.equal(result.status, "applied");
+  assert.deepEqual(plugin.savedData, {
+    interfaceLanguage: "zh-CN",
+    storagePreference: "legacy-dashboard",
+    storageProfileId: "portable",
+    storageSetupCompleted: true,
+    storageSchemaVersion: 1
+  });
+  assert.equal(plugin.commands[0].name, "打开 Dashboard Magic OS");
+  assert.equal(app.paths.size, 0);
+  assert.deepEqual(app.events.at(-1), ["dashboard-magic-os:personalization-imported", 2]);
+  assert.equal(notices.at(-1), "已导入 2 项个性化变更");
+});
+
+test("personalization persistence failure leaves current settings and locale unchanged", async () => {
+  appLanguage = "en-US";
+  const app = createApp();
+  const PluginClass = loadPlugin();
+  const plugin = new PluginClass(app);
+  plugin.initialData = { interfaceLanguage: "en", storagePreference: "auto" };
+  await plugin.onload();
+  const before = plugin.settings;
+  const prepared = plugin.personalization.prepare(JSON.stringify({
+    format: "dashboard-magic-os-personalization",
+    version: 1,
+    exportedAt: "2026-08-12T00:00:00.000Z",
+    preferences: { interfaceLanguage: "zh-CN", storagePreference: "portable" }
+  }), plugin.settings);
+  plugin.saveData = async () => { throw new Error("private disk failure"); };
+  await assert.rejects(plugin.applyPersonalizationImport(prepared.confirmation), /private disk failure/);
+  assert.equal(plugin.settings, before);
+  assert.equal(plugin.i18n.locale, "en");
+  assert.equal(plugin.commands[0].name, "Open Dashboard Magic OS");
+  assert.equal(app.events.some(([name]) => name === "dashboard-magic-os:personalization-imported"), false);
 });
 
 test("plugin detects storage without writes and initializes only after confirmation", async () => {

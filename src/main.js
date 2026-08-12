@@ -14,10 +14,14 @@ const { createObsidianRecordCapabilities } = require("./storage/record-source");
 const { StorageOnboardingModal } = require("./onboarding");
 const { createCoreServices } = require("./services");
 const { activateApplication, registerApplications } = require("./apps");
+const { createPersonalizationService, serializePersonalization } = require("./config/personalization");
+const { downloadTextFile, pickTextFile } = require("./config/personalization-files");
+const { PersonalizationImportModal } = require("./config/personalization-modal");
 
 module.exports = class DashboardMagicOSPlugin extends Plugin {
   async onload() {
     this.settings = normalizeSettings(await this.loadData() || {});
+    this.personalization = createPersonalizationService();
     this.i18n = createI18n({
       locale: this.resolveLocale()
     });
@@ -82,19 +86,72 @@ module.exports = class DashboardMagicOSPlugin extends Plugin {
       ...this.settings,
       interfaceLanguage: preference
     });
+    await this.saveData(this.settings);
+    const locale = this.refreshTranslatedState();
+    new Notice(this.t("notice.languageChanged", {
+      language: this.t(`language.${locale}`)
+    }));
+    return locale;
+  }
+
+  refreshTranslatedState() {
     const locale = this.resolveLocale();
     this.i18n.setLocale(locale);
-    await this.saveData(this.settings);
     if (this.openCommand) this.openCommand.name = this.t("command.open.name");
     if (this.storageCommand) this.storageCommand.name = this.t("command.storage.name");
     if (this.learningCommand) this.learningCommand.name = this.t("command.learning.name");
     if (this.peopleHealthCommand) this.peopleHealthCommand.name = this.t("command.health.name");
     if (this.aiStewardCommand) this.aiStewardCommand.name = this.t("command.ai.name");
     this.app?.workspace?.trigger?.("dashboard-magic-os:locale-changed", locale);
-    new Notice(this.t("notice.languageChanged", {
-      language: this.t(`language.${locale}`)
-    }));
     return locale;
+  }
+
+  exportPersonalization() {
+    try {
+      downloadTextFile(serializePersonalization(this.settings));
+      new Notice(this.t("notice.personalizationExported"));
+      return true;
+    } catch (error) {
+      this.showFailure(error);
+      return false;
+    }
+  }
+
+  async choosePersonalizationImport() {
+    try {
+      const text = await pickTextFile();
+      if (text === null) return null;
+      const prepared = this.personalization.prepare(text, this.settings);
+      const modal = new PersonalizationImportModal(this.app, this, prepared);
+      modal.open();
+      return modal;
+    } catch (error) {
+      this.showFailure(error);
+      return null;
+    }
+  }
+
+  cancelPersonalizationImport(confirmation) {
+    return this.personalization.cancel(confirmation);
+  }
+
+  async applyPersonalizationImport(confirmation) {
+    const result = this.personalization.apply(confirmation, { confirmed: true });
+    const previous = this.settings;
+    const next = normalizeSettings({ ...previous, ...result.preferences });
+    try {
+      await this.saveData(next);
+      this.settings = next;
+    } catch (error) {
+      this.settings = previous;
+      throw error;
+    }
+    this.refreshTranslatedState();
+    this.storageState = await detectStorageState(this.storageCapabilities, this.settings.storagePreference);
+    if (this.settingTab?.containerEl) this.settingTab.display();
+    this.app?.workspace?.trigger?.("dashboard-magic-os:personalization-imported", result.changes.length);
+    new Notice(this.t("notice.personalizationImported", { count: result.changes.length }));
+    return result;
   }
 
   activeStorageProfileId() {
