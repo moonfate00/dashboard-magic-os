@@ -188,6 +188,62 @@ function createApp() {
   };
 }
 
+function createRecoveryApp() {
+  const app = createApp();
+  const files = new Map();
+  app.adapterFiles = files;
+  app.vault.getAbstractFileByPath = (path) => {
+    if (files.has(path)) return { path };
+    return app.paths.has(path) ? { path, folder: true } : null;
+  };
+  app.vault.adapter = {
+    async exists(path) { return files.has(path) || app.paths.has(path); },
+    async read(path) {
+      if (!files.has(path)) throw new Error("missing");
+      return files.get(path);
+    },
+    async write(path, content) { files.set(path, content); },
+    async rename(from, to) {
+      if (!files.has(from) || files.has(to)) throw new Error("rename conflict");
+      files.set(to, files.get(from));
+      files.delete(from);
+    },
+    async remove(path) { files.delete(path); },
+    async list(root) {
+      return { files: [...files.keys()].filter((path) => path.startsWith(`${root}/`)), folders: [] };
+    }
+  };
+  app.vault.read = async (file) => files.get(file.path);
+  app.vault.create = async (path, content) => {
+    files.set(path, content);
+    return { path };
+  };
+  app.vault.modify = async (file, content) => { files.set(file.path, content); };
+  app.vault.trash = async (file) => { files.delete(file.path); };
+  return app;
+}
+
+function recoveryJournal(overrides = {}) {
+  return {
+    version: 1,
+    id: "journal-1",
+    planId: "plan-1",
+    status: "applying",
+    createdAt: "2026-08-14T10:00:00.000Z",
+    updatedAt: "2026-08-14T10:01:00.000Z",
+    operations: [{
+      id: "one",
+      kind: "update",
+      path: "MagicOS/Records/Memory/existing.md",
+      state: "applying",
+      beforeExists: true,
+      beforeContent: "before",
+      afterContent: "after"
+    }],
+    ...overrides
+  };
+}
+
 class ElementMock {
   constructor(tag = "div", options = {}) {
     this.tag = tag;
@@ -246,11 +302,48 @@ test("auto language follows Obsidian at plugin load", async () => {
   assert.equal(typeof plugin.services.recordQuery.buildRecordQueryIndex, "function");
   assert.equal(typeof plugin.services.recordRelations.buildRecordRelationIndex, "function");
   assert.equal(typeof plugin.services.aiChangePlan.createAIChangeProtocol, "function");
+  assert.equal(typeof plugin.services.aiChangeJournal.createAIChangeJournal, "function");
   assert.equal(typeof plugin.services.aiProviderSandbox.createAIProviderSandbox, "function");
   assert.equal(typeof plugin.services.aiProvider.buildOpenAIRequest, "function");
   assert.equal(typeof plugin.services.aiEntitlement.evaluateAccess, "function");
   assert.equal(typeof plugin.services.aiTransport.requestWithTimeout, "function");
+  assert.equal(typeof plugin.services.folderMounts.normalizeFolderMounts, "function");
   assert.equal(plugin.services.storageProfile().id, "portable");
+});
+
+test("existing Vault folders can be mounted, remapped, renamed, and removed without touching their files", async () => {
+  appLanguage = "en-US";
+  const app = createApp();
+  app.paths.add("10-wiki");
+  app.paths.add("Library");
+  const before = Array.from(app.paths).sort();
+  const PluginClass = loadPlugin();
+  const plugin = new PluginClass(app);
+  plugin.initialData = {
+    interfaceLanguage: "en",
+    storagePreference: "portable",
+    storageProfileId: "portable",
+    storageSetupCompleted: true,
+    storageSchemaVersion: 1
+  };
+  await plugin.onload();
+  const added = await plugin.addFolderMount({ path: "10-wiki" });
+  assert.equal(added.module, "navigation");
+  assert.equal(added.role, "knowledge");
+  assert.equal(added.aiScope, "manual");
+  assert.deepEqual(plugin.recordRootsFor(["navigation"], ["MagicOS/Records/Navigation"]), [
+    "MagicOS/Records/Navigation",
+    "10-wiki"
+  ]);
+  assert.deepEqual(Array.from(app.paths).sort(), before);
+  const updated = await plugin.updateFolderMount(added.id, { aiScope: "excluded" });
+  assert.equal(updated.aiScope, "excluded");
+  await plugin.followFolderMountRename("10-wiki", "Library");
+  assert.equal(plugin.folderMounts()[0].path, "Library");
+  await assert.rejects(plugin.addFolderMount({ path: "MagicOS/Records/Navigation" }), /cannot be mounted again/);
+  await plugin.removeFolderMount(added.id);
+  assert.deepEqual(plugin.folderMounts(), []);
+  assert.deepEqual(Array.from(app.paths).sort(), before);
 });
 
 test("open command activates the Organizer application view", async () => {
@@ -323,6 +416,101 @@ test("locked AI Steward renders visible capability buttons that cannot be clicke
   });
 });
 
+test("startup inspection exposes safe recovery while paid AI remains locked", async () => {
+  appLanguage = "en-US";
+  notices.length = 0;
+  const app = createRecoveryApp();
+  ["MagicOS", "MagicOS/System", "MagicOS/System/AI-Recovery", "MagicOS/Records/Memory", "MagicOS/Records/Assets"]
+    .forEach((path) => app.paths.add(path));
+  app.adapterFiles.set("MagicOS/Records/Memory/existing.md", "after");
+  app.adapterFiles.set("MagicOS/System/AI-Recovery/journal-1.json", JSON.stringify(recoveryJournal()));
+  const PluginClass = loadPlugin();
+  const plugin = new PluginClass(app);
+  plugin.initialData = {
+    interfaceLanguage: "en",
+    storagePreference: "portable",
+    storageProfileId: "portable",
+    storageSetupCompleted: true,
+    storageSchemaVersion: 1
+  };
+  await plugin.onload();
+  const state = await plugin.aiStewardState();
+  assert.equal(state.entitlement.status, "locked");
+  assert.equal(state.interactiveEnabled, false);
+  assert.equal(state.recoveryReports.length, 1);
+  assert.equal(state.recoveryReports[0].action, "rollback-safe");
+  assert.equal(Object.hasOwn(state.recoveryReports[0], "token"), false);
+  assert.equal(JSON.stringify(state.recoveryReports).includes("before"), false);
+  assert.equal(JSON.stringify(state.recoveryReports).includes('"after"'), false);
+
+  app.layoutReadyCallbacks[0]();
+  assert.equal(notices.at(-1), "AI Steward found 1 unfinished change journal(s). Open AI Steward to review them.");
+  const view = plugin.views.get("dashboard-magic-os-ai-steward")({ app });
+  const content = new ElementMock();
+  view.containerEl = { children: [new ElementMock(), content] };
+  await view.onOpen();
+  const restore = content.all((element) => element.tag === "button" && element.options.text === "Restore original records");
+  assert.equal(restore.length, 1);
+  assert.equal(restore[0].listeners.has("click"), true);
+});
+
+test("recovery requires an opaque confirmation and restores only the matching AI result", async () => {
+  appLanguage = "en-US";
+  notices.length = 0;
+  const app = createRecoveryApp();
+  ["MagicOS", "MagicOS/System", "MagicOS/System/AI-Recovery", "MagicOS/Records/Memory", "MagicOS/Records/Assets"]
+    .forEach((path) => app.paths.add(path));
+  const recordPath = "MagicOS/Records/Memory/existing.md";
+  app.adapterFiles.set(recordPath, "after");
+  app.adapterFiles.set("MagicOS/System/AI-Recovery/journal-1.json", JSON.stringify(recoveryJournal()));
+  const PluginClass = loadPlugin();
+  const plugin = new PluginClass(app);
+  plugin.initialData = {
+    interfaceLanguage: "en",
+    storagePreference: "portable",
+    storageProfileId: "portable",
+    storageSetupCompleted: true,
+    storageSchemaVersion: 1
+  };
+  await plugin.onload();
+  await assert.rejects(plugin.applyAIRecovery({ id: "journal-1" }), /no longer available/);
+  const prepared = plugin.prepareAIRecovery("journal-1");
+  assert.equal(Object.hasOwn(prepared.report, "token"), false);
+  const result = await plugin.applyAIRecovery(prepared.confirmation);
+  assert.equal(result.status, "rolled-back");
+  assert.equal(app.adapterFiles.get(recordPath), "before");
+  assert.equal(app.adapterFiles.has("MagicOS/System/AI-Recovery/journal-1.json"), false);
+  assert.equal((await plugin.aiStewardState()).recoveryReports.length, 0);
+  await assert.rejects(plugin.applyAIRecovery(prepared.confirmation), /no longer available/);
+  assert.equal(notices.at(-1), "Original records restored and recovery journal cleared.");
+});
+
+test("conflicted recovery remains manual and can only open the validated record", async () => {
+  appLanguage = "en-US";
+  const app = createRecoveryApp();
+  ["MagicOS", "MagicOS/System", "MagicOS/System/AI-Recovery", "MagicOS/Records/Memory", "MagicOS/Records/Assets"]
+    .forEach((path) => app.paths.add(path));
+  const recordPath = "MagicOS/Records/Memory/existing.md";
+  app.adapterFiles.set(recordPath, "user edit");
+  app.adapterFiles.set("MagicOS/System/AI-Recovery/journal-1.json", JSON.stringify(recoveryJournal()));
+  const PluginClass = loadPlugin();
+  const plugin = new PluginClass(app);
+  plugin.initialData = {
+    interfaceLanguage: "en",
+    storagePreference: "portable",
+    storageProfileId: "portable",
+    storageSetupCompleted: true,
+    storageSchemaVersion: 1
+  };
+  await plugin.onload();
+  assert.equal(plugin.aiRecoveryReports[0].action, "manual-review");
+  assert.throws(() => plugin.prepareAIRecovery("journal-1"), /no longer available/);
+  await plugin.openAIRecoveryRecord("journal-1", recordPath);
+  assert.deepEqual(app.viewStates.at(-1), { file: recordPath });
+  await assert.rejects(plugin.openAIRecoveryRecord("journal-1", "MagicOS/Records/Memory/other.md"), /no longer available/);
+  assert.equal(app.adapterFiles.get(recordPath), "user edit");
+});
+
 test("manual language persists and refreshes translated command state", async () => {
   appLanguage = "en-US";
   notices.length = 0;
@@ -338,7 +526,8 @@ test("manual language persists and refreshes translated command state", async ()
     storagePreference: "auto",
     storageProfileId: "",
     storageSetupCompleted: false,
-    storageSchemaVersion: 1
+    storageSchemaVersion: 1,
+    folderMounts: []
   });
   assert.equal(plugin.commands[0].name, "打开整理架");
   assert.equal(plugin.commands[2].name, "打开学习脉络");
@@ -373,8 +562,10 @@ test("settings tab renders auto, Chinese and English choices in the active local
   ]);
   assert.equal(renderedSettings[1].name, "Storage layout");
   assert.equal(renderedSettings[1].buttonText, "Inspect and configure");
-  assert.equal(renderedSettings[2].name, "Personalization backup");
-  assert.deepEqual(renderedSettings[2].buttons.map(({ text }) => text), ["Export preferences", "Import preferences"]);
+  assert.equal(renderedSettings[2].name, "Existing folder mounts");
+  assert.equal(renderedSettings[2].buttonText, "Manage folders");
+  assert.equal(renderedSettings[3].name, "Personalization backup");
+  assert.deepEqual(renderedSettings[3].buttons.map(({ text }) => text), ["Export preferences", "Import preferences"]);
 });
 
 test("personalization import preserves the active vault binding and applies only confirmed portable preferences", async () => {
@@ -404,7 +595,8 @@ test("personalization import preserves the active vault binding and applies only
     storagePreference: "legacy-dashboard",
     storageProfileId: "portable",
     storageSetupCompleted: true,
-    storageSchemaVersion: 1
+    storageSchemaVersion: 1,
+    folderMounts: []
   });
   assert.equal(plugin.commands[0].name, "打开整理架");
   assert.equal(app.paths.size, 0);

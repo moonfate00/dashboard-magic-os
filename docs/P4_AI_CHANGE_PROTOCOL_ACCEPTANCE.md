@@ -17,9 +17,9 @@ This slice defines the first write boundary for AI Steward without enabling its 
 
 The Obsidian storage adapter now exposes read, create, modify, and trash-aware removal capabilities for this protocol. The protocol remains disconnected from the visible AI Steward controls.
 
-## Remaining gate
+## Durable continuation
 
-In-process failures are covered here. A real provider integration remains locked until the private runtime supplies a durable, private recovery journal for process termination during an active multi-file write and a recovery interface for unresolved rollback conflicts.
+In-process failures are covered here. The public durable journal core, atomic Obsidian persistence adapter, locked-state recovery interface, and optional protocol hook are implemented in the separate [P0 AI Change Journal Acceptance](P0_AI_CHANGE_JOURNAL_ACCEPTANCE.md) slice. A real provider integration remains locked until the installed private runtime consumes this reviewed boundary.
 
 ## Acceptance evidence
 

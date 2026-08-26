@@ -14,6 +14,8 @@ const DISPLAY_FEATURES = Object.freeze([
   "card-library"
 ]);
 const ACTIVE_JOB_STATUSES = new Set(["queued", "running", "response-received", "validating", "applying", "rollback-required"]);
+const RECOVERY_ACTIONS = new Set(["abandon-safe", "rollback-safe", "completed", "manual-review"]);
+const RECOVERY_OBSERVATIONS = new Set(["original", "applied", "conflict"]);
 
 function providerStateById(value) {
   const input = Array.isArray(value) ? value : [];
@@ -38,6 +40,25 @@ function normalizeJobs(value) {
     })));
 }
 
+function normalizeRecoveryReports(value) {
+  return Object.freeze((Array.isArray(value) ? value : []).slice(0, 100).map((report) => {
+    const action = RECOVERY_ACTIONS.has(String(report?.action || "")) ? String(report.action) : "manual-review";
+    const operations = Object.freeze((Array.isArray(report?.operations) ? report.operations : []).slice(0, 100).map((operation) => Object.freeze({
+      id: String(operation?.id || "").slice(0, 160),
+      kind: ["create", "update"].includes(String(operation?.kind || "")) ? String(operation.kind) : "update",
+      path: String(operation?.path || "").slice(0, 500),
+      observed: RECOVERY_OBSERVATIONS.has(String(operation?.observed || "")) ? String(operation.observed) : "conflict"
+    })));
+    return Object.freeze({
+      id: String(report?.id || "").slice(0, 160),
+      status: String(report?.status || "").slice(0, 40),
+      action,
+      updatedAt: String(report?.updatedAt || "").slice(0, 40),
+      operations
+    });
+  }));
+}
+
 function buildAIReadModel(input = {}) {
   const entitlement = input.entitlement || normalizeEntitlement({}, { mode: "production" });
   const access = evaluateAccess({
@@ -48,6 +69,7 @@ function buildAIReadModel(input = {}) {
   });
   const jobs = normalizeJobs(input.jobs);
   const providers = Object.freeze(providerStateById(input.providers));
+  const recoveryReports = normalizeRecoveryReports(input.recoveryReports);
   const interactive = access.allowed && input.interactiveEnabled === true;
   const features = Object.freeze(DISPLAY_FEATURES.map((featureId) => Object.freeze({
     id: normalizeFeatureId(featureId),
@@ -64,10 +86,16 @@ function buildAIReadModel(input = {}) {
     providers,
     features,
     jobs,
+    recovery: Object.freeze({
+      unavailable: input.recoveryUnavailable === true,
+      reports: recoveryReports,
+      manualReview: recoveryReports.filter((report) => report.action === "manual-review").length
+    }),
     totals: Object.freeze({
       providersReady: providers.filter((item) => item.status === "ready").length,
       activeJobs: jobs.filter((item) => ACTIVE_JOB_STATUSES.has(item.status)).length,
-      retainedJobs: jobs.length
+      retainedJobs: jobs.length,
+      recovery: recoveryReports.length
     })
   });
 }
@@ -77,7 +105,10 @@ module.exports = {
   DISPLAY_FEATURES,
   PROVIDER_IDS,
   PROVIDER_STATUSES,
+  RECOVERY_ACTIONS,
+  RECOVERY_OBSERVATIONS,
   buildAIReadModel,
   normalizeJobs,
+  normalizeRecoveryReports,
   providerStateById
 };

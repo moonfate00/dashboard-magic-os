@@ -224,6 +224,9 @@
   background: var(--background-secondary);
   color: var(--text-normal);
   text-align: left;
+  content-visibility: auto;
+  contain: layout paint style;
+  contain-intrinsic-size: 9rem;
 }
 
 .mos-learning-thread-card:hover,
@@ -302,6 +305,40 @@
 
 .mos-learning-panel h3 {
   margin: 0;
+}
+
+.mos-learning-branch-panel {
+  margin-bottom: 1rem;
+}
+
+.mos-learning-panel-heading,
+.mos-learning-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.mos-learning-panel-heading > span,
+.mos-learning-breadcrumb > span {
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+}
+
+.mos-learning-breadcrumb {
+  justify-content: flex-start;
+  margin: -0.5rem 0 1rem;
+}
+
+.mos-learning-breadcrumb button {
+  color: var(--text-accent);
+}
+
+.mos-learning-branch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+  gap: 0.75rem;
 }
 
 .mos-learning-card-list,
@@ -545,6 +582,63 @@
   color: var(--text-muted);
 }
 
+.mos-ai-recovery-heading,
+.mos-ai-recovery-card-top,
+.mos-ai-recovery-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mos-ai-recovery-list,
+.mos-ai-recovery-operations,
+.mos-ai-recovery-confirm-list {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
+.mos-ai-recovery-card {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.85rem;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-m);
+  background: var(--background-primary);
+}
+
+.mos-ai-recovery-card.is-manual-review {
+  border-color: color-mix(in srgb, var(--color-orange) 55%, var(--background-modifier-border));
+}
+
+.mos-ai-recovery-operations > div,
+.mos-ai-recovery-confirm-list > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 0.65rem;
+  align-items: center;
+  overflow-wrap: anywhere;
+}
+
+.mos-ai-recovery-operations small,
+.mos-ai-recovery-confirm-list span {
+  color: var(--text-muted);
+}
+
+.mos-ai-recovery-warning {
+  padding: 0.75rem;
+  border-radius: var(--radius-s);
+  background: color-mix(in srgb, var(--color-orange) 10%, var(--background-secondary));
+  color: var(--text-muted);
+}
+
+.mos-ai-recovery-actions {
+  margin-top: 1rem;
+  justify-content: flex-end;
+}
+
 .mos-ai-eyebrow {
   font-size: var(--font-ui-smaller);
   font-weight: 700;
@@ -691,6 +785,103 @@
   background: var(--background-primary);
 }
 
+.mos-folder-mounts-modal {
+  width: min(52rem, 92vw);
+}
+
+.mos-folder-mounts-intro,
+.mos-folder-mounts-safety,
+.mos-folder-mounts-empty {
+  color: var(--text-muted);
+}
+
+.mos-folder-mounts-safety {
+  padding: 0.75rem;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-s);
+  background: var(--background-secondary);
+}
+
+.mos-folder-mounts-add {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.65rem;
+  margin: 1rem 0;
+}
+
+.mos-folder-mounts-add input {
+  width: 100%;
+}
+
+.mos-folder-mounts-list {
+  display: grid;
+  gap: 0.75rem;
+  max-height: min(60vh, 42rem);
+  overflow: auto;
+  padding-right: 0.25rem;
+}
+
+.mos-folder-mount {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.9rem;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-m);
+  background: var(--background-primary);
+}
+
+.mos-folder-mount.is-disabled {
+  opacity: 0.62;
+}
+
+.mos-folder-mount-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.mos-folder-mount-header > div {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.mos-folder-mount-header strong {
+  overflow-wrap: anywhere;
+}
+
+.mos-folder-mount-header small {
+  color: var(--text-muted);
+}
+
+.mos-folder-mount-enabled,
+.mos-folder-mount-fields label {
+  display: grid;
+  gap: 0.3rem;
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+}
+
+.mos-folder-mount-enabled {
+  grid-template-columns: auto auto;
+  align-items: center;
+}
+
+.mos-folder-mount-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.mos-folder-mount-fields select {
+  width: 100%;
+}
+
+.mos-folder-mount-remove {
+  justify-self: end;
+}
+
 @media (max-width: 600px) {
   .mos-ai-header {
     flex-direction: column;
@@ -698,5 +889,19 @@
 
   .mos-ai-job {
     grid-template-columns: 1fr;
+  }
+
+  .mos-ai-recovery-operations > div,
+  .mos-ai-recovery-confirm-list > div {
+    grid-template-columns: 1fr;
+  }
+
+  .mos-folder-mounts-add,
+  .mos-folder-mount-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .mos-folder-mount-header {
+    flex-direction: column;
   }
 }

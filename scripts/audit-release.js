@@ -50,7 +50,18 @@ function auditRepository(root) {
     });
     if (!TEXT_EXTENSIONS.has(path.extname(file).toLowerCase())) return;
     if (AUDIT_FIXTURE_FILES.has(relative)) return;
-    const content = fs.readFileSync(file, "utf8");
+    const stats = fs.statSync(file);
+    if (stats.size > 0 && stats.blocks === 0) {
+      violations.push({ file: relative, rule: "unavailable-file" });
+      return;
+    }
+    let content;
+    try {
+      content = fs.readFileSync(file, "utf8");
+    } catch (_error) {
+      violations.push({ file: relative, rule: "unreadable-file" });
+      return;
+    }
     CONTENT_RULES.forEach((rule) => {
       if (rule.sourceOnly && !/^(?:src|dist)\//.test(relative)) return;
       rule.pattern.lastIndex = 0;

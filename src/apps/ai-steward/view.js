@@ -27,6 +27,13 @@ class AIStewardView extends ItemView {
   async onOpen() {
     this.model = buildAIReadModel(await this.plugin.aiStewardState?.() || {});
     this.render();
+    if (!this.recoveryEvent && this.app?.workspace?.on) {
+      this.recoveryEvent = this.app.workspace.on("dashboard-magic-os:ai-recovery-changed", async () => {
+        this.model = buildAIReadModel(await this.plugin.aiStewardState?.() || {});
+        this.render();
+      });
+      this.registerEvent?.(this.recoveryEvent);
+    }
   }
 
   render() {
@@ -37,6 +44,7 @@ class AIStewardView extends ItemView {
     this.renderHeader(container);
     this.renderPrivacyBoundary(container);
     this.renderStatus(container);
+    this.renderRecovery(container);
     this.renderFeatures(container);
     this.renderProviders(container);
     this.renderJobs(container);
@@ -93,6 +101,61 @@ class AIStewardView extends ItemView {
       card.createEl("strong", { text: this.plugin.t(`ai.feature.${feature.id}.name`) });
       card.createEl("span", { text: this.plugin.t(`ai.feature.${feature.id}.description`) });
       card.createEl("small", { text: this.plugin.t(feature.entitled ? "ai.feature.notConnected" : "ai.feature.locked") });
+    });
+  }
+
+  renderRecovery(container) {
+    const section = container.createDiv({ cls: "mos-ai-section mos-ai-recovery" });
+    const heading = section.createDiv({ cls: "mos-ai-recovery-heading" });
+    heading.createEl("h3", { text: this.plugin.t("ai.recovery.title") });
+    const refresh = heading.createEl("button", {
+      text: this.plugin.t("ai.recovery.rescan"),
+      attr: { type: "button" }
+    });
+    refresh.addEventListener("click", async () => {
+      refresh.disabled = true;
+      await this.plugin.refreshAIRecoveryState?.();
+      this.model = buildAIReadModel(await this.plugin.aiStewardState?.() || {});
+      this.render();
+    });
+    section.createEl("p", { text: this.plugin.t("ai.recovery.description") });
+    if (this.model.recovery.unavailable) {
+      section.createDiv({ cls: "mos-ai-recovery-warning", text: this.plugin.t("ai.recovery.unavailable") });
+      return;
+    }
+    if (!this.model.recovery.reports.length) {
+      section.createDiv({ cls: "mos-ai-jobs-empty", text: this.plugin.t("ai.recovery.empty") });
+      return;
+    }
+    const list = section.createDiv({ cls: "mos-ai-recovery-list" });
+    this.model.recovery.reports.forEach((report) => {
+      const card = list.createDiv({ cls: `mos-ai-recovery-card is-${report.action}` });
+      const top = card.createDiv({ cls: "mos-ai-recovery-card-top" });
+      top.createEl("strong", { text: this.plugin.t(`ai.recovery.state.${report.action}`) });
+      top.createEl("span", { text: this.plugin.t("ai.recovery.operationCount", { count: report.operations.length }) });
+      const operations = card.createDiv({ cls: "mos-ai-recovery-operations" });
+      report.operations.forEach((operation) => {
+        const row = operations.createDiv();
+        row.createEl("span", { text: operation.path });
+        row.createEl("small", { text: this.plugin.t(`ai.recovery.observed.${operation.observed}`) });
+        if (report.action === "manual-review") {
+          const open = row.createEl("button", {
+            text: this.plugin.t("ai.recovery.openRecord"),
+            attr: { type: "button" }
+          });
+          open.addEventListener("click", () => this.plugin.openAIRecoveryRecord?.(report.id, operation.path));
+        }
+      });
+      if (report.action !== "manual-review") {
+        const action = card.createEl("button", {
+          cls: report.action === "rollback-safe" ? "mod-warning" : "",
+          text: this.plugin.t(`ai.recovery.action.${report.action}`),
+          attr: { type: "button" }
+        });
+        action.addEventListener("click", () => this.plugin.openAIRecovery?.(report.id));
+      } else {
+        card.createDiv({ cls: "mos-ai-recovery-warning", text: this.plugin.t("ai.recovery.manualSafety") });
+      }
     });
   }
 

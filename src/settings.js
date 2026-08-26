@@ -38,6 +38,13 @@ class DashboardMagicOSSettingTab extends PluginSettingTab {
         .onClick(() => this.plugin.openStorageOnboarding()));
 
     new Setting(containerEl)
+      .setName(t("settings.mounts.name"))
+      .setDesc(t("settings.mounts.description", { count: this.plugin.folderMounts().length }))
+      .addButton((button) => button
+        .setButtonText(t("settings.mounts.configure"))
+        .onClick(() => this.plugin.openFolderMounts()));
+
+    new Setting(containerEl)
       .setName(t("settings.personalization.name"))
       .setDesc(t("settings.personalization.description"))
       .addButton((button) => button

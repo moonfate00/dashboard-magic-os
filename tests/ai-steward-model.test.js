@@ -79,3 +79,43 @@ test("provider and task projections discard private and unknown runtime fields",
     "status", "providerId", "featureId", "attempt", "errorCode"
   ]);
 });
+
+test("recovery projection stays available while locked and strips snapshots and tokens", () => {
+  const model = buildAIReadModel({
+    recoveryReports: [{
+      id: "journal-1",
+      status: "applying",
+      action: "rollback-safe",
+      updatedAt: "2026-08-14T10:00:00.000Z",
+      token: { private: true },
+      beforeContent: "private original",
+      operations: [{
+        id: "one",
+        kind: "update",
+        path: "MagicOS/Records/Memory/a.md",
+        observed: "applied",
+        afterContent: "private generated result"
+      }]
+    }]
+  });
+  assert.equal(model.locked, true);
+  assert.equal(model.recovery.reports.length, 1);
+  assert.equal(model.recovery.reports[0].action, "rollback-safe");
+  assert.equal(model.totals.recovery, 1);
+  assert.equal(JSON.stringify(model).includes("private original"), false);
+  assert.equal(JSON.stringify(model).includes("private generated result"), false);
+  assert.equal(JSON.stringify(model).includes('"token"'), false);
+});
+
+test("unknown recovery states fail toward manual review", () => {
+  const model = buildAIReadModel({
+    recoveryReports: [{
+      id: "journal-unknown",
+      action: "caller-defined-action",
+      operations: [{ path: "MagicOS/Records/Memory/a.md", observed: "unknown" }]
+    }]
+  });
+  assert.equal(model.recovery.reports[0].action, "manual-review");
+  assert.equal(model.recovery.reports[0].operations[0].observed, "conflict");
+  assert.equal(model.recovery.manualReview, 1);
+});

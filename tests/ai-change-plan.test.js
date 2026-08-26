@@ -66,7 +66,8 @@ function protocol(storage, options = {}) {
     randomId: () => "confirmation-1",
     now: options.now || (() => Date.parse("2026-08-12T00:00:00.000Z")),
     confirmationTtlMs: options.confirmationTtlMs,
-    onTransition: options.onTransition
+    onTransition: options.onTransition,
+    journal: options.journal
   });
 }
 
@@ -227,4 +228,60 @@ test("transition projection failures cannot interrupt a required rollback", asyn
   await assert.rejects(service.apply(prepared.confirmation, { confirmed: true }), (error) => error.outcome === "rolled-back");
   assert.equal(storage.files.get(first), "original");
   assert.equal(storage.files.has(second), false);
+});
+
+test("durable journal markers surround every storage mutation", async () => {
+  const path = "MagicOS/Records/Memory/existing.md";
+  const storage = createStorage({ [path]: "before" });
+  const events = [];
+  const originalModify = storage.capabilities.modify;
+  storage.capabilities.modify = async (...args) => {
+    events.push("storage:modify");
+    return originalModify(...args);
+  };
+  const session = Object.freeze({ id: "journal-1" });
+  const journal = {
+    async begin() { events.push("journal:begin"); return session; },
+    async markApplying() { events.push("journal:applying"); },
+    async markApplied() { events.push("journal:applied-operation"); },
+    async markRollbackRequired() { events.push("journal:rollback-required"); },
+    async markRolledBack() { events.push("journal:rolled-back-operation"); },
+    async markRollbackFailed() { events.push("journal:rollback-failed-operation"); },
+    async finish(_session, status) { events.push(`journal:finish:${status}`); },
+    async close() { events.push("journal:close"); }
+  };
+  const service = protocol(storage, { journal });
+  const prepared = await service.prepare(plan([{ kind: "update", path, content: "after" }]));
+  const result = await service.apply(prepared.confirmation, { confirmed: true });
+  assert.equal(result.status, "applied");
+  assert.deepEqual(events, [
+    "journal:begin",
+    "journal:applying",
+    "storage:modify",
+    "journal:applied-operation",
+    "journal:finish:applied",
+    "journal:close"
+  ]);
+});
+
+test("journal persistence failure before application prevents every record write", async () => {
+  const path = "MagicOS/Records/Memory/existing.md";
+  const storage = createStorage({ [path]: "before" });
+  const journal = {
+    async begin() { const error = new Error("journal unavailable"); error.code = "persistence"; throw error; },
+    async markApplying() {},
+    async markApplied() {},
+    async markRollbackRequired() {},
+    async markRolledBack() {},
+    async markRollbackFailed() {},
+    async finish() {},
+    async close() {}
+  };
+  const service = protocol(storage, { journal });
+  const prepared = await service.prepare(plan([{ kind: "update", path, content: "after" }]));
+  await assert.rejects(service.apply(prepared.confirmation, { confirmed: true }), (error) => (
+    error.code === "application-failed" && error.outcome === "failed"
+  ));
+  assert.equal(storage.files.get(path), "before");
+  assert.deepEqual(storage.writes, []);
 });

@@ -34,8 +34,12 @@ class LearningView extends ItemView {
 
   async refresh() {
     const paths = this.plugin.storageProfile().paths;
-    const roots = [paths.command, paths.assets, paths.social, paths.navigation, paths.memory];
-    const records = await loadVaultRecords(this.plugin.recordCapabilities, { roots });
+    const defaults = [paths.command, paths.assets, paths.social, paths.navigation, paths.memory];
+    const roots = this.plugin.recordRootsFor([], defaults);
+    const records = await loadVaultRecords(this.plugin.recordCapabilities, {
+      roots,
+      mounts: this.plugin.folderMounts()
+    });
     this.model = buildLearningModel(records, {
       resolvedLinks: this.app?.metadataCache?.resolvedLinks || {}
     });
@@ -58,10 +62,11 @@ class LearningView extends ItemView {
     copy.createEl("h2", { text: this.plugin.t("learning.title") });
     copy.createEl("p", { text: this.plugin.t("learning.description") });
     createTranslatedButton(header, this.plugin.i18n, "common.refresh", () => this.refresh(), { cls: "mod-cta" });
-    const totals = this.model?.totals || { threads: 0, cards: 0, due: 0, mastered: 0 };
+    const totals = this.model?.totals || { threads: 0, branches: 0, cards: 0, due: 0, mastered: 0 };
     const stats = container.createDiv({ cls: "mos-learning-stats" });
     [
       ["learning.stats.threads", totals.threads],
+      ["learning.stats.branches", totals.branches],
       ["learning.stats.cards", totals.cards],
       ["learning.stats.due", totals.due],
       ["learning.stats.mastered", totals.mastered]
@@ -82,31 +87,40 @@ class LearningView extends ItemView {
   }
 
   renderThreadCard(container, thread) {
+    const contentThread = this.learningContentThread(thread);
     const card = container.createEl("button", {
       cls: "mos-learning-thread-card",
       attr: { type: "button", "aria-label": this.plugin.t("learning.openThread", { title: thread.title }) }
     });
     const top = card.createDiv({ cls: "mos-learning-thread-top" });
     top.createEl("span", { text: this.plugin.t(`learning.status.${thread.status}`) });
-    top.createEl("strong", { text: this.plugin.t("learning.progress", { progress: thread.progress }) });
+    top.createEl("strong", { text: this.plugin.t("learning.progress", { progress: contentThread?.progress || 0 }) });
     card.createEl("h3", { text: thread.title || this.plugin.t("common.untitled") });
     if (thread.summary) card.createEl("p", { text: thread.summary.slice(0, 180) });
     const counts = card.createDiv({ cls: "mos-learning-thread-counts" });
-    counts.createEl("span", { text: this.plugin.t("learning.cardCount", { count: thread.cardCount }) });
-    counts.createEl("span", { text: this.plugin.t("learning.memberCount", { count: thread.memberCount }) });
-    if (thread.dueCount) counts.createEl("em", { text: this.plugin.t("learning.dueCount", { count: thread.dueCount }) });
+    if (contentThread) counts.createEl("span", { text: this.plugin.t("learning.cardCount", { count: contentThread.cardCount }) });
+    if (contentThread) counts.createEl("span", { text: this.plugin.t("learning.memberCount", { count: contentThread.memberCount }) });
+    if (thread.branches?.length) counts.createEl("span", { text: this.plugin.t("learning.branchCount", { count: thread.branches.length }) });
+    if (contentThread?.dueCount) counts.createEl("em", { text: this.plugin.t("learning.dueCount", { count: contentThread.dueCount }) });
     const track = card.createDiv({ cls: "mos-learning-progress-track" });
-    track.createDiv({ attr: { style: `width:${thread.progress}%` } });
+    track.createDiv({ attr: { style: `width:${contentThread?.progress || 0}%` } });
     card.addEventListener("click", () => {
       this.currentThreadId = thread.id;
       this.render();
     });
   }
 
+  learningContentThread(thread) {
+    if (!thread) return null;
+    if (thread.isBranch) return thread;
+    return thread.contentId ? this.model?.byId?.get(thread.contentId) || null : null;
+  }
+
   renderThread(container, thread) {
+    const contentThread = this.learningContentThread(thread);
     const header = container.createDiv({ cls: "mos-learning-header" });
     createTranslatedButton(header, this.plugin.i18n, "common.back", () => {
-      this.currentThreadId = "";
+      this.currentThreadId = thread.parentId || "";
       this.render();
     });
     const copy = header.createDiv({ cls: "mos-learning-heading" });
@@ -114,43 +128,86 @@ class LearningView extends ItemView {
     copy.createEl("p", { text: thread.summary || this.plugin.t("learning.threadFallback") });
     createTranslatedButton(header, this.plugin.i18n, "learning.openSource", () => this.openRecord(thread.record));
 
+    if (thread.parentId) {
+      const parent = this.model?.byId?.get(thread.parentId);
+      if (parent) {
+        const breadcrumb = container.createDiv({ cls: "mos-learning-breadcrumb" });
+        breadcrumb.createEl("span", { text: this.plugin.t("learning.branchLevel") });
+        const parentButton = breadcrumb.createEl("button", { text: parent.title, attr: { type: "button" } });
+        parentButton.addEventListener("click", () => {
+          this.currentThreadId = parent.id;
+          this.render();
+        });
+      }
+    }
+
     const summary = container.createDiv({ cls: "mos-learning-thread-summary" });
-    [
-      ["learning.cardCount", thread.cardCount],
-      ["learning.dueCount", thread.dueCount],
-      ["learning.newCount", thread.newCount],
-      ["learning.masteredCount", thread.masteredCount],
-      ["learning.memberCount", thread.memberCount]
-    ].forEach(([key, count]) => {
+    const summaryItems = thread.isBranch
+      ? []
+      : [["learning.branchCount", thread.branches?.length || 0]];
+    if (contentThread) summaryItems.push(
+      ["learning.cardCount", contentThread.cardCount],
+      ["learning.dueCount", contentThread.dueCount],
+      ["learning.newCount", contentThread.newCount],
+      ["learning.masteredCount", contentThread.masteredCount],
+      ["learning.memberCount", contentThread.memberCount]
+    );
+    summaryItems.forEach(([key, count]) => {
       const item = summary.createDiv();
       item.createEl("strong", { text: String(count) });
       item.createEl("span", { text: this.plugin.t(key, { count }) });
     });
 
+    if (!thread.isBranch) this.renderBranches(container, thread);
+
+    if (!contentThread) {
+      renderEmptyState(container, this.plugin.i18n, {
+        titleKey: "learning.content.empty.title",
+        descriptionKey: "learning.content.empty.description"
+      });
+      return;
+    }
+
     const layout = container.createDiv({ cls: "mos-learning-detail-layout" });
     const cards = layout.createDiv({ cls: "mos-learning-panel" });
     cards.createEl("h3", { text: this.plugin.t("learning.cards.title") });
-    if (!thread.cards.length) {
+    if (!contentThread.cards.length) {
       renderEmptyState(cards, this.plugin.i18n, {
         titleKey: "learning.cards.empty.title",
         descriptionKey: "learning.cards.empty.description"
       });
     } else {
       const list = cards.createDiv({ cls: "mos-learning-card-list" });
-      thread.cards.forEach((card) => this.renderKnowledgeCard(list, card));
+      contentThread.cards.forEach((card) => this.renderKnowledgeCard(list, card));
     }
 
     const sources = layout.createDiv({ cls: "mos-learning-panel" });
     sources.createEl("h3", { text: this.plugin.t("learning.sources.title") });
-    if (!thread.members.length) {
+    if (!contentThread.members.length) {
       renderEmptyState(sources, this.plugin.i18n, {
         titleKey: "learning.sources.empty.title",
         descriptionKey: "learning.sources.empty.description"
       });
     } else {
       const list = sources.createDiv({ cls: "mos-learning-source-list" });
-      thread.members.forEach((member) => this.renderSourceRecord(list, member));
+      contentThread.members.forEach((member) => this.renderSourceRecord(list, member));
     }
+  }
+
+  renderBranches(container, thread) {
+    const panel = container.createDiv({ cls: "mos-learning-panel mos-learning-branch-panel" });
+    const heading = panel.createDiv({ cls: "mos-learning-panel-heading" });
+    heading.createEl("h3", { text: this.plugin.t("learning.branches.title") });
+    heading.createEl("span", { text: this.plugin.t("learning.branchCount", { count: thread.branches?.length || 0 }) });
+    if (!thread.branches?.length) {
+      renderEmptyState(panel, this.plugin.i18n, {
+        titleKey: "learning.branches.empty.title",
+        descriptionKey: "learning.branches.empty.description"
+      });
+      return;
+    }
+    const grid = panel.createDiv({ cls: "mos-learning-branch-grid" });
+    thread.branches.forEach((branch) => this.renderThreadCard(grid, branch));
   }
 
   renderKnowledgeCard(container, card) {

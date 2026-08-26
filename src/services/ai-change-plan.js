@@ -128,6 +128,16 @@ function requireCapabilities(capabilities = {}) {
   });
 }
 
+function requireJournal(journal) {
+  if (!journal) return;
+  [
+    "begin", "markApplying", "markApplied", "markRollbackRequired", "markRolledBack",
+    "markRollbackFailed", "finish", "close"
+  ].forEach((name) => {
+    if (typeof journal[name] !== "function") fail("validation", `AI change journal requires ${name}`);
+  });
+}
+
 function parentPath(path) {
   return path.split("/").slice(0, -1).join("/");
 }
@@ -146,6 +156,8 @@ function createAIChangeProtocol(options = {}) {
     : () => globalThis.crypto?.randomUUID?.() || `confirmation-${now()}`;
   const ttlMs = Math.max(1000, Math.min(60 * 60 * 1000, Number(options.confirmationTtlMs) || DEFAULT_CONFIRMATION_TTL_MS));
   const onTransition = typeof options.onTransition === "function" ? options.onTransition : async () => {};
+  const journal = options.journal || null;
+  requireJournal(journal);
   const confirmations = new WeakMap();
 
   async function emitTransition(event) {
@@ -218,7 +230,7 @@ function createAIChangeProtocol(options = {}) {
     }
   }
 
-  async function rollback(applied) {
+  async function rollback(applied, journalSession) {
     const restored = [];
     const failed = [];
     for (let index = applied.length - 1; index >= 0; index -= 1) {
@@ -234,8 +246,14 @@ function createAIChangeProtocol(options = {}) {
           if (!exists || current !== operation.content) throw new Error("rollback-conflict");
           await capabilities.modify(operation.path, snapshot.content);
         }
+        if (journalSession) {
+          try { await journal.markRolledBack(journalSession, operation.id); } catch (error) {}
+        }
         restored.push(safeResultOperation(operation, "rolled-back"));
       } catch (error) {
+        if (journalSession) {
+          try { await journal.markRollbackFailed(journalSession, operation.id); } catch (journalError) {}
+        }
         failed.push(safeResultOperation(operation, "rollback-failed"));
       }
     }
@@ -257,21 +275,29 @@ function createAIChangeProtocol(options = {}) {
 
     // Reserve synchronously before the first await so concurrent calls cannot replay the token.
     entry.state = "applying";
-    await emitTransition({ status: "applying", planId: entry.plan.id, operations: entry.plan.operations.length });
     const applied = [];
     let pendingSnapshot = null;
+    let journalSession = null;
     try {
+      if (journal) journalSession = await journal.begin(entry.plan, entry.snapshots);
+      await emitTransition({ status: "applying", planId: entry.plan.id, operations: entry.plan.operations.length });
       for (const snapshot of entry.snapshots) {
         await assertUnchanged(snapshot);
         const { operation } = snapshot;
         pendingSnapshot = snapshot;
+        if (journalSession) await journal.markApplying(journalSession, operation.id);
         if (operation.kind === "create") await capabilities.create(operation.path, operation.content);
         else await capabilities.modify(operation.path, operation.content);
         applied.push(snapshot);
         pendingSnapshot = null;
+        if (journalSession) await journal.markApplied(journalSession, operation.id);
       }
+      if (journalSession) await journal.finish(journalSession, "applied");
       entry.state = "applied";
       await emitTransition({ status: "applied", planId: entry.plan.id, operations: applied.length });
+      if (journalSession) {
+        try { await journal.close(journalSession); } catch (error) {}
+      }
       return Object.freeze({
         status: "applied",
         planId: entry.plan.id,
@@ -298,6 +324,12 @@ function createAIChangeProtocol(options = {}) {
         }
       }
       if (!applied.length && !uncertainOperation) {
+        if (journalSession) {
+          try {
+            await journal.finish(journalSession, "failed");
+            await journal.close(journalSession);
+          } catch (error) {}
+        }
         entry.state = "failed";
         await emitTransition({ status: "failed", planId: entry.plan.id, operations: 0 });
         throw new AIChangePlanError(cause?.code === "conflict" ? "conflict" : "application-failed", "AI changes were not applied", {
@@ -306,7 +338,10 @@ function createAIChangeProtocol(options = {}) {
         });
       }
       await emitTransition({ status: "rollback-required", planId: entry.plan.id, operations: applied.length });
-      const baseRollback = await rollback(applied);
+      if (journalSession) {
+        try { await journal.markRollbackRequired(journalSession); } catch (error) {}
+      }
+      const baseRollback = await rollback(applied, journalSession);
       const rollbackResult = uncertainOperation
         ? Object.freeze({
           status: "rollback-failed",
@@ -315,6 +350,12 @@ function createAIChangeProtocol(options = {}) {
         })
         : baseRollback;
       entry.state = rollbackResult.status;
+      if (journalSession) {
+        try {
+          await journal.finish(journalSession, rollbackResult.status);
+          if (rollbackResult.status === "rolled-back") await journal.close(journalSession);
+        } catch (error) {}
+      }
       await emitTransition({ status: rollbackResult.status, planId: entry.plan.id, operations: applied.length });
       throw new AIChangePlanError(
         rollbackResult.status === "rollback-failed" ? "rollback-failed" : "application-failed",

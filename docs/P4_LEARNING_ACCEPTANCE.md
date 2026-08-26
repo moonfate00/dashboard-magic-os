@@ -1,18 +1,21 @@
-# P4 Learning Threads Acceptance
+# P4 Learning Shelves Acceptance
 
-Learning Threads is the second complete public application slice. It reuses the shared record source and relationship services rather than maintaining an application-specific database.
+Learning Shelves is the second complete public application slice. It combines a mind-tree hierarchy with organizer-style shelves while reusing the shared record source and relationship services rather than maintaining an application-specific database.
 
 ## Included
 
 - A dedicated Obsidian command and registered `ItemView`.
 - Metadata-only scanning beneath the active storage profile's Command, Assets, Social, Navigation, and Memory record roots.
-- Thread classification for course, project, goal, context-thread, story-thread, and compatible thread records.
+- Compatible P1 classification for course, project, goal, context-thread, story-thread, and existing thread records; no migration is required.
+- Customizable P2 learning branches identified by `learning-branch` / `learning_level: P2` and connected to P1 through `parent_thread`.
+- P1 owns only hierarchy and displays P2 as its learning members; source records, knowledge cards, and learning sessions belong to P2.
+- When a P1 has exactly one P2, that branch is expanded through P1 automatically; multiple P2 branches remain explicit choices.
 - Knowledge-card resolution through `related_thread`, `related_threads`, `thread`, and stable entity IDs.
 - Source-record resolution through `related_threads`, `project`, `context_thread`, and Obsidian resolved WikiLinks.
-- Overview totals for threads, knowledge cards, due reviews, and mastered cards.
+- Overview totals for P1 shelves, P2 branches, knowledge cards, due reviews, and mastered cards.
 - Thread status, source counts, new/due/mastered card counts, and average progress.
 - Existing progress contract based on reads and successful reviews.
-- Chinese and English overview, thread detail, card metadata, empty states, and responsive layouts.
+- Chinese and English overview, P1/P2 detail, branch navigation, card metadata, empty states, and responsive layouts.
 - Opening thread, knowledge-card, and source records through Obsidian.
 
 ## Privacy and safety boundary
@@ -24,7 +27,7 @@ Learning Threads is the second complete public application slice. It reuses the 
 
 ## Deferred
 
-- Thread creation and learning-configuration editing
+- P1/P2 creation and learning-configuration editing (available in the private profile, deferred in the public read-only slice)
 - Knowledge-card creation and editing
 - Timed reading and review writeback
 - Quiz sessions and adaptive scheduling

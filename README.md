@@ -44,7 +44,7 @@ Core-service acceptance evidence is recorded in [P3 Core Services Acceptance](do
 
 The paid AI Steward migration is gated by the credential-free, fail-closed boundary in [AI Steward Safety Audit](docs/AI_STEWARD_AUDIT.md). Entitlement verification and provider secrets remain private adapters and are never release data.
 
-AI-authored record changes now have a disconnected, test-only confirmation and rollback boundary. See [P4 AI Change Confirmation and Rollback Acceptance](docs/P4_AI_CHANGE_PROTOCOL_ACCEPTANCE.md). Real-provider writes remain locked until private crash-recovery journaling is connected.
+AI-authored record changes now have disconnected, test-only confirmation, durable crash journaling, atomic Obsidian persistence, and a recovery interface that remains available while AI is locked. See [P4 AI Change Confirmation and Rollback Acceptance](docs/P4_AI_CHANGE_PROTOCOL_ACCEPTANCE.md) and [P0 AI Change Journal Acceptance](docs/P0_AI_CHANGE_JOURNAL_ACCEPTANCE.md). Real-provider writes remain locked until this reviewed boundary is bundled into the installed private runtime.
 
 The real Provider execution boundary is assembled in a still-disconnected sandbox with fixed endpoints, SecretStorage scope, bounded input/output, cancellation, accounting, and privacy-safe job projection. See [P4 AI Provider Sandbox Acceptance](docs/P4_AI_PROVIDER_SANDBOX_ACCEPTANCE.md).
 

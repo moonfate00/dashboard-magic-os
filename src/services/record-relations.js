@@ -104,7 +104,9 @@ function buildRecordRelationIndex(index, options = {}) {
       const target = lookup.byPath.get(targetPath);
       if (target) push(source, target, {
         type: "wikilink",
-        sourceLabel: "wikilink",
+        label: options.wikilinkLabel || "wikilink",
+        reverseLabel: options.wikilinkReverseLabel || "wikilink",
+        sourceLabel: options.wikilinkSourceLabel || "wikilink",
         color: typeof options.wikilinkColor === "function"
           ? options.wikilinkColor(target, source)
           : options.wikilinkColor || "#e2c878"

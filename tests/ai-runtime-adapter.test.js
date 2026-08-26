@@ -124,6 +124,18 @@ test("provider secrets exist only inside the supplied operation scope", async ()
   await assert.rejects(adapter.withProviderSecret("unknown", async () => null), (error) => error.code === "provider");
 });
 
+test("runtime execution gate follows the current user setting on every status read", async () => {
+  let enabled = true;
+  const adapter = createPrivateAIRuntimeAdapter({
+    secrets: createSecretStorageCapabilities({ async getSecret() { return ""; } }),
+    verifyEntitlement: async () => ({ status: "locked" }),
+    executionEnabled: () => enabled
+  });
+  assert.equal((await adapter.status({ nowMs })).interactiveEnabled, true);
+  enabled = false;
+  assert.equal((await adapter.status({ nowMs })).interactiveEnabled, false);
+});
+
 test("verification and loader failures fail closed without leaking error details", async () => {
   const adapter = createPrivateAIRuntimeAdapter({
     secrets: createSecretStorageCapabilities({ async getSecret() { throw new Error("private keychain error"); } }),

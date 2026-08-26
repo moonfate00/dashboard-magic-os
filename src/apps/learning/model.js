@@ -3,6 +3,10 @@
 const {
   buildRecordQueryIndex,
   isKnowledgeCardRecord,
+  isLearningBranchRecord,
+  learningBranches,
+  learningContentTarget,
+  learningRootThreads,
   recordEntityId,
   recordFrontmatter,
   recordModule,
@@ -38,10 +42,7 @@ function clamp(value, min, max) {
   return Math.max(min, Math.min(max, Number(value || 0)));
 }
 
-function knowledgeCardProgress(record) {
-  const frontmatter = recordFrontmatter(record);
-  const explicit = Number(frontmatter.learning_progress);
-  if (Number.isFinite(explicit) && explicit >= 0) return clamp(explicit, 0, 100);
+function knowledgeCardComputedProgress(frontmatter = {}) {
   const reads = Math.max(0, Number(frontmatter.read_count || 0));
   const passes = Math.max(0, Number(frontmatter.review_pass_count || 0));
   return Math.min(100,
@@ -50,6 +51,13 @@ function knowledgeCardProgress(record) {
     + (passes >= 2 ? 20 : 0)
     + (passes >= 3 ? 15 : 0)
     + (passes >= 4 ? 15 : 0));
+}
+
+function knowledgeCardProgress(record) {
+  const frontmatter = recordFrontmatter(record);
+  const explicit = Number(frontmatter.learning_progress);
+  if (Number.isFinite(explicit) && explicit >= 0) return clamp(explicit, 0, 100);
+  return knowledgeCardComputedProgress(frontmatter);
 }
 
 function dateKey(value) {
@@ -95,6 +103,43 @@ function threadStatus(record) {
   return "active";
 }
 
+function learningThreadConfig(record, options = {}) {
+  const frontmatter = recordFrontmatter(record);
+  const modes = new Set(Array.isArray(options.modes) && options.modes.length
+    ? options.modes.map(String)
+    : ["understand", "exam", "research", "output"]);
+  const levels = new Set(Array.isArray(options.levels) && options.levels.length
+    ? options.levels.map(String)
+    : ["new", "basic", "familiar", "sprint"]);
+  const frequencies = options.frequencies && typeof options.frequencies === "object"
+    ? options.frequencies
+    : { light: { dailyLimit: 12 }, normal: { dailyLimit: 24 }, intensive: { dailyLimit: 40 } };
+  const mode = modes.has(String(frontmatter.learning_mode || ""))
+    ? String(frontmatter.learning_mode)
+    : String(options.defaultMode || "exam");
+  const legacyLevel = isLearningBranchRecord(record) ? "" : String(frontmatter.learning_level || "");
+  const storedLevel = String(frontmatter.learning_difficulty || legacyLevel || "");
+  const level = levels.has(storedLevel) ? storedLevel : String(options.defaultLevel || "basic");
+  const requestedFrequency = String(frontmatter.review_frequency || "");
+  const frequency = frequencies[requestedFrequency] ? requestedFrequency : String(options.defaultFrequency || "normal");
+  const defaultLimit = Math.max(5, Number(frequencies[frequency]?.dailyLimit || 24));
+  const sourceExcluded = Array.isArray(frontmatter.learning_source_excluded)
+    ? frontmatter.learning_source_excluded
+    : frontmatter.learning_source_excluded ? [frontmatter.learning_source_excluded] : [];
+  return {
+    enabled: frontmatter.learning_enabled === true || String(frontmatter.learning_enabled || "").toLowerCase() === "true",
+    mode,
+    level,
+    goal: String(frontmatter.learning_goal || frontmatter.summary || "").trim(),
+    frequency,
+    dailyNewCards: clamp(frontmatter.daily_new_cards || 8, 1, 30),
+    dailyReviewLimit: clamp(frontmatter.daily_review_limit || defaultLimit, 5, 100),
+    passScore: clamp(frontmatter.learning_pass_score || 70, 60, 100),
+    activeReadSeconds: 60,
+    sourceExcluded
+  };
+}
+
 function moduleCounts(records) {
   return records.reduce((counts, record) => {
     const moduleId = recordModule(record) || "global";
@@ -118,9 +163,20 @@ function cardPreview(record, now) {
   };
 }
 
+function sortLearningThreads(a, b) {
+  const statusOrder = { active: 0, planned: 1, paused: 2, completed: 3, archived: 4 };
+  return (statusOrder[a.status] ?? 9) - (statusOrder[b.status] ?? 9)
+    || b.dueCount - a.dueCount
+    || Number(b.record?.mtime || 0) - Number(a.record?.mtime || 0)
+    || a.title.localeCompare(b.title);
+}
+
 function buildLearningModel(records = [], options = {}) {
   const now = options.now instanceof Date ? options.now : new Date();
-  const recordIndex = buildRecordQueryIndex(records, { isStoryThreadRecord });
+  const storyClassifier = typeof options.isStoryThreadRecord === "function"
+    ? options.isStoryThreadRecord
+    : isStoryThreadRecord;
+  const recordIndex = buildRecordQueryIndex(records, { isStoryThreadRecord: storyClassifier });
   const relationIndex = buildRecordRelationIndex(recordIndex, {
     fieldRules: [
       { field: "related_thread", type: "thread-knowledge" },
@@ -128,17 +184,24 @@ function buildLearningModel(records = [], options = {}) {
       { field: "thread", type: "thread-knowledge" },
       { field: "threads", type: "thread-member" },
       { field: "project", type: "thread-member" },
-      { field: "context_thread", type: "thread-member" }
+      { field: "context_thread", type: "thread-member" },
+      { field: "parent_thread", type: "thread-parent" }
     ],
     resolvedLinks: options.resolvedLinks
   });
 
-  const threads = recordIndex.storyThreads.map((record) => {
+  const allThreads = recordIndex.storyThreads.map((record) => {
     const frontmatter = recordFrontmatter(record);
+    const isBranch = isLearningBranchRecord(record);
     const linked = relatedRecords(relationIndex, record, { direction: "either" });
-    const cards = linked.filter(isKnowledgeCardRecord).map((card) => cardPreview(card, now));
+    const cardRecords = relatedRecords(relationIndex, record, {
+      direction: "either",
+      fields: ["related_thread", "related_threads", "thread", "threads"],
+      recordPredicate: isKnowledgeCardRecord
+    });
+    const cards = cardRecords.map((card) => cardPreview(card, now));
     const cardPaths = new Set(cards.map((card) => card.record.path));
-    const members = linked.filter((candidate) => !cardPaths.has(candidate.path) && !isStoryThreadRecord(candidate));
+    const members = linked.filter((candidate) => !cardPaths.has(candidate.path) && !isKnowledgeCardRecord(candidate) && !storyClassifier(candidate));
     const progress = cards.length ? Math.round(cards.reduce((sum, card) => sum + card.progress, 0) / cards.length) : 0;
     return {
       id: recordEntityId(record) || record.path,
@@ -147,7 +210,11 @@ function buildLearningModel(records = [], options = {}) {
       summary: String(frontmatter.learning_goal || frontmatter.summary || frontmatter.description || ""),
       status: threadStatus(record),
       mode: String(frontmatter.learning_mode || ""),
-      level: String(frontmatter.learning_level || ""),
+      level: String(frontmatter.learning_level || frontmatter.thread_level || (isBranch ? "P2" : "P1")),
+      isBranch,
+      parentId: "",
+      contentId: isBranch ? (recordEntityId(record) || record.path) : "",
+      branches: [],
       enabled: frontmatter.learning_enabled === true || String(frontmatter.learning_enabled || "").toLowerCase() === "true",
       progress,
       cardCount: cards.length,
@@ -159,34 +226,71 @@ function buildLearningModel(records = [], options = {}) {
       cards: cards.sort((a, b) => Number(b.isDue) - Number(a.isDue) || a.progress - b.progress || a.title.localeCompare(b.title)),
       members: members.sort((a, b) => recordModule(a).localeCompare(recordModule(b)) || Number(b.mtime || 0) - Number(a.mtime || 0))
     };
-  }).sort((a, b) => {
-    const statusOrder = { active: 0, planned: 1, paused: 2, completed: 3, archived: 4 };
-    return (statusOrder[a.status] ?? 9) - (statusOrder[b.status] ?? 9)
-      || b.dueCount - a.dueCount
-      || Number(b.record?.mtime || 0) - Number(a.record?.mtime || 0)
-      || a.title.localeCompare(b.title);
+  }).sort(sortLearningThreads);
+
+  const modelByPath = new Map(allThreads.map((thread) => [thread.record.path, thread]));
+  const threads = learningRootThreads(recordIndex)
+    .map((record) => modelByPath.get(record.path))
+    .filter(Boolean)
+    .sort(sortLearningThreads);
+  const branches = learningBranches(recordIndex)
+    .map((record) => modelByPath.get(record.path))
+    .filter(Boolean)
+    .sort(sortLearningThreads);
+
+  threads.forEach((thread) => {
+    thread.branches = learningBranches(recordIndex, thread.record)
+      .map((record) => modelByPath.get(record.path))
+      .filter(Boolean)
+      .sort(sortLearningThreads);
+    thread.branches.forEach((branch) => {
+      branch.parentId = thread.id;
+    });
+    const contentRecord = learningContentTarget(recordIndex, thread.record);
+    thread.contentId = contentRecord ? modelByPath.get(contentRecord.path)?.id || "" : "";
   });
 
   return {
     recordIndex,
     relationIndex,
     threads,
-    byId: new Map(threads.map((thread) => [thread.id, thread])),
+    branches,
+    byId: new Map(allThreads.map((thread) => [thread.id, thread])),
     totals: {
       threads: threads.length,
-      cards: threads.reduce((sum, thread) => sum + thread.cardCount, 0),
-      due: threads.reduce((sum, thread) => sum + thread.dueCount, 0),
-      mastered: threads.reduce((sum, thread) => sum + thread.masteredCount, 0)
+      branches: branches.length,
+      cards: branches.reduce((sum, thread) => sum + thread.cardCount, 0),
+      due: branches.reduce((sum, thread) => sum + thread.dueCount, 0),
+      mastered: branches.reduce((sum, thread) => sum + thread.masteredCount, 0)
     }
   };
+}
+
+function learningThreadEntry(model, record) {
+  if (!model || !record) return null;
+  const id = recordEntityId(record) || record.path;
+  return model.byId?.get(id)
+    || [...(model.byId?.values?.() || [])].find((entry) => entry.record?.path === record.path)
+    || null;
+}
+
+function learningContentEntry(model, record) {
+  const entry = learningThreadEntry(model, record);
+  if (!entry) return null;
+  if (entry.isBranch) return entry;
+  return entry.contentId ? model.byId?.get(entry.contentId) || null : null;
 }
 
 module.exports = {
   buildLearningModel,
   dateKey,
   isStoryThreadRecord,
+  knowledgeCardComputedProgress,
   knowledgeCardProgress,
   knowledgeCardState,
+  learningContentEntry,
+  learningThreadConfig,
+  learningThreadEntry,
   threadStatus,
   todayKey
 };

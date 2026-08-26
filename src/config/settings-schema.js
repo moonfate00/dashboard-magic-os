@@ -1,6 +1,7 @@
 "use strict";
 
 const { normalizeLanguagePreference } = require("../i18n");
+const { normalizeFolderMounts } = require("../storage/folder-mounts");
 const { normalizeStoragePreference, STORAGE_SCHEMA_VERSION } = require("../storage/profiles");
 
 const DEFAULT_SETTINGS = Object.freeze({
@@ -8,7 +9,8 @@ const DEFAULT_SETTINGS = Object.freeze({
   storagePreference: "auto",
   storageProfileId: "",
   storageSetupCompleted: false,
-  storageSchemaVersion: STORAGE_SCHEMA_VERSION
+  storageSchemaVersion: STORAGE_SCHEMA_VERSION,
+  folderMounts: Object.freeze([])
 });
 
 function normalizeSettings(value = {}) {
@@ -18,7 +20,8 @@ function normalizeSettings(value = {}) {
     storagePreference: normalizeStoragePreference(value.storagePreference),
     storageProfileId: ["portable", "legacy-dashboard"].includes(value.storageProfileId) ? value.storageProfileId : "",
     storageSetupCompleted: value.storageSetupCompleted === true,
-    storageSchemaVersion: Math.max(1, Number(value.storageSchemaVersion || STORAGE_SCHEMA_VERSION))
+    storageSchemaVersion: Math.max(1, Number(value.storageSchemaVersion || STORAGE_SCHEMA_VERSION)),
+    folderMounts: normalizeFolderMounts(value.folderMounts)
   };
 }
 

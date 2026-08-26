@@ -1,6 +1,7 @@
 "use strict";
 
 const { assertSafeVaultPath } = require("./profiles");
+const { normalizeFolderMounts, resolveFolderMount } = require("./folder-mounts");
 
 function pathInsideRoot(path, root) {
   const value = String(path || "").replace(/\\/g, "/");
@@ -41,10 +42,15 @@ async function loadVaultRecords(capabilities = {}, options = {}) {
     throw new TypeError("Record source requires listMarkdownFiles and metadataForFile capabilities");
   }
   const roots = (Array.isArray(options.roots) ? options.roots : [options.root]).filter(Boolean).map(assertSafeVaultPath);
+  const mounts = normalizeFolderMounts(options.mounts);
   const files = await listMarkdownFiles();
   return (Array.isArray(files) ? files : [])
     .filter((file) => !roots.length || roots.some((root) => pathInsideRoot(file?.path, root)))
-    .map((file) => recordFromVaultFile(file, metadataForFile(file) || {}))
+    .map((file) => {
+      const record = recordFromVaultFile(file, metadataForFile(file) || {});
+      const sourceMount = resolveFolderMount(record.path, mounts);
+      return sourceMount ? { ...record, sourceMount } : record;
+    })
     .sort((a, b) => b.mtime - a.mtime || a.path.localeCompare(b.path));
 }
 

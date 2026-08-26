@@ -33,8 +33,10 @@ class OrganizerView extends ItemView {
 
   async refresh() {
     const profile = this.plugin.storageProfile();
+    const roots = this.plugin.recordRootsFor(["assets"], [profile.paths.assets]);
     const records = await loadVaultRecords(this.plugin.recordCapabilities, {
-      root: profile.paths.assets
+      roots,
+      mounts: this.plugin.folderMounts()
     });
     this.model = buildOrganizerModel(records);
     this.render();

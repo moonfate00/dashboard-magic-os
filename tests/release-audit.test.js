@@ -26,3 +26,17 @@ test("release audit rejects runtime data, secrets and private paths", () => {
   }
 });
 
+test("release audit reports unavailable files without reading their contents", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "magic-os-audit-unavailable-"));
+  try {
+    const file = path.join(root, "cloud-placeholder.js");
+    const descriptor = fs.openSync(file, "w");
+    fs.ftruncateSync(descriptor, 4096);
+    fs.closeSync(descriptor);
+    const stats = fs.statSync(file);
+    if (stats.blocks !== 0) return;
+    assert.deepEqual(auditRepository(root), [{ file: "cloud-placeholder.js", rule: "unavailable-file" }]);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});

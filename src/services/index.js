@@ -11,7 +11,9 @@ const aiUsage = require("./ai-usage");
 const aiRuntimeAdapter = require("./ai-runtime-adapter");
 const aiExecutionPipeline = require("./ai-execution-pipeline");
 const aiChangePlan = require("./ai-change-plan");
+const aiChangeJournal = require("./ai-change-journal");
 const aiProviderSandbox = require("./ai-provider-sandbox");
+const folderMounts = require("../storage/folder-mounts");
 
 function createCoreServices(options = {}) {
   return Object.freeze({
@@ -27,7 +29,9 @@ function createCoreServices(options = {}) {
     aiRuntimeAdapter: Object.freeze({ ...aiRuntimeAdapter }),
     aiExecutionPipeline: Object.freeze({ ...aiExecutionPipeline }),
     aiChangePlan: Object.freeze({ ...aiChangePlan }),
-    aiProviderSandbox: Object.freeze({ ...aiProviderSandbox })
+    aiChangeJournal: Object.freeze({ ...aiChangeJournal }),
+    aiProviderSandbox: Object.freeze({ ...aiProviderSandbox }),
+    folderMounts: Object.freeze({ ...folderMounts })
   });
 }
 

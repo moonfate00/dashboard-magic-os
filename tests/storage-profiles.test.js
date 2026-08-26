@@ -32,6 +32,8 @@ test("storage profiles keep stable language-neutral internal paths", () => {
   assert.equal(PORTABLE_STORAGE_PROFILE.paths.root, "MagicOS");
   assert.equal(PORTABLE_STORAGE_PROFILE.paths.assets, "MagicOS/Records/Assets");
   assert.equal(LEGACY_DASHBOARD_STORAGE_PROFILE.paths.assets, "Dashboard/Private/Modules/Assets");
+  assert.equal(PORTABLE_STORAGE_PROFILE.paths.logs, "MagicOS/Logs");
+  assert.equal(LEGACY_DASHBOARD_STORAGE_PROFILE.paths.logs, "Dashboard/Logs");
   assert.equal(Object.values(PORTABLE_STORAGE_PROFILE.paths).some((value) => /[一-龥]/.test(value)), false);
 });
 
@@ -84,4 +86,3 @@ test("manual storage preference overrides auto detection without mutation", asyn
   assert.equal(state.recommendedProfileId, "portable");
   assert.deepEqual(storage.created, []);
 });
-

@@ -8,7 +8,8 @@ const ERROR_CODES = new Set([
   "incomplete", "invalid-json", "locked", "missing-output", "network", "persistence", "provider",
   "provider-not-ready", "provider-origin", "provider-url", "quota", "rate-limit", "refusal",
   "request", "request-in-progress", "response-too-large", "rollback-failed", "simulation-only",
-  "timeout", "transport-unsupported", "trial-ended", "validation"
+  "timeout", "transport-unsupported", "trial-ended", "validation", "journal-corrupt",
+  "journal-inspection", "journal-persistence", "recovery-conflict", "recovery-stale"
 ]);
 
 const TRANSITIONS = Object.freeze({

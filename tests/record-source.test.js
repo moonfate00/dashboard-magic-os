@@ -56,3 +56,30 @@ test("record source rejects unsafe roots before scanning", async () => {
     metadataForFile: () => ({})
   }, { root: "../Personal" }), /Unsafe vault path/);
 });
+
+test("records from mounted legacy folders retain local mount provenance without changing source files", async () => {
+  const source = file("10-wiki/公考/资料分析.md", 50);
+  const records = await loadVaultRecords({
+    listMarkdownFiles: () => [source],
+    metadataForFile: () => ({ frontmatter: { title: "资料分析", type: "study-note" } })
+  }, {
+    roots: ["10-wiki"],
+    mounts: [{
+      id: "mount-knowledge-01",
+      path: "10-wiki",
+      module: "navigation",
+      role: "knowledge",
+      aiScope: "manual",
+      enabled: true
+    }]
+  });
+  assert.equal(records.length, 1);
+  assert.deepEqual(records[0].sourceMount, {
+    id: "mount-knowledge-01",
+    path: "10-wiki",
+    module: "navigation",
+    role: "knowledge",
+    aiScope: "manual",
+    enabled: true
+  });
+});

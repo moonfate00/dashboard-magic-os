@@ -33,7 +33,11 @@ class PeopleHealthView extends ItemView {
 
   async refresh() {
     const root = this.plugin.storageProfile().paths.social;
-    const records = await loadVaultRecords(this.plugin.recordCapabilities, { root });
+    const roots = this.plugin.recordRootsFor(["social"], [root]);
+    const records = await loadVaultRecords(this.plugin.recordCapabilities, {
+      roots,
+      mounts: this.plugin.folderMounts()
+    });
     this.model = buildPeopleHealthModel(records);
     this.render();
   }

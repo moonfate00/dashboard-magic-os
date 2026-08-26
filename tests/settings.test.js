@@ -28,13 +28,15 @@ test("settings normalize invalid language values without preserving runtime data
     storagePreference: "auto",
     storageProfileId: "",
     storageSetupCompleted: false,
-    storageSchemaVersion: 1
+    storageSchemaVersion: 1,
+    folderMounts: []
   });
   assert.deepEqual(normalizeSettings({ interfaceLanguage: "invalid" }), {
     interfaceLanguage: "auto",
     storagePreference: "auto",
     storageProfileId: "",
     storageSetupCompleted: false,
-    storageSchemaVersion: 1
+    storageSchemaVersion: 1,
+    folderMounts: []
   });
 });

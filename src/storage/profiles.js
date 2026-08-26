@@ -25,6 +25,7 @@ const PORTABLE_STORAGE_PROFILE = Object.freeze({
     agentRuns: "MagicOS/System/AI-Knowledge/AgentRuns",
     snapshots: "MagicOS/System/Snapshots",
     objectHistory: "MagicOS/System/Object-History",
+    logs: "MagicOS/Logs",
     structuralChanges: "MagicOS/System/Structural-Changes",
     picoteMigration: "MagicOS/System/Picote-Migration"
   })
@@ -51,6 +52,7 @@ const LEGACY_DASHBOARD_STORAGE_PROFILE = Object.freeze({
     agentRuns: "Dashboard/System/AI-Knowledge/AgentRuns",
     snapshots: "Dashboard/System/Snapshots",
     objectHistory: "Dashboard/System/Object-History",
+    logs: "Dashboard/Logs",
     structuralChanges: "Dashboard/System/Structural-Changes",
     picoteMigration: legacyPrivate("System", "Picote-Migration")
   })

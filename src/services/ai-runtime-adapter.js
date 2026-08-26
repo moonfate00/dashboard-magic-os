@@ -115,7 +115,9 @@ function createPrivateAIRuntimeAdapter(options = {}) {
     : async () => null;
   const loadJobs = typeof options.loadJobs === "function" ? options.loadJobs : async () => [];
   const providerSecretIds = PROVIDER_SECRET_IDS;
-  const executionEnabled = options.executionEnabled === true;
+  const executionEnabled = typeof options.executionEnabled === "function"
+    ? options.executionEnabled
+    : () => options.executionEnabled === true;
 
   async function status(statusOptions = {}) {
     let entitlement = normalizeEntitlement({}, { mode: "production", nowMs: statusOptions.nowMs });
@@ -138,9 +140,11 @@ function createPrivateAIRuntimeAdapter(options = {}) {
     } catch (error) {
       jobs = [];
     }
+    let interactiveEnabled = false;
+    try { interactiveEnabled = Boolean(await executionEnabled()); } catch { interactiveEnabled = false; }
     return Object.freeze({
       entitlement,
-      interactiveEnabled: executionEnabled,
+      interactiveEnabled,
       verificationError,
       providers: Object.freeze(providers),
       jobs: Object.freeze(jobs)

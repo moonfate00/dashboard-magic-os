@@ -5,6 +5,10 @@ const test = require("node:test");
 const {
   buildRecordQueryIndex,
   isHealthRecord,
+  isLearningBranchRecord,
+  learningBranches,
+  learningContentTarget,
+  learningRootThreads,
   recordByPath,
   recordReferenceMatches,
   recordType
@@ -49,6 +53,21 @@ const records = [
     frontmatter: { entity_id: "thread-1", type: "course", module: "navigation" }
   },
   {
+    path: "MagicOS/Modules/Navigation/Learning/Branches/philosophy.md",
+    title: "Marxist philosophy",
+    type: "learning-branch",
+    module: "navigation",
+    tags: ["#type/learning-branch"],
+    frontmatter: {
+      entity_id: "branch-1",
+      entity_kind: "thread",
+      type: "learning-branch",
+      learning_level: "P2",
+      module: "navigation",
+      parent_thread: "[[MagicOS/Modules/Navigation/Threads/course|Marxism basics]]"
+    }
+  },
+  {
     path: "MagicOS/Modules/Social/People/Mom.md",
     title: "Mom",
     name: "Mom",
@@ -84,11 +103,13 @@ const records = [
 ];
 
 const index = buildRecordQueryIndex(records, {
-  isStoryThreadRecord: (record) => ["course", "story-thread"].includes(recordType(record))
+  isStoryThreadRecord: (record) => isLearningBranchRecord(record)
+    || ["course", "story-thread"].includes(recordType(record))
 });
 const relationIndex = buildRecordRelationIndex(index, {
   fieldRules: [
     { field: "related_thread", type: "thread-knowledge" },
+    { field: "parent_thread", type: "thread-parent" },
     { field: "person", type: "person-health" },
     { field: "patient", type: "person-health" },
     { field: "asset_members", type: "collection-member" }
@@ -106,9 +127,21 @@ test("record index provides stable path, entity, type, and module lookups", () =
 test("domain collections share one classification contract", () => {
   assert.deepEqual(index.atomicAssets.map((record) => record.frontmatter.entity_id), ["asset-1"]);
   assert.deepEqual(index.knowledgeCards.map((record) => record.frontmatter.entity_id), ["card-1"]);
-  assert.deepEqual(index.storyThreads.map((record) => record.frontmatter.entity_id), ["thread-1"]);
+  assert.deepEqual(index.storyThreads.map((record) => record.frontmatter.entity_id), ["thread-1", "branch-1"]);
   assert.deepEqual(index.people.map((record) => record.frontmatter.entity_id), ["person-mom"]);
   assert.deepEqual(index.healthRecords.map((record) => record.frontmatter.entity_id), ["health-1", "health-2"]);
+});
+
+test("learning hierarchy separates P1 roots from P2 branches", () => {
+  const root = index.byEntityId.get("thread-1");
+  const branch = index.byEntityId.get("branch-1");
+  assert.equal(isLearningBranchRecord(root), false);
+  assert.equal(isLearningBranchRecord(branch), true);
+  assert.deepEqual(learningRootThreads(index).map((record) => record.frontmatter.entity_id), ["thread-1"]);
+  assert.deepEqual(learningBranches(index, root).map((record) => record.frontmatter.entity_id), ["branch-1"]);
+  assert.equal(learningContentTarget(index, root).frontmatter.entity_id, "branch-1");
+  assert.equal(learningContentTarget(index, branch).frontmatter.entity_id, "branch-1");
+  assert.deepEqual(relatedRecords(relationIndex, root, { direction: "incoming", fields: ["parent_thread"] }).map((record) => record.frontmatter.entity_id), ["branch-1"]);
 });
 
 test("record references match paths, aliases, and stable entity IDs", () => {
@@ -139,4 +172,21 @@ test("generic system health checks are not personal health records", () => {
     tags: [],
     frontmatter: { type: "dashboard_health_report", module: "memory" }
   }), false);
+});
+
+test("relation labels remain a host-level localization concern", () => {
+  const localized = buildRecordRelationIndex(index, {
+    resolvedLinks: {
+      "MagicOS/Modules/Navigation/Threads/course.md": {
+        "MagicOS/Modules/Navigation/Learning/Cards/card.md": 1
+      }
+    },
+    wikilinkLabel: "正文引用",
+    wikilinkReverseLabel: "被正文引用",
+    wikilinkSourceLabel: "正文链接"
+  });
+  const relation = localized.outgoing.get("MagicOS/Modules/Navigation/Threads/course.md")[0];
+  assert.equal(relation.label, "正文引用");
+  assert.equal(relation.reverseLabel, "被正文引用");
+  assert.equal(relation.sourceLabel, "正文链接");
 });

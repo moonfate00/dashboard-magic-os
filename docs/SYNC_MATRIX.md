@@ -24,14 +24,15 @@ Dashboard Magic OS is developed as three explicit layers. Synchronization moves 
 | --- | --- | --- | --- | --- |
 | Locale and interface-language core | public-ahead | `src/i18n/` | Monolithic runtime strings | Private OS consumes locale service after application parity |
 | Storage profiles and onboarding | public-ahead | `src/storage/` | Dashboard constants and compatibility behavior | Backport profile accessors without moving existing files |
-| Shared utilities | public-ahead | `src/core/shared.js` | Marked core block in private `main.js` | Replace private block with imported shared module after install packaging exists |
-| Media preview core | public-ahead | `src/services/media-preview.js` | Marked media block plus rich media UI | Backport pure selector; keep rich UI private until migrated |
-| Record query core | public-ahead | `src/services/record-query.js` | Marked record query block | Make public module authoritative after parity fixtures pass |
-| Record relation core | public-ahead | `src/services/record-relations.js` | Same marked record-query block | Make public module authoritative after parity fixtures pass |
+| Brownfield folder mount registry | public-ahead | `src/storage/folder-mounts.js`, mount settings UI, record-source provenance | Private OS still hardcodes application roots | Backport this registry first, then replace private root arrays one application at a time |
+| Shared utilities | shared | `src/core/shared.js` | Imports the reviewed public module through the private build | Public core is authoritative; private reimplementation is blocked by architecture checks |
+| Media preview core | shared | `src/services/media-preview.js` | Imports the reviewed public selector; rich media UI remains private | Keep the pure selector shared while migrating the surrounding application UI separately |
+| Record query core | shared | `src/services/record-query.js` | Imports the reviewed public query index and P1/P2 hierarchy helpers | Extend only the public module, then sync its reviewed hash into the private candidate |
+| Record relation core | shared | `src/services/record-relations.js` | Imports the reviewed public graph and relation queries; injects Chinese labels as host options | Extend only the public module; host labels and private data stay outside the core |
 | AI Provider protocol | public-ahead | `src/services/ai-provider.js` | Provider protocol plus private runtime | Backport protocol only; never credentials or usage data |
 | AI Steward safety core | public-ahead | `src/services/ai-entitlement.js`, `ai-usage.js`, `ai-transport.js`, `ai-job-state.js` | Paid runtime and existing private workflow | Backport stable IDs and lifecycle guards; keep verification and credentials private |
 | AI Steward visible shell | public-ahead | `src/apps/ai-steward/` | Rich private AI hub and executable workflows | Keep public controls disabled until a reviewed private runtime adapter is connected |
-| AI change confirmation and rollback | public-ahead | `src/services/ai-change-plan.js` | Existing private write workflows | Backport the allowlisted plan protocol; keep real writes locked until a private crash-recovery journal is connected |
+| AI change confirmation, journal, and rollback | public-ahead | `src/services/ai-change-plan.js`, `ai-change-journal.js`, recovery view, Obsidian adapter | Existing private writes plus dormant fixed-root and three-slot persistence adapters | Bundle the public core/UI into private runtime; keep real writes locked until it replaces each legacy write path |
 | AI private-runtime seam | public-ahead | `src/services/ai-runtime-adapter.js` | Entitlement verifier, SecretStorage, task runtime | Backport contract only; inject private implementation without copying claims, secrets, or jobs |
 | AI simulated execution lifecycle | public-ahead | `src/services/ai-execution-pipeline.js` | Existing private Provider workflows | Backport lifecycle guards only; real network and write actions remain disconnected |
 | AI Provider execution sandbox | public-ahead | `src/services/ai-provider-sandbox.js` | Monolithic private Provider call sites | Replace call sites through the contract; do not migrate runtime data, prompts, keys, or job notes |
@@ -41,7 +42,7 @@ Dashboard Magic OS is developed as three explicit layers. Synchronization moves 
 | Learning review and AI generation | private-ahead | Deferred | Timed reading, review scheduling, quizzes, knowledge maps, generation pipeline | Extract write and AI behaviors as reversible slices |
 | People and Health read model and view | public-ahead | `src/apps/people-health/` | Rich social profiles and health relations | Exercise privacy-projected read path, then backport the projection boundary |
 | People and Health editing | private-ahead | Deferred | Profile and health-record editors | Extract only after field-level privacy and write-safety design |
-| AI Steward entitlement implementation | private-only | Contract in `docs/AI_STEWARD_AUDIT.md` | Paid unlock, signed entitlement, provider configuration | Implement and test signed adapter; implementation stays private or separately distributed |
+| AI Steward entitlement implementation | private-only | Contract in `docs/AI_STEWARD_AUDIT.md` | Dormant, tested ES256 JWS adapter; paid unlock and signing configuration | Provision production keys and connect only through the bundled private runtime; implementation stays private or separately distributed |
 | Personalization import/export | private-ahead | Planned | Existing private settings workflow | Publish sanitized schema and profile serializer only |
 | Personal records and health content | data-only | Never | User vault | No synchronization |
 | API keys, entitlements, usage ledgers | private-only / data-only | Never | Local runtime or private adapter | No synchronization into Git or release bundles |

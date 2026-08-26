@@ -19,10 +19,13 @@
 - [ ] AI entitlement mode is not `development`.
 - [x] Production entitlement defaults locked and accepts only a verified adapter snapshot.
 - [x] Trial reservation/settlement, cancellation, timeout, retry, and in-process rollback tests pass.
-- [ ] Private crash-recovery journal and unresolved rollback recovery UI are verified before real AI writes unlock.
+- [x] Public crash-recovery journal core and private fixed-root bridge pass contract tests.
+- [x] Public atomic journal persistence and unresolved rollback recovery UI pass locked-state tests.
+- [x] Installed private runtime consumes the bundled journal core, persistence adapter, and recovery UI before real AI writes unlock.
 - [x] AI jobs and usage metadata contain no prompts, outputs, credentials, signed claims, or user records.
 - [x] Provider transport is HTTPS/origin-allowlisted, abortable, and response-bounded.
 - [x] Disconnected Provider sandbox fixes endpoint/model/secret/billing boundaries and rejects caller-defined remote tools.
+- [x] Isolated production candidate drill passes without persisting its ephemeral key or changing the installed development runtime/settings.
 - [ ] Live OpenAI and DeepSeek sandbox smoke tests pass in Obsidian desktop and mobile before controls unlock.
 - [ ] Every bundled image has documented redistribution rights.
 

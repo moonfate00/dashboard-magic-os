@@ -12,7 +12,8 @@ const LOCAL_STATE_KEYS = Object.freeze([
   "storagePreference",
   "storageProfileId",
   "storageSetupCompleted",
-  "storageSchemaVersion"
+  "storageSchemaVersion",
+  "folderMounts"
 ]);
 
 const FORBIDDEN_UPGRADE_KEYS = new Set([

@@ -6,7 +6,7 @@ This audit defines the boundary that must be stable before the paid AI Steward i
 
 The private production implementation passed its existing architecture, provider, entitlement, core-service, and plugin-load regression suite after one real defect was corrected: card-library planning opened a deferred usage reservation but did not settle it on success or abort it on failure. The call site now settles both paths, and the architecture check prevents that regression.
 
-The public core is intentionally not a complete paid AI runtime yet. It now supplies tested, credential-free safety primitives for the later adapter and interface migration.
+The public core supplies the credential-free contracts, Provider lifecycle, entitlement model, durable write journal, recovery rules, and package-safe UI needed by the private adapter. The installed private development candidate now bundles those boundaries and overrides every current billable Provider business entry with a dedicated sandbox method. Production activation remains disabled until real signing configuration and desktop/mobile device testing are complete.
 
 ## Resolved risks
 
@@ -30,6 +30,19 @@ The public core is intentionally not a complete paid AI runtime yet. It now supp
 | Validation or persistence failure charges trial quota | Trial quota is charged only after validated output and successful usage persistence; failure paths release or retain a clearly retryable ticket. |
 | UI input overrides Provider endpoint, model, key, billing, or tools | The disconnected Provider sandbox binds fixed endpoints and injected models, uses only SecretStorage scope, forces billable execution, and accepts only parameter-free OpenAI web search. |
 | Provider dispatch bypasses entitlement, cancellation, accounting, or job projection | The sandbox assembles those boundaries into one tested lifecycle and accepts only its own origin-restricted transport. |
+| Classification exposes Vault paths or lets the model invent storage routes | Reviewed local paths become opaque tokens before dispatch; outputs must use the fixed route catalog and locally selected body profiles. |
+| Learning output invents source files, coverage nodes, or graph references | Card sources map through a local token table, coverage keys are allowlisted, graph edges stay inside the response, and omitted coverage receives a marked local fallback node. |
+| Existing-file planning exposes record paths or lets output patch protected state | Reviewed records become opaque source tokens; output must map to an exact token and reviewed type, while protected fields, credentials, local references, and duplicate field patches fail validation. |
+| Card-library planning expands the user's subject or creates unsafe content | The subject and topic allowlist are fixed locally, tools are disabled, local references and active content are rejected, and excerpts or reviews require their matching public provenance. |
+| Closing an existing-file or card-library planner leaves a billable request running | Both private entry points forward a live abort signal into the sandbox; cancellation releases unsettled trial reservations, and legacy settlement is skipped for sandbox-managed usage. |
+| Card-library apply partially writes over an existing structure | The legacy confirmation path now preflights every generated path and rejects duplicate or occupied targets before its first write. |
+| A user-authored Skill controls Provider prompt, schema, tools, or billing | Skill execution now uses a fixed read-only contract; callers provide only the Skill name, definition, task, timeout, and cancellation signal. |
+| A Skill definition leaks credentials or local Vault paths | The definition and task are checked independently for credential signals, local references are redacted before transport, and validated output cannot reintroduce local paths or WikiLinks. |
+| Skill failure persists raw model output in job metadata | The raw preview fallback was removed; failure state keeps only bounded, redacted status information. |
+| Process termination leaves a multi-file AI change ambiguous | A durable journal is created before mutation, marks every operation around its write, and classifies restart state as untouched, applied, or conflict before any recovery action. |
+| Recovery overwrites a user or sync edit made after the crash | Only exact AI-written content is eligible for automatic rollback. Every third content state requires manual review. |
+| Journal replacement crashes between old and new state | Serialized three-slot persistence restores the last complete commit from `.prev` and discards an uncommitted `.next` slot. |
+| Locked entitlement prevents users from recovering existing work | Recovery inspection and confirmed recovery remain available independently of paid execution access. |
 
 ## Required private adapter contract
 
@@ -43,12 +56,29 @@ The paid entitlement implementation remains outside the public core. Its adapter
 6. Settle every usage ticket exactly once on success or failure; retry persistence before allowing the same reserved quota to be reused.
 7. Read only the fixed OpenAI and DeepSeek SecretStorage slots. The public adapter never enumerates secrets and never accepts arbitrary secret IDs.
 
+## Private P0 implementation status
+
+The bundled private runtime contains `ai-entitlement-adapter.js` with these enforced properties:
+
+- Compact JWS with pinned `ES256` and a product-specific protected-header type.
+- One fixed SecretStorage entitlement slot; no settings, file, network, or Provider-key access.
+- Issuer, audience, subject, issued-at, not-before, expiry, feature, trial-balance, and entitlement-ID validation.
+- `kid`-based public-key rotation plus an explicit revocation list; unknown and revoked keys fail closed.
+- A safe projection that omits subject, entitlement ID, raw claims, signature, and envelope.
+- Contract tests for valid claims, tampering, issuer/audience mismatch, invalid time bounds, unknown features, key rotation/revocation, and fixed-slot access.
+- SecretStorage failures collapse to the fixed verification error; raw platform exceptions do not leave the adapter. Explicit entitlement removal bypasses offline grace so the in-memory runtime locks immediately.
+
+The signed adapter, provisioning commands, fixed-origin Provider sandbox, atomic recovery persistence, and recovery UI are bundled into the installed single-file candidate. `MAGIC_OS_AI_ENTITLEMENT_MODE` remains `development`, so production verification is present but deliberately inactive until issuer metadata, public keys, and real-device gates are ready.
+
 ## Remaining release gates
 
-- Implement the private signature-verification adapter and test issuer/audience/key-rotation behavior.
+- Provision production issuer/audience values and the first offline signing key; embed only reviewed public JWKs.
+- Build a production candidate with the real public verification configuration and test expiry/revocation offline on desktop and mobile.
 - Test live-provider cancellation in Obsidian desktop and mobile; do not fall back to a request API that ignores abort signals.
-- Add UI tests for double-submit prevention, retry, cancellation, rollback, offline state, and expired entitlement.
+- Add remaining UI tests for Provider double-submit prevention, retry, cancellation, offline state, and expired entitlement; crash recovery and unresolved rollback UI tests now pass.
 - Keep development simulators out of production source and distribution artifacts.
 - Run `npm run check` after every AI Steward slice and before packaging.
+
+The isolated production drill now passes with an ephemeral in-memory key and public-only temporary configuration. It verifies build/audit/load plus missing, tampered, active, offline-grace, expired, revoked, and removed entitlement states, then removes the drill candidate and confirms the installed development runtime and plugin settings were unchanged. This does not replace real-device testing or authorize use of the drill issuer in a release.
 
 The AI Steward UI should be migrated only through this boundary. Provider credentials, signed claims, private prompts, user records, and usage ledgers are not public-repository assets.

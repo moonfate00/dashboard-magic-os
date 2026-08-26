@@ -51,6 +51,37 @@ function isKnowledgeCardRecord(record) {
     || tags.includes("#type/knowledge-card");
 }
 
+function isLearningBranchRecord(record) {
+  const frontmatter = recordFrontmatter(record);
+  const type = recordType(record);
+  const level = String(frontmatter.learning_level || frontmatter.thread_level || "").trim().toUpperCase();
+  return type === "learning-branch"
+    || String(frontmatter.thread_type || "").trim().toLowerCase().replace(/_/g, "-") === "learning-branch"
+    || level === "P2";
+}
+
+function learningRootThreads(index) {
+  const threads = Array.isArray(index?.storyThreads) ? index.storyThreads : [];
+  return threads.filter((record) => !isLearningBranchRecord(record));
+}
+
+function learningBranches(index, parent = null) {
+  const threads = Array.isArray(index?.storyThreads) ? index.storyThreads : [];
+  return threads.filter((record) => {
+    if (!isLearningBranchRecord(record)) return false;
+    if (!parent) return true;
+    const frontmatter = recordFrontmatter(record);
+    return recordReferenceMatches(frontmatter.parent_thread ?? frontmatter.learning_parent ?? frontmatter.parent, parent);
+  });
+}
+
+function learningContentTarget(index, record) {
+  if (!record) return null;
+  if (isLearningBranchRecord(record)) return record;
+  const branches = learningBranches(index, record);
+  return branches.length === 1 ? branches[0] : null;
+}
+
 function isPersonRecord(record) {
   const type = recordType(record);
   const tags = Array.isArray(record?.tags) ? record.tags.map(String) : [];
@@ -180,7 +211,11 @@ module.exports = {
   isAtomicAssetRecord,
   isHealthRecord,
   isKnowledgeCardRecord,
+  isLearningBranchRecord,
   isPersonRecord,
+  learningBranches,
+  learningContentTarget,
+  learningRootThreads,
   recordByPath,
   recordEntityId,
   recordFrontmatter,
