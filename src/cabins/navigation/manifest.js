@@ -1,0 +1,39 @@
+"use strict";
+
+const { defineCabinManifest } = require("../../kernel/contracts");
+
+module.exports = defineCabinManifest({
+  id: "navigation",
+  labelKey: "module.navigation",
+  icon: "orbit",
+  accent: "#8d9df0",
+  storageRoles: ["raw", "knowledge", "output", "story"],
+  objectTypes: [
+    { id: "learning-thread", aliases: ["course", "story-thread"], relationFields: ["parent_thread", "related_threads"] },
+    { id: "learning-branch", aliases: ["knowledge-branch"], relationFields: ["parent_thread", "related_threads"] },
+    { id: "knowledge-card", aliases: ["learning-card"], relationFields: ["related_thread", "related_nodes", "sources"] },
+    { id: "knowledge-map", aliases: ["learning-map"], relationFields: ["root_thread", "nodes"] },
+    { id: "hobby-note", aliases: ["interest", "hobby"], relationFields: ["related_threads", "related_assets", "sources"] },
+    { id: "source-note", aliases: ["study-note", "raw-note"], relationFields: ["related_thread", "sources"] },
+    { id: "output", aliases: ["deliverable"], relationFields: ["related_thread", "sources"] }
+  ],
+  views: [
+    { id: "learning-trails", labelKey: "cabin.navigation.view.learning-trails", kind: "list", primary: true },
+    { id: "knowledge-graph", labelKey: "cabin.navigation.view.knowledge-graph", kind: "graph" },
+    { id: "knowledge-base", labelKey: "cabin.navigation.view.knowledge-base", kind: "table" },
+    { id: "pipeline", labelKey: "cabin.navigation.view.pipeline", kind: "board" },
+    { id: "outputs", labelKey: "cabin.navigation.view.outputs", kind: "gallery" }
+  ],
+  actions: [
+    { id: "create-learning-thread", labelKey: "cabin.navigation.action.create-learning-thread", authority: "write", transactionRequired: true, objectTypes: ["learning-thread"], agentCallable: true },
+    { id: "create-learning-branch", labelKey: "cabin.navigation.action.create-learning-branch", authority: "write", transactionRequired: true, objectTypes: ["learning-branch"], agentCallable: true },
+    { id: "create-knowledge-card", labelKey: "cabin.navigation.action.create-knowledge-card", authority: "write", transactionRequired: true, objectTypes: ["knowledge-card"], agentCallable: true },
+    { id: "link-knowledge", labelKey: "cabin.navigation.action.link-knowledge", authority: "write", transactionRequired: true, agentCallable: true }
+  ],
+  healthRules: [
+    { id: "missing-entity-id", severity: "warning" },
+    { id: "duplicate-entity-id", severity: "error" },
+    { id: "unresolved-relation", severity: "warning" }
+  ],
+  agentCapabilities: ["classify-knowledge", "build-learning-tree", "create-learning-card", "trace-source"]
+});

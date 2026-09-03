@@ -12,6 +12,7 @@ const {
   buildRecordRelationIndex,
   relatedRecords
 } = require("../../services/record-relations");
+const { buildCabinShellModel } = require("../../ui/shared-shell");
 
 function queryCondition(value) {
   return value && typeof value === "object" && !Array.isArray(value) ? value : null;
@@ -62,9 +63,12 @@ function memberPreview(record) {
   };
 }
 
-function buildOrganizerModel(records = []) {
-  const recordIndex = buildRecordQueryIndex(records);
-  const relationIndex = buildRecordRelationIndex(recordIndex, {
+function buildOrganizerModel(records = [], options = {}) {
+  const sharedSnapshot = options.cabinRuntime?.snapshot?.(records, {
+    relations: { fieldRules: [{ field: "asset_members", type: "collection-member" }] }
+  });
+  const recordIndex = sharedSnapshot?.index || buildRecordQueryIndex(records);
+  const relationIndex = sharedSnapshot?.relationIndex || buildRecordRelationIndex(recordIndex, {
     fieldRules: [{ field: "asset_members", type: "collection-member" }]
   });
   const collections = (recordIndex.byType.get("asset-collection") || []).filter((record) => recordEntityId(record));
@@ -111,6 +115,7 @@ function buildOrganizerModel(records = []) {
   return {
     recordIndex,
     relationIndex,
+    shell: sharedSnapshot ? buildCabinShellModel(sharedSnapshot, "assets", options.shell) : null,
     collections: items,
     roots: items.filter((item) => !item.parentId),
     byId: new Map(items.map((item) => [item.id, item]))

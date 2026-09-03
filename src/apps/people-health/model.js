@@ -12,6 +12,7 @@ const {
   buildRecordRelationIndex,
   relatedRecords
 } = require("../../services/record-relations");
+const { buildCabinShellModel } = require("../../ui/shared-shell");
 
 const HEALTH_TYPES = new Set(["checkup", "medication", "metric", "allergy", "procedure", "symptom", "medical"]);
 
@@ -75,9 +76,20 @@ function personProjection(record, healthRecords) {
   });
 }
 
-function buildPeopleHealthModel(records = []) {
-  const recordIndex = buildRecordQueryIndex(records);
-  const relationIndex = buildRecordRelationIndex(recordIndex, {
+function buildPeopleHealthModel(records = [], options = {}) {
+  const sharedSnapshot = options.cabinRuntime?.snapshot?.(records, {
+    relations: {
+      fieldRules: [
+        { field: "person", type: "person-health", sourcePredicate: isHealthRecord, targetPredicate: isPersonRecord },
+        { field: "patient", type: "person-health", sourcePredicate: isHealthRecord, targetPredicate: isPersonRecord },
+        { field: "related_person", type: "person-health", sourcePredicate: isHealthRecord, targetPredicate: isPersonRecord },
+        { field: "health_person", type: "person-health", sourcePredicate: isHealthRecord, targetPredicate: isPersonRecord },
+        { field: "subject", type: "person-health", sourcePredicate: isHealthRecord, targetPredicate: isPersonRecord }
+      ]
+    }
+  });
+  const recordIndex = sharedSnapshot?.index || buildRecordQueryIndex(records);
+  const relationIndex = sharedSnapshot?.relationIndex || buildRecordRelationIndex(recordIndex, {
     fieldRules: [
       { field: "person", type: "person-health", sourcePredicate: isHealthRecord, targetPredicate: isPersonRecord },
       { field: "patient", type: "person-health", sourcePredicate: isHealthRecord, targetPredicate: isPersonRecord },
@@ -101,6 +113,7 @@ function buildPeopleHealthModel(records = []) {
     .map(healthRecordProjection)
     .sort((a, b) => b.date.localeCompare(a.date));
   return Object.freeze({
+    shell: sharedSnapshot ? buildCabinShellModel(sharedSnapshot, "social", options.shell) : null,
     people: Object.freeze(people),
     byId: new Map(people.map((person) => [person.id, person])),
     unassigned: Object.freeze(unassigned),

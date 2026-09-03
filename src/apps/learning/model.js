@@ -16,6 +16,7 @@ const {
   buildRecordRelationIndex,
   relatedRecords
 } = require("../../services/record-relations");
+const { buildCabinShellModel } = require("../../ui/shared-shell");
 
 const THREAD_TYPES = new Set([
   "context-thread",
@@ -27,6 +28,8 @@ const THREAD_TYPES = new Set([
   "course",
   "collection"
 ]);
+
+const LEARNING_BRANCH_COLORS = ["#6f9eff", "#f2b85b", "#a78bfa", "#4fc3c8", "#66c79a", "#ef8d6d", "#df77b5", "#8ca5b8"];
 
 function isStoryThreadRecord(record) {
   const frontmatter = recordFrontmatter(record);
@@ -148,16 +151,62 @@ function moduleCounts(records) {
   }, {});
 }
 
+function learningBranchPresentation(record, index = 0) {
+  const frontmatter = recordFrontmatter(record);
+  const color = String(frontmatter.learning_branch_color || "").trim();
+  return {
+    key: String(frontmatter.learning_branch_key || recordEntityId(record) || record?.path || `branch-${index + 1}`),
+    order: Math.max(1, Number(frontmatter.learning_branch_order || index + 1)),
+    color: /^#[0-9a-f]{6}$/i.test(color) ? color : LEARNING_BRANCH_COLORS[index % LEARNING_BRANCH_COLORS.length]
+  };
+}
+
+function learningCardTopic(record) {
+  const frontmatter = recordFrontmatter(record);
+  const explicit = String(frontmatter.knowledge_topic || frontmatter.topic || "").trim();
+  if (explicit && explicit !== "未分主题") return explicit;
+  const path = String(frontmatter.knowledge_path || frontmatter.coverage_heading || "")
+    .split(/\s*[·›>]\s*/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+  return path[1] || String(frontmatter.knowledge_path || "").trim() || "";
+}
+
+function summarizeCards(cards = []) {
+  return {
+    progress: cards.length ? Math.round(cards.reduce((sum, card) => sum + card.progress, 0) / cards.length) : 0,
+    cardCount: cards.length,
+    dueCount: cards.filter((card) => card.isDue).length,
+    newCount: cards.filter((card) => card.isNew).length,
+    masteredCount: cards.filter((card) => card.mastered).length
+  };
+}
+
+function cardRelationTargets(frontmatter = {}) {
+  const raw = Array.isArray(frontmatter.card_relations)
+    ? frontmatter.card_relations
+    : frontmatter.card_relations ? [frontmatter.card_relations] : [];
+  return raw.map((relation) => {
+    const value = relation && typeof relation === "object" ? relation.target || relation.path || relation.entity_id : relation;
+    return String(value || "").replace(/^!?\[\[/, "").replace(/\]\]$/, "").split("|")[0].trim();
+  }).filter(Boolean);
+}
+
 function cardPreview(record, now) {
   const frontmatter = recordFrontmatter(record);
   return {
     id: recordEntityId(record) || record.path,
     record,
     title: String(frontmatter.title || record?.title || record?.name || ""),
-    topic: String(frontmatter.knowledge_topic || frontmatter.topic || ""),
+    topic: learningCardTopic(record),
+    knowledgePath: String(frontmatter.knowledge_path || frontmatter.coverage_heading || ""),
+    lenses: Array.isArray(frontmatter.learning_lenses)
+      ? frontmatter.learning_lenses.map(String)
+      : frontmatter.learning_lenses ? [String(frontmatter.learning_lenses)] : [],
     level: String(frontmatter.cognitive_level || ""),
     prompt: String(frontmatter.prompt || ""),
     answer: String(frontmatter.answer || frontmatter.summary || ""),
+    relationTargets: cardRelationTargets(frontmatter),
     sourceCount: Array.isArray(frontmatter.source_refs) ? frontmatter.source_refs.length : frontmatter.source_refs ? 1 : 0,
     ...knowledgeCardState(record, now)
   };
@@ -176,8 +225,23 @@ function buildLearningModel(records = [], options = {}) {
   const storyClassifier = typeof options.isStoryThreadRecord === "function"
     ? options.isStoryThreadRecord
     : isStoryThreadRecord;
-  const recordIndex = buildRecordQueryIndex(records, { isStoryThreadRecord: storyClassifier });
-  const relationIndex = buildRecordRelationIndex(recordIndex, {
+  const sharedSnapshot = options.cabinRuntime?.snapshot?.(records, {
+    query: { isStoryThreadRecord: storyClassifier },
+    relations: {
+      fieldRules: [
+        { field: "related_thread", type: "thread-knowledge" },
+        { field: "related_threads", type: "thread-member" },
+        { field: "thread", type: "thread-knowledge" },
+        { field: "threads", type: "thread-member" },
+        { field: "project", type: "thread-member" },
+        { field: "context_thread", type: "thread-member" },
+        { field: "parent_thread", type: "thread-parent" }
+      ],
+      resolvedLinks: options.resolvedLinks
+    }
+  });
+  const recordIndex = sharedSnapshot?.index || buildRecordQueryIndex(records, { isStoryThreadRecord: storyClassifier });
+  const relationIndex = sharedSnapshot?.relationIndex || buildRecordRelationIndex(recordIndex, {
     fieldRules: [
       { field: "related_thread", type: "thread-knowledge" },
       { field: "related_threads", type: "thread-member" },
@@ -202,7 +266,8 @@ function buildLearningModel(records = [], options = {}) {
     const cards = cardRecords.map((card) => cardPreview(card, now));
     const cardPaths = new Set(cards.map((card) => card.record.path));
     const members = linked.filter((candidate) => !cardPaths.has(candidate.path) && !isKnowledgeCardRecord(candidate) && !storyClassifier(candidate));
-    const progress = cards.length ? Math.round(cards.reduce((sum, card) => sum + card.progress, 0) / cards.length) : 0;
+    const cardSummary = summarizeCards(cards);
+    const presentation = isBranch ? learningBranchPresentation(record) : null;
     return {
       id: recordEntityId(record) || record.path,
       record,
@@ -215,12 +280,14 @@ function buildLearningModel(records = [], options = {}) {
       parentId: "",
       contentId: isBranch ? (recordEntityId(record) || record.path) : "",
       branches: [],
+      branchSections: [],
+      aggregateCards: [],
+      aggregateMembers: [],
+      branchKey: presentation?.key || "",
+      branchColor: presentation?.color || "",
+      branchOrder: presentation?.order || 0,
       enabled: frontmatter.learning_enabled === true || String(frontmatter.learning_enabled || "").toLowerCase() === "true",
-      progress,
-      cardCount: cards.length,
-      dueCount: cards.filter((card) => card.isDue).length,
-      newCount: cards.filter((card) => card.isNew).length,
-      masteredCount: cards.filter((card) => card.mastered).length,
+      ...cardSummary,
       memberCount: members.length,
       moduleCounts: moduleCounts(members),
       cards: cards.sort((a, b) => Number(b.isDue) - Number(a.isDue) || a.progress - b.progress || a.title.localeCompare(b.title)),
@@ -242,17 +309,38 @@ function buildLearningModel(records = [], options = {}) {
     thread.branches = learningBranches(recordIndex, thread.record)
       .map((record) => modelByPath.get(record.path))
       .filter(Boolean)
-      .sort(sortLearningThreads);
+      .sort((a, b) => a.branchOrder - b.branchOrder || sortLearningThreads(a, b));
     thread.branches.forEach((branch) => {
       branch.parentId = thread.id;
     });
     const contentRecord = learningContentTarget(recordIndex, thread.record);
     thread.contentId = contentRecord ? modelByPath.get(contentRecord.path)?.id || "" : "";
+    thread.aggregateCards = Array.from(new Map(thread.branches
+      .flatMap((branch) => branch.cards)
+      .map((card) => [card.record.path, card])).values());
+    thread.aggregateMembers = Array.from(new Map(thread.branches
+      .flatMap((branch) => branch.members)
+      .map((member) => [member.path, member])).values());
+    thread.branchSections = thread.branches.map((branch) => ({
+      id: branch.id,
+      key: branch.branchKey,
+      title: branch.title,
+      color: branch.branchColor,
+      order: branch.branchOrder,
+      cards: branch.cards,
+      members: branch.members,
+      ...summarizeCards(branch.cards)
+    }));
+    Object.assign(thread, {
+      aggregateMemberCount: thread.aggregateMembers.length,
+      ...Object.fromEntries(Object.entries(summarizeCards(thread.aggregateCards)).map(([key, value]) => [`aggregate${key[0].toUpperCase()}${key.slice(1)}`, value]))
+    });
   });
 
   return {
     recordIndex,
     relationIndex,
+    shell: sharedSnapshot ? buildCabinShellModel(sharedSnapshot, "navigation", options.shell) : null,
     threads,
     branches,
     byId: new Map(allThreads.map((thread) => [thread.id, thread])),
@@ -288,6 +376,8 @@ module.exports = {
   knowledgeCardComputedProgress,
   knowledgeCardProgress,
   knowledgeCardState,
+  learningBranchPresentation,
+  learningCardTopic,
   learningContentEntry,
   learningThreadConfig,
   learningThreadEntry,

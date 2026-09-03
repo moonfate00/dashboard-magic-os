@@ -1,5 +1,7 @@
 # Public Runtime Migration Plan
 
+The cross-application architecture is now governed by the [Five-Cabin Foundation](FIVE_CABIN_FOUNDATION.md). The phases below remain the historical public-runtime extraction record; new work must also satisfy the five-cabin kernel and migration gates.
+
 The private runtime remains the production source until each slice is migrated and verified. The public repository does not replace the installed plugin yet.
 
 Cross-edition ownership and backport direction are tracked in the [Public / Private Sync Matrix](SYNC_MATRIX.md).
@@ -67,10 +69,11 @@ Acceptance evidence:
 
 Migrate one complete application slice at a time:
 
-1. Organizer — read-only application slice complete
-2. Learning Threads — read-only application slice complete
-3. People & Health — privacy-projected read-only application slice complete
-4. AI Steward
+1. Organizer — read-only application slice complete; shared context bar adopted
+2. Learning Threads — read-only application slice complete; shared context bar adopted
+3. People & Health — privacy-projected read-only application slice complete; shared context bar adopted
+4. Command — first shared-shell read surface complete (queue, filters, project summaries)
+5. AI Steward
 
 Every slice requires Chinese regression, English review, public build, and release audit.
 

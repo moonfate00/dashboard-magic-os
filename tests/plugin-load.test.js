@@ -293,14 +293,17 @@ test("auto language follows Obsidian at plugin load", async () => {
   assert.equal(plugin.commands[2].name, "Open Learning Threads");
   assert.equal(plugin.commands[3].name, "Open People & Health");
   assert.equal(plugin.commands[4].name, "Open AI Steward");
+  assert.equal(plugin.commands[5].name, "Open Command Cabin");
   assert.equal(plugin.settingTabs.length, 1);
   assert.equal(plugin.views.has("dashboard-magic-os-organizer"), true);
   assert.equal(plugin.views.has("dashboard-magic-os-learning"), true);
   assert.equal(plugin.views.has("dashboard-magic-os-people-health"), true);
   assert.equal(plugin.views.has("dashboard-magic-os-ai-steward"), true);
+  assert.equal(plugin.views.has("dashboard-magic-os-command"), true);
   assert.equal(typeof plugin.services.mediaPreview.selectMediaPreview, "function");
   assert.equal(typeof plugin.services.recordQuery.buildRecordQueryIndex, "function");
   assert.equal(typeof plugin.services.recordRelations.buildRecordRelationIndex, "function");
+  assert.equal(typeof plugin.services.commandModel.buildCommandModel, "function");
   assert.equal(typeof plugin.services.aiChangePlan.createAIChangeProtocol, "function");
   assert.equal(typeof plugin.services.aiChangeJournal.createAIChangeJournal, "function");
   assert.equal(typeof plugin.services.aiProviderSandbox.createAIProviderSandbox, "function");
@@ -394,6 +397,33 @@ test("AI Steward command keeps the paid entrance visible", async () => {
   assert.equal(status.interactiveEnabled, false);
   assert.deepEqual(status.providers, []);
   assert.deepEqual(status.jobs, []);
+});
+
+test("Command Cabin command activates the shared command view", async () => {
+  appLanguage = "en-US";
+  const app = createApp();
+  const PluginClass = loadPlugin();
+  const plugin = new PluginClass(app);
+  plugin.initialData = { interfaceLanguage: "auto" };
+  await plugin.onload();
+  await plugin.commands[5].callback();
+  assert.deepEqual(app.viewStates, [{ type: "dashboard-magic-os-command", active: true }]);
+});
+
+test("Command Cabin renders the shared context bar and an empty-state queue", async () => {
+  appLanguage = "en-US";
+  const app = createApp();
+  const PluginClass = loadPlugin();
+  const plugin = new PluginClass(app);
+  plugin.initialData = { interfaceLanguage: "auto" };
+  await plugin.onload();
+  const view = plugin.views.get("dashboard-magic-os-command")({ app });
+  const content = new ElementMock();
+  view.containerEl = { children: [new ElementMock(), content] };
+  await view.onOpen();
+  assert.equal(content.all((element) => element.options.cls === "mos-cabin-context-bar").length, 1);
+  assert.equal(content.all((element) => element.options.cls === "mos-command-toolbar").length, 1);
+  assert.equal(content.all((element) => element.options.cls === "mos-empty-state").length, 1);
 });
 
 test("locked AI Steward renders visible capability buttons that cannot be clicked", async () => {
@@ -533,6 +563,7 @@ test("manual language persists and refreshes translated command state", async ()
   assert.equal(plugin.commands[2].name, "打开学习脉络");
   assert.equal(plugin.commands[3].name, "打开人物健康");
   assert.equal(plugin.commands[4].name, "打开 AI 管家");
+  assert.equal(plugin.commands[5].name, "打开指挥舱");
   assert.deepEqual(app.events[0], ["dashboard-magic-os:locale-changed", "zh-CN"]);
   assert.equal(notices.at(-1), "界面语言已切换为简体中文");
 });

@@ -229,6 +229,16 @@
   contain-intrinsic-size: 9rem;
 }
 
+.mos-learning-thread-card {
+  border-color: color-mix(in srgb, var(--learning-branch-color, var(--interactive-accent)) 30%, var(--background-modifier-border));
+  background: linear-gradient(145deg, color-mix(in srgb, var(--learning-branch-color, var(--interactive-accent)) 7%, var(--background-secondary)), var(--background-secondary) 58%);
+}
+
+.mos-learning-card {
+  border-color: color-mix(in srgb, var(--learning-branch-color, var(--interactive-accent)) 28%, var(--background-modifier-border));
+  background: linear-gradient(145deg, color-mix(in srgb, var(--learning-branch-color, var(--interactive-accent)) 6%, var(--background-secondary)), var(--background-secondary) 55%);
+}
+
 .mos-learning-thread-card:hover,
 .mos-learning-card:hover,
 .mos-learning-source:hover,
@@ -283,7 +293,7 @@
 .mos-learning-progress-track > div {
   height: 100%;
   border-radius: inherit;
-  background: var(--interactive-accent);
+  background: var(--learning-branch-color, var(--interactive-accent));
 }
 
 .mos-learning-detail-layout {
@@ -347,6 +357,1156 @@
   gap: 0.65rem;
 }
 
+.mos-learning-card-sections {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.mos-learning-card-section {
+  border: 1px solid color-mix(in srgb, var(--learning-branch-color) 38%, var(--background-modifier-border));
+  border-radius: var(--radius-l);
+  background: linear-gradient(145deg, color-mix(in srgb, var(--learning-branch-color) 8%, var(--background-primary)), var(--background-primary) 55%);
+  overflow: hidden;
+}
+
+.mos-learning-card-section > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  cursor: pointer;
+  list-style: none;
+  background: color-mix(in srgb, var(--learning-branch-color) 6%, transparent);
+}
+
+.mos-learning-card-section > summary::-webkit-details-marker {
+  display: none;
+}
+
+.mos-learning-card-section > summary > div {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.mos-learning-card-section > summary small {
+  color: color-mix(in srgb, var(--learning-branch-color) 78%, var(--text-normal));
+  font-size: var(--font-ui-smaller);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.mos-learning-card-section > summary strong {
+  color: var(--text-normal);
+}
+
+.mos-learning-card-section > summary span {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+}
+
+.mos-learning-card-section > summary em {
+  color: color-mix(in srgb, var(--learning-branch-color) 76%, var(--text-normal));
+  font-style: normal;
+  font-weight: 700;
+}
+
+.mos-learning-card-section > .mos-learning-card-list {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+  padding: 0 0.75rem 0.75rem;
+}
+
+.mos-learning-knowledge-graph {
+  display: grid;
+  gap: 0.75rem;
+  min-height: 42rem;
+}
+
+.mos-learning-graph-tools {
+  position: relative;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: minmax(15rem, 1fr) auto;
+  gap: 0.65rem;
+}
+
+.mos-learning-graph-tools > input {
+  min-height: 2.4rem;
+  padding-inline: 0.85rem;
+  border: 1px solid color-mix(in srgb, var(--interactive-accent) 30%, var(--background-modifier-border));
+  border-radius: var(--radius-m);
+}
+
+.mos-learning-graph-results {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  display: none;
+  width: min(32rem, 100%);
+  max-height: 22rem;
+  padding: 0.35rem;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-m);
+  background: var(--background-primary);
+  box-shadow: 0 1rem 2.5rem rgba(8, 14, 28, 0.25);
+  overflow: auto;
+}
+
+.mos-learning-graph-tools.has-results .mos-learning-graph-results {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.mos-learning-graph-results > button {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.55rem 0.65rem;
+  text-align: left;
+  border: 0;
+  border-radius: var(--radius-s);
+  color: var(--text-normal);
+  background: transparent;
+}
+
+.mos-learning-graph-results > button:hover {
+  background: var(--background-secondary);
+}
+
+.mos-learning-graph-results small {
+  color: var(--text-muted);
+}
+
+.mos-learning-graph-zoom {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.mos-learning-graph-zoom button.is-active {
+  color: var(--text-accent);
+  background: color-mix(in srgb, var(--interactive-accent) 14%, var(--background-primary));
+}
+
+.mos-learning-graph-zoom-label {
+  min-width: 2.4rem;
+  color: var(--text-muted);
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-smaller);
+  font-weight: 800;
+  text-align: center;
+}
+
+.mos-learning-graph-zoom-slider {
+  width: 6rem;
+  min-width: 6rem;
+  accent-color: var(--interactive-accent);
+}
+
+.mos-learning-graph-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(15rem, 20rem);
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 0.75rem;
+  min-height: 40rem;
+}
+
+.mos-learning-graph-contextbar {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  min-height: 2.6rem;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-m);
+  background: color-mix(in srgb, var(--background-secondary) 88%, transparent);
+  overflow: hidden;
+}
+
+.mos-learning-graph-context-summary {
+  display: flex;
+  align-items: baseline;
+  flex: 0 0 auto;
+  gap: 0.45rem;
+  white-space: nowrap;
+}
+
+.mos-learning-graph-context-summary small {
+  color: var(--text-accent);
+  font-size: var(--font-ui-smaller);
+  font-weight: 900;
+  letter-spacing: .1em;
+}
+
+.mos-learning-graph-context-summary strong { color: var(--text-normal); }
+.mos-learning-graph-context-summary span { color: var(--text-muted); font-size: var(--font-ui-smaller); }
+
+.mos-learning-graph-context-topics {
+  display: flex;
+  flex: 1 1 auto;
+  gap: .3rem;
+  min-width: 0;
+  padding-bottom: .1rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.mos-learning-graph-context-topics button {
+  flex: 0 0 auto;
+  padding: .2rem .45rem;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 999px;
+  color: var(--text-muted);
+  background: var(--background-primary);
+  box-shadow: none;
+  font-size: var(--font-ui-smaller);
+}
+
+.mos-learning-graph-context-topics button:hover,
+.mos-learning-graph-context-topics button.is-active {
+  border-color: color-mix(in srgb, var(--interactive-accent) 55%, var(--background-modifier-border));
+  color: var(--text-normal);
+  background: color-mix(in srgb, var(--interactive-accent) 12%, var(--background-primary));
+}
+
+.mos-learning-graph-context-topics.is-branches button {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  border-color: color-mix(in srgb, var(--learning-branch-color) 34%, var(--background-modifier-border));
+  background: color-mix(in srgb, var(--learning-branch-color) 7%, var(--background-primary));
+}
+
+.mos-learning-graph-context-topics.is-branches button:hover {
+  border-color: color-mix(in srgb, var(--learning-branch-color) 68%, var(--background-modifier-border));
+  background: color-mix(in srgb, var(--learning-branch-color) 13%, var(--background-primary));
+}
+
+.mos-learning-graph-context-topics.is-branches i {
+  width: .4rem;
+  height: .4rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--learning-branch-color);
+  box-shadow: 0 0 .45rem color-mix(in srgb, var(--learning-branch-color) 66%, transparent);
+}
+
+.mos-learning-graph-context-topics.is-branches strong { color: var(--text-normal); font-size: var(--font-ui-smaller); }
+.mos-learning-graph-context-topics.is-branches span { color: color-mix(in srgb, var(--learning-branch-color) 72%, var(--text-muted)); font-family: var(--font-monospace); font-size: var(--font-ui-smaller); }
+
+.mos-learning-graph-stage {
+  min-height: 40rem;
+  border: 1px solid color-mix(in srgb, var(--interactive-accent) 22%, var(--background-modifier-border));
+  border-radius: var(--radius-l);
+  background:
+    radial-gradient(circle at center, color-mix(in srgb, var(--interactive-accent) 8%, transparent), transparent 38%),
+    radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--text-muted) 18%, transparent) 1px, transparent 1.2px),
+    var(--background-secondary);
+  background-size: auto, 1.5rem 1.5rem, auto;
+  cursor: grab;
+  overflow: hidden;
+}
+
+.mos-learning-graph-stage.is-focus-layout {
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--background-primary) 32%, transparent), transparent 42%),
+    radial-gradient(circle at 73% 50%, color-mix(in srgb, var(--interactive-accent) 9%, transparent), transparent 46%),
+    radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--text-muted) 18%, transparent) 1px, transparent 1.2px),
+    var(--background-secondary);
+  background-size: auto, auto, 1.5rem 1.5rem, auto;
+}
+
+.mos-learning-graph-stage.has-topic-focus {
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--background-primary) 42%, transparent), transparent 46%),
+    radial-gradient(circle at 74% 28%, color-mix(in srgb, var(--interactive-accent) 12%, transparent), transparent 38%),
+    radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--text-muted) 15%, transparent) 1px, transparent 1.2px),
+    var(--background-secondary);
+  background-size: auto, auto, 1.5rem 1.5rem, auto;
+}
+
+.mos-learning-graph-stage.is-card-overview {
+  background:
+    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--interactive-accent) 12%, transparent), transparent 24%),
+    radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--text-muted) 15%, transparent) 1px, transparent 1.2px),
+    var(--background-secondary);
+  background-size: auto, 1.5rem 1.5rem, auto;
+}
+
+.mos-learning-graph-stage > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 40rem;
+  touch-action: none;
+  user-select: none;
+}
+
+.mos-learning-graph-edges line {
+  stroke: color-mix(in srgb, var(--interactive-accent) 33%, var(--background-modifier-border));
+  stroke-width: 1.4;
+}
+
+.mos-learning-graph-edges circle.mos-learning-focus-orbit {
+  fill: none;
+  stroke: color-mix(in srgb, var(--interactive-accent) 22%, transparent);
+  stroke-width: 1.1;
+  stroke-dasharray: 5 11;
+  opacity: .72;
+}
+
+.mos-learning-graph-edges circle.mos-learning-focus-orbit.is-orbit-2 { stroke-dasharray: 2 9; opacity: .5; }
+.mos-learning-graph-edges circle.mos-learning-focus-orbit.is-orbit-3 { stroke: color-mix(in srgb, var(--interactive-accent) 34%, transparent); stroke-dasharray: none; opacity: .62; }
+
+.mos-learning-graph-edges line.is-muted,
+.mos-learning-graph-node.is-muted {
+  opacity: 0.22;
+}
+
+.mos-learning-graph-node.is-muted {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: opacity .18s ease, transform .18s ease;
+}
+
+.mos-learning-graph-node.is-branch.is-muted:hover,
+.mos-learning-graph-node.is-branch.is-muted:focus-visible {
+  opacity: .76;
+  transform: scale(1.08);
+}
+
+.mos-learning-graph-node.is-branch.is-muted:hover circle,
+.mos-learning-graph-node.is-branch.is-muted:focus-visible circle {
+  stroke-width: 3;
+  filter: drop-shadow(0 0 .8rem color-mix(in srgb, var(--learning-branch-color) 52%, transparent));
+}
+
+.mos-learning-graph-edges line.is-selected {
+  stroke: color-mix(in srgb, var(--interactive-accent) 72%, var(--text-normal));
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 0.3rem color-mix(in srgb, var(--interactive-accent) 38%, transparent));
+}
+
+.mos-learning-graph-card-edges line,
+.mos-learning-graph-card-edges path {
+  fill: none;
+  stroke: color-mix(in srgb, var(--interactive-accent) 20%, var(--background-modifier-border));
+  stroke-width: 0.9;
+  transition: opacity 0.18s ease, stroke-width 0.18s ease;
+}
+
+.mos-learning-graph-card-edges line.is-muted-topic,
+.mos-learning-graph-card-edges path.is-muted-topic {
+  opacity: 0.055;
+}
+
+.mos-learning-graph-card-edges line.is-active-topic,
+.mos-learning-graph-card-edges path.is-active-topic {
+  stroke: color-mix(in srgb, var(--learning-branch-color) 58%, var(--text-normal));
+  stroke-width: 2.1;
+  stroke-dasharray: 8 9;
+  opacity: 0.94;
+  filter: drop-shadow(0 0 0.3rem color-mix(in srgb, var(--learning-branch-color) 42%, transparent));
+  animation: mos-learning-energy-flow 1.25s linear infinite;
+}
+
+.mos-learning-graph-card-edges path.is-topic-bundle {
+  stroke-width: 1.1;
+  opacity: 0.42;
+}
+
+.mos-learning-graph-card-edges path.is-navigation-bundle {
+  stroke-dasharray: 3 7;
+  opacity: 0.13;
+}
+
+.mos-learning-graph-skill-paths {
+  pointer-events: none;
+}
+
+.mos-learning-graph-skill-paths path.is-skill-energy-path {
+  fill: none;
+  stroke: color-mix(in srgb, var(--learning-branch-color) 84%, white 10%);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 6 10;
+  opacity: 0.82;
+  filter: drop-shadow(0 0 0.4rem color-mix(in srgb, var(--learning-branch-color) 68%, transparent));
+  animation: mos-learning-energy-flow 1.1s linear infinite;
+}
+
+@keyframes mos-learning-energy-flow {
+  to { stroke-dashoffset: -32; }
+}
+
+.mos-learning-graph-card-edges line.is-relation {
+  stroke: var(--color-cyan);
+  stroke-width: 2.2;
+  stroke-dasharray: 7 5;
+}
+
+.mos-learning-graph-node {
+  cursor: pointer;
+}
+
+.mos-learning-graph-node.is-root circle {
+  fill: color-mix(in srgb, var(--interactive-accent) 18%, var(--background-primary));
+  stroke: var(--interactive-accent);
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0.55rem 1rem color-mix(in srgb, var(--interactive-accent) 25%, transparent));
+}
+
+.mos-learning-graph-node.is-root text {
+  fill: var(--text-normal);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.mos-learning-graph-node.is-root.is-planet-closeup circle.is-planet-body {
+  fill: color-mix(in srgb, var(--interactive-accent) 10%, var(--background-primary));
+  stroke: color-mix(in srgb, var(--interactive-accent) 88%, white);
+  stroke-width: 4;
+  filter: drop-shadow(0 0 .75rem color-mix(in srgb, var(--interactive-accent) 58%, transparent)) drop-shadow(0 0 2.3rem color-mix(in srgb, var(--interactive-accent) 28%, transparent));
+}
+
+.mos-learning-graph-node.is-root.is-planet-closeup circle.is-planet-atmosphere {
+  fill: none;
+  stroke: color-mix(in srgb, var(--interactive-accent) 38%, transparent);
+  stroke-width: 1.4;
+  stroke-dasharray: 8 13;
+}
+
+.mos-learning-graph-node.is-root.is-planet-closeup text:not(.is-meta) {
+  font-size: 1.55rem;
+  letter-spacing: .08em;
+}
+
+.mos-learning-graph-node text.is-meta {
+  fill: var(--text-muted);
+  font-size: 0.55rem;
+  font-weight: 600;
+}
+
+.mos-learning-graph-node.is-branch circle {
+  fill: color-mix(in srgb, var(--learning-branch-color) 17%, var(--background-primary));
+  stroke: color-mix(in srgb, var(--learning-branch-color) 78%, var(--text-normal));
+  stroke-width: 2;
+  filter: drop-shadow(0 0.4rem 0.8rem color-mix(in srgb, var(--learning-branch-color) 23%, transparent));
+}
+
+.mos-learning-graph-node.is-branch.is-selected circle {
+  stroke-width: 4;
+  filter: drop-shadow(0 0 0.9rem color-mix(in srgb, var(--learning-branch-color) 52%, transparent));
+}
+
+.mos-learning-graph-node.is-branch text {
+  fill: color-mix(in srgb, var(--learning-branch-color) 78%, var(--text-normal));
+  font-size: 0.62rem;
+  font-weight: 800;
+}
+
+.mos-learning-graph-node.is-card circle {
+  fill: color-mix(in srgb, var(--learning-branch-color) 82%, var(--background-primary));
+  stroke: var(--learning-branch-color);
+  filter: drop-shadow(0 0 0.35rem color-mix(in srgb, var(--learning-branch-color) 48%, transparent));
+}
+
+.mos-learning-graph-node.is-card.is-selected circle {
+  fill: var(--learning-branch-color);
+  stroke: var(--text-normal);
+  stroke-width: 2.2;
+}
+
+.mos-learning-graph-node.is-card.is-mastered {
+  opacity: 0.68;
+}
+
+.mos-learning-graph-topic-cluster {
+  cursor: pointer;
+  outline: none;
+  transition: opacity 0.18s ease;
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation: mos-learning-topic-reveal 0.42s cubic-bezier(0.2, 0.82, 0.24, 1) var(--cluster-delay, 0ms) backwards;
+}
+
+@keyframes mos-learning-topic-reveal {
+  from {
+    opacity: 0;
+    transform: translateX(-18px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+.mos-learning-graph-topic-cluster rect.is-cluster-shell {
+  fill: color-mix(in srgb, var(--background-primary) 91%, var(--learning-branch-color) 9%);
+  stroke: color-mix(in srgb, var(--learning-branch-color) 32%, var(--background-modifier-border));
+  stroke-width: 1;
+  transition: fill 0.18s ease, stroke 0.18s ease, filter 0.18s ease;
+}
+
+.mos-learning-graph-topic-cluster circle.is-cluster-mark {
+  fill: var(--learning-branch-color);
+  opacity: 0.8;
+}
+
+.mos-learning-graph-topic-cluster text.is-cluster-title {
+  fill: color-mix(in srgb, var(--learning-branch-color) 72%, var(--text-normal));
+  font-size: 0.56rem;
+  font-weight: 800;
+  letter-spacing: 0.035em;
+  pointer-events: none;
+}
+
+.mos-learning-graph-topic-cluster:hover rect.is-cluster-shell,
+.mos-learning-graph-topic-cluster.is-active rect.is-cluster-shell {
+  fill: color-mix(in srgb, var(--background-primary) 84%, var(--learning-branch-color) 16%);
+  stroke: color-mix(in srgb, var(--learning-branch-color) 72%, var(--text-normal));
+  stroke-width: 1.5;
+  filter: drop-shadow(0 0 0.5rem color-mix(in srgb, var(--learning-branch-color) 20%, transparent));
+}
+
+.mos-learning-graph-topic-cluster.is-spotlight rect.is-cluster-shell {
+  fill: color-mix(in srgb, var(--background-primary) 80%, var(--learning-branch-color) 20%);
+  stroke-width: 1.8;
+  filter: drop-shadow(0 0 0.8rem color-mix(in srgb, var(--learning-branch-color) 24%, transparent));
+}
+
+.mos-learning-graph-topic-cluster.is-spotlight text.is-cluster-title {
+  font-size: 0.68rem;
+  letter-spacing: 0.055em;
+}
+
+.mos-learning-graph-topic-cluster text.is-skill-branch-label {
+  fill: color-mix(in srgb, var(--learning-branch-color) 75%, var(--text-muted));
+  font-family: var(--font-monospace);
+  font-size: 0.44rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  opacity: 0.72;
+}
+
+.mos-learning-graph-topic-cluster.is-topic-nav rect.is-cluster-shell {
+  fill: color-mix(in srgb, var(--background-primary) 95%, var(--learning-branch-color) 5%);
+  stroke: color-mix(in srgb, var(--learning-branch-color) 22%, var(--background-modifier-border));
+}
+
+.mos-learning-graph-topic-cluster.is-topic-nav text.is-cluster-title {
+  fill: color-mix(in srgb, var(--text-muted) 82%, var(--learning-branch-color) 18%);
+  font-size: 0.5rem;
+}
+
+.mos-learning-graph-topic-cluster.is-topic-nav:hover rect.is-cluster-shell {
+  fill: color-mix(in srgb, var(--background-primary) 86%, var(--learning-branch-color) 14%);
+  stroke: color-mix(in srgb, var(--learning-branch-color) 62%, var(--text-normal));
+}
+
+.mos-learning-graph-topic-cluster ellipse {
+  fill: color-mix(in srgb, var(--learning-branch-color) 5%, var(--background-primary));
+  stroke: color-mix(in srgb, var(--learning-branch-color) 31%, var(--background-modifier-border));
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+  transition: fill 0.18s ease, stroke 0.18s ease, opacity 0.18s ease;
+}
+
+.mos-learning-graph-topic-cluster text {
+  fill: color-mix(in srgb, var(--learning-branch-color) 65%, var(--text-muted));
+  font-size: 0.48rem;
+  font-weight: 760;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+}
+
+.mos-learning-graph-topic-cluster.is-single ellipse {
+  fill: color-mix(in srgb, var(--learning-branch-color) 2%, var(--background-primary));
+  stroke-dasharray: 2 5;
+  opacity: 0.62;
+}
+
+.mos-learning-graph-topic-cluster.is-active ellipse {
+  fill: color-mix(in srgb, var(--learning-branch-color) 13%, var(--background-primary));
+  stroke: var(--learning-branch-color);
+  stroke-width: 1.8;
+  stroke-dasharray: none;
+  filter: drop-shadow(0 0 0.55rem color-mix(in srgb, var(--learning-branch-color) 24%, transparent));
+}
+
+.mos-learning-graph-topic-cluster.is-active text {
+  fill: color-mix(in srgb, var(--learning-branch-color) 82%, var(--text-normal));
+}
+
+.mos-learning-graph-topic-cluster.is-muted {
+  opacity: 0.12;
+}
+
+.mos-learning-graph-card-nodes .mos-learning-graph-node.is-card {
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation: mos-learning-card-reveal 0.34s cubic-bezier(0.2, 0.82, 0.24, 1) var(--card-delay, 0ms) backwards;
+}
+
+@keyframes mos-learning-card-reveal {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.mos-learning-graph-node.is-card rect.is-card-surface {
+  fill: color-mix(in srgb, var(--background-secondary) 94%, var(--learning-branch-color) 6%);
+  stroke: color-mix(in srgb, var(--learning-branch-color) 18%, var(--background-modifier-border));
+  stroke-width: 0.8;
+  transition: fill 0.16s ease, stroke 0.16s ease, filter 0.16s ease;
+}
+
+.mos-learning-graph-node.is-card:hover rect.is-card-surface,
+.mos-learning-graph-node.is-card.is-selected rect.is-card-surface {
+  fill: color-mix(in srgb, var(--background-secondary) 82%, var(--learning-branch-color) 18%);
+  stroke: color-mix(in srgb, var(--learning-branch-color) 78%, var(--text-normal));
+  stroke-width: 1.35;
+  filter: drop-shadow(0 0 0.4rem color-mix(in srgb, var(--learning-branch-color) 24%, transparent));
+}
+
+.mos-learning-graph-node.is-card circle.is-card-mark {
+  fill: color-mix(in srgb, var(--learning-branch-color) 88%, white 8%);
+  stroke: none;
+  filter: drop-shadow(0 0 0.2rem color-mix(in srgb, var(--learning-branch-color) 48%, transparent));
+}
+
+.mos-learning-graph-node.is-card text.is-card-title {
+  fill: color-mix(in srgb, var(--text-normal) 88%, var(--learning-branch-color) 12%);
+  font-size: 0.51rem;
+  font-weight: 620;
+  pointer-events: none;
+}
+
+.mos-learning-graph-node.is-card.is-topic-focus-card text.is-card-title {
+  font-size: 0.66rem;
+  font-weight: 680;
+  letter-spacing: 0.01em;
+}
+
+.mos-learning-graph-node.is-card.is-topic-focus-card rect.is-card-surface {
+  fill: color-mix(in srgb, var(--background-secondary) 88%, var(--learning-branch-color) 12%);
+  stroke: color-mix(in srgb, var(--learning-branch-color) 28%, var(--background-modifier-border));
+}
+
+.mos-learning-graph-node.is-card.is-topic-focus-card circle.is-card-mark {
+  fill: color-mix(in srgb, var(--background-primary) 72%, var(--learning-branch-color) 28%);
+  stroke: color-mix(in srgb, var(--learning-branch-color) 88%, white 8%);
+  stroke-width: 2;
+  filter: drop-shadow(0 0 0.45rem color-mix(in srgb, var(--learning-branch-color) 66%, transparent));
+}
+
+.mos-learning-graph-node.is-card.is-topic-focus-card text.is-skill-order {
+  fill: color-mix(in srgb, var(--learning-branch-color) 72%, var(--text-normal));
+  font-family: var(--font-monospace);
+  font-size: 0.44rem;
+  font-weight: 900;
+  pointer-events: none;
+}
+
+.mos-learning-graph-node.is-card.is-topic-focus-card text.is-card-state {
+  fill: color-mix(in srgb, var(--learning-branch-color) 74%, var(--text-muted));
+  font-family: var(--font-monospace);
+  font-size: 0.44rem;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  pointer-events: none;
+}
+
+.mos-learning-graph-node.is-card.is-topic-focus-card.is-new circle.is-card-mark {
+  fill: var(--background-primary);
+  stroke-dasharray: 3 2;
+  opacity: 0.82;
+}
+
+.mos-learning-graph-node.is-card.is-topic-focus-card.is-due rect.is-card-surface {
+  stroke: color-mix(in srgb, var(--color-orange) 65%, var(--learning-branch-color));
+}
+
+.mos-learning-graph-node.is-card.is-topic-focus-card.is-due text.is-card-state {
+  fill: var(--color-orange);
+}
+
+.mos-learning-graph-node.is-card.is-topic-focus-card.is-mastered {
+  opacity: 1;
+}
+
+.mos-learning-graph-node.is-card.is-topic-focus-card.is-mastered circle.is-card-mark {
+  fill: color-mix(in srgb, var(--color-green) 62%, var(--learning-branch-color));
+  stroke: color-mix(in srgb, white 54%, var(--color-green));
+}
+
+.mos-learning-graph-node.is-card.is-topic-focus-card.is-mastered text.is-card-state {
+  fill: var(--color-green);
+}
+
+.mos-learning-graph-node.is-card.is-topic-focus-card.is-selected circle.is-card-mark {
+  animation: mos-learning-skill-pulse 1.35s ease-in-out infinite;
+}
+
+@keyframes mos-learning-skill-pulse {
+  0%, 100% { filter: drop-shadow(0 0 0.4rem color-mix(in srgb, var(--learning-branch-color) 62%, transparent)); }
+  50% { filter: drop-shadow(0 0 0.9rem color-mix(in srgb, var(--learning-branch-color) 92%, transparent)); }
+}
+
+.mos-learning-graph-node.is-card rect.is-card-progress {
+  fill: color-mix(in srgb, var(--learning-branch-color) 76%, white 8%);
+  stroke: none;
+  opacity: 0.82;
+  pointer-events: none;
+}
+
+.mos-learning-overview-orbits,
+.mos-learning-overview-structure,
+.mos-learning-overview-relations {
+  pointer-events: none;
+}
+
+.mos-learning-overview-orbits circle.is-overview-orbit {
+  fill: none;
+  stroke: color-mix(in srgb, var(--text-muted) 20%, transparent);
+  stroke-width: 0.7;
+  stroke-dasharray: 1.5 7;
+  opacity: 0.42;
+}
+
+.mos-learning-overview-orbits circle.is-overview-p3-field {
+  fill: none;
+  stroke: color-mix(in srgb, var(--interactive-accent) 12%, transparent);
+  stroke-width: 150;
+  opacity: 0.16;
+}
+
+.mos-learning-overview-labels {
+  pointer-events: none;
+}
+
+.mos-learning-overview-labels text.is-overview-orbit-label {
+  fill: color-mix(in srgb, var(--text-muted) 72%, transparent);
+  font-family: var(--font-monospace);
+  font-size: 0.375rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  paint-order: stroke;
+  stroke: var(--background-primary);
+  stroke-width: 2.5px;
+}
+
+.mos-learning-graph-camera-layer {
+  transform-box: view-box;
+  transform-origin: var(--camera-x, 50%) var(--camera-y, 50%);
+  will-change: transform, opacity, filter;
+}
+
+.mos-learning-graph-stage.is-camera-transition .mos-learning-graph-camera-layer {
+  transition:
+    transform 0.82s cubic-bezier(0.18, 0.84, 0.18, 1),
+    opacity 0.58s ease,
+    filter 0.68s ease;
+}
+
+.mos-learning-graph-stage.is-camera-reveal:not(.is-camera-settled) .mos-learning-graph-camera-layer {
+  transform: scale(0.88);
+  opacity: 0;
+  filter: blur(4px) brightness(1.18);
+}
+
+.mos-learning-graph-stage.is-camera-push:not(.is-camera-settled) .mos-learning-graph-camera-layer {
+  transform: scale(0.7);
+  opacity: 0.18;
+  filter: blur(4px) brightness(1.16);
+}
+
+.mos-learning-graph-stage.is-camera-pull:not(.is-camera-settled) .mos-learning-graph-camera-layer {
+  transform: scale(1.3);
+  opacity: 0.18;
+  filter: blur(5px) brightness(1.14);
+}
+
+.mos-learning-graph-stage.is-camera-shift:not(.is-camera-settled) .mos-learning-graph-camera-layer {
+  transform: scale(0.9) rotate(-0.35deg);
+  opacity: 0.26;
+  filter: blur(3px);
+}
+
+.mos-learning-graph-stage.is-camera-detail:not(.is-camera-settled) .mos-learning-graph-camera-layer {
+  transform: scale(0.9);
+  opacity: 0.3;
+  filter: blur(3px) brightness(1.18);
+}
+
+.mos-learning-graph-stage.is-camera-settled .mos-learning-graph-camera-layer {
+  transform: scale(1) rotate(0);
+  opacity: 1;
+  filter: none;
+}
+
+.mos-learning-graph-stage.is-camera-transition::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at var(--camera-x, 50%) var(--camera-y, 50%), color-mix(in srgb, var(--interactive-accent) 18%, transparent), transparent 20%),
+    linear-gradient(90deg, color-mix(in srgb, var(--background-primary) 38%, transparent), transparent 18%, transparent 82%, color-mix(in srgb, var(--background-primary) 38%, transparent));
+  opacity: 0.48;
+  transition: opacity 0.78s ease;
+}
+
+.mos-learning-graph-stage.is-camera-transition.is-camera-settled::after {
+  opacity: 0;
+}
+
+.mos-learning-overview-orbits circle.is-ring-1,
+.mos-learning-overview-orbits circle.is-ring-2 {
+  stroke: color-mix(in srgb, var(--interactive-accent) 34%, transparent);
+  stroke-dasharray: none;
+  opacity: 0.5;
+}
+
+.mos-learning-overview-orbits path.is-overview-sector-arc {
+  fill: none;
+  stroke: color-mix(in srgb, var(--learning-branch-color) 54%, var(--background-modifier-border));
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  opacity: 0.56;
+  filter: drop-shadow(0 0 0.32rem color-mix(in srgb, var(--learning-branch-color) 32%, transparent));
+}
+
+.mos-learning-overview-structure line,
+.mos-learning-overview-structure path {
+  pointer-events: none;
+  stroke-linecap: round;
+  fill: none;
+}
+
+.mos-learning-overview-structure line.is-overview-trunk {
+  stroke: color-mix(in srgb, var(--learning-branch-color) 56%, var(--background-modifier-border));
+  stroke-width: 1.5;
+  opacity: 0.72;
+}
+
+.mos-learning-overview-structure path.is-overview-branch-rail {
+  stroke: color-mix(in srgb, var(--learning-branch-color) 70%, white 12%);
+  stroke-width: 2.2;
+  opacity: 0.64;
+  filter: drop-shadow(0 0 0.38rem color-mix(in srgb, var(--learning-branch-color) 55%, transparent));
+}
+
+.mos-learning-overview-structure path.is-overview-ownership {
+  stroke: color-mix(in srgb, var(--learning-branch-color) 32%, var(--background-modifier-border));
+  stroke-width: 0.65;
+  opacity: 0.3;
+}
+
+.mos-learning-overview-relations path.is-overview-relation {
+  fill: none;
+  stroke: color-mix(in srgb, var(--color-cyan) 78%, var(--text-normal));
+  stroke-width: 1.15;
+  stroke-dasharray: 2 5;
+  stroke-linecap: round;
+  opacity: 0.64;
+  filter: drop-shadow(0 0 0.25rem color-mix(in srgb, var(--color-cyan) 52%, transparent));
+  animation: mos-learning-energy-flow 1.5s linear infinite;
+  transition: opacity 0.16s ease, stroke 0.16s ease, stroke-width 0.16s ease, filter 0.16s ease;
+}
+
+.mos-learning-overview-relations path.is-overview-relation.is-muted {
+  opacity: 0.08;
+  filter: none;
+}
+
+.mos-learning-overview-relations path.is-overview-relation.is-signal {
+  stroke: color-mix(in srgb, var(--signal-color) 72%, white 28%);
+  stroke-width: 2.25;
+  stroke-dasharray: 5 3;
+  opacity: 1;
+  filter: drop-shadow(0 0 0.45rem color-mix(in srgb, var(--signal-color) 82%, transparent));
+}
+
+.mos-learning-graph-node.is-overview-branch circle {
+  fill: color-mix(in srgb, var(--learning-branch-color) 18%, var(--background-primary));
+  stroke: color-mix(in srgb, var(--learning-branch-color) 82%, var(--text-normal));
+  stroke-width: 1.7;
+  filter: drop-shadow(0 0 0.45rem color-mix(in srgb, var(--learning-branch-color) 36%, transparent));
+}
+
+.mos-learning-overview-labels text.is-overview-branch-title {
+  fill: color-mix(in srgb, var(--learning-branch-color) 78%, var(--text-normal));
+  font-size: 0.41rem;
+  font-weight: 800;
+  pointer-events: none;
+}
+
+.mos-learning-graph-node.is-overview-card circle.is-overview-card-mark {
+  fill: color-mix(in srgb, var(--learning-branch-color) 78%, var(--background-primary));
+  stroke: color-mix(in srgb, var(--learning-branch-color) 92%, white 8%);
+  stroke-width: 1;
+  filter: drop-shadow(0 0 0.25rem color-mix(in srgb, var(--learning-branch-color) 64%, transparent));
+  transition: r 0.15s ease, filter 0.15s ease;
+}
+
+.mos-learning-overview-labels text.is-overview-branch-meta {
+  fill: color-mix(in srgb, var(--learning-branch-color) 68%, var(--text-muted));
+  font-size: 0.375rem;
+  font-weight: 760;
+  paint-order: stroke;
+  stroke: var(--background-primary);
+  stroke-width: 2px;
+}
+
+.mos-learning-overview-labels text.is-overview-root-title {
+  fill: var(--text-normal);
+  font-size: 1rem;
+  font-weight: 850;
+  paint-order: stroke;
+  stroke: var(--background-primary);
+  stroke-width: 3px;
+}
+
+.mos-learning-overview-labels text.is-overview-root-meta {
+  fill: var(--text-muted);
+  font-size: 0.5rem;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: var(--background-primary);
+  stroke-width: 2px;
+}
+
+.mos-learning-overview-labels text.is-overview-card-label {
+  fill: color-mix(in srgb, var(--learning-branch-color) 72%, var(--text-normal));
+  font-size: 0.44rem;
+  font-weight: 760;
+  opacity: 0;
+  pointer-events: none;
+  paint-order: stroke;
+  stroke: var(--background-primary);
+  stroke-width: 3px;
+  transition: opacity 0.14s ease;
+}
+
+.mos-learning-overview-labels text.is-overview-card-label.is-visible {
+  opacity: 1;
+}
+
+.mos-learning-graph-node.is-overview-card circle.is-overview-card-halo {
+  fill: color-mix(in srgb, var(--learning-branch-color) 12%, transparent);
+  stroke: color-mix(in srgb, var(--learning-branch-color) 30%, transparent);
+  stroke-width: 0.8;
+  opacity: 0.72;
+  filter: drop-shadow(0 0 0.5rem color-mix(in srgb, var(--learning-branch-color) 72%, transparent));
+  animation: mos-learning-overview-beacon 2.8s ease-in-out infinite;
+}
+
+@keyframes mos-learning-overview-beacon {
+  0%, 100% { opacity: 0.42; }
+  50% { opacity: 0.92; }
+}
+
+.mos-learning-graph-node.is-overview-card.is-landmark circle.is-overview-card-mark {
+  fill: color-mix(in srgb, white 74%, var(--learning-branch-color));
+  stroke: white;
+  stroke-width: 1.35;
+  filter: drop-shadow(0 0 0.5rem color-mix(in srgb, white 64%, var(--learning-branch-color)));
+}
+
+.mos-learning-graph-node.is-overview-card circle.is-overview-progress {
+  fill: none;
+  stroke: color-mix(in srgb, var(--learning-branch-color) 76%, white 12%);
+  stroke-width: 1;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  opacity: 0.65;
+}
+
+.mos-learning-graph-node.is-overview-card:hover circle.is-overview-card-mark,
+.mos-learning-graph-node.is-overview-card:focus circle.is-overview-card-mark {
+  r: 7px;
+  filter: drop-shadow(0 0 0.65rem color-mix(in srgb, var(--learning-branch-color) 92%, transparent));
+}
+
+.mos-learning-graph-node.is-overview-card.is-new circle.is-overview-card-mark {
+  fill: var(--background-primary);
+  stroke-dasharray: 2 2;
+}
+
+.mos-learning-graph-node.is-overview-card.is-due circle.is-overview-card-mark {
+  stroke: var(--color-orange);
+  stroke-width: 1.8;
+}
+
+.mos-learning-graph-node.is-overview-card.is-mastered circle.is-overview-card-mark {
+  fill: color-mix(in srgb, var(--color-green) 68%, var(--learning-branch-color));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mos-learning-graph-card-edges path.is-active-topic,
+  .mos-learning-graph-skill-paths path.is-skill-energy-path,
+  .mos-learning-overview-relations path.is-overview-relation,
+  .mos-learning-graph-node.is-overview-card circle.is-overview-card-halo,
+  .mos-learning-graph-node.is-card.is-topic-focus-card.is-selected circle.is-card-mark {
+    animation: none;
+  }
+  .mos-learning-graph-stage.is-camera-transition .mos-learning-graph-camera-layer {
+    transition-duration: 0.01ms;
+  }
+}
+
+.mos-learning-graph-inspector {
+  min-height: 0;
+  padding: 1rem;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-l);
+  background: color-mix(in srgb, var(--background-secondary) 88%, transparent);
+  overflow: auto;
+}
+
+.mos-learning-graph-selection-empty.is-orbit-guide {
+  min-height: 100%;
+  align-content: center;
+  text-align: center;
+  background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--interactive-accent) 9%, transparent), transparent 48%);
+}
+
+.mos-learning-graph-selection-empty.is-orbit-guide small {
+  color: var(--text-accent);
+  font-size: var(--font-ui-smaller);
+  font-weight: 900;
+  letter-spacing: .1em;
+}
+
+.mos-learning-graph-p3-head { display: grid; gap: .2rem; margin-bottom: .7rem; }
+.mos-learning-graph-p3-head small { color: var(--text-accent); font-size: var(--font-ui-smaller); font-weight: 900; letter-spacing: .1em; }
+.mos-learning-graph-p3-head span { color: var(--text-muted); font-size: var(--font-ui-smaller); }
+
+.mos-learning-graph-p3-list { display: grid; gap: .4rem; }
+
+.mos-learning-graph-p3-list > button {
+  position: relative;
+  display: grid;
+  gap: .2rem;
+  width: 100%;
+  min-height: 3.4rem;
+  padding: .55rem 2.9rem .55rem .7rem;
+  text-align: left;
+  border: 1px solid color-mix(in srgb, var(--learning-branch-color) 30%, var(--background-modifier-border));
+  border-radius: var(--radius-m);
+  color: var(--text-normal);
+  background: linear-gradient(115deg, color-mix(in srgb, var(--learning-branch-color) 9%, var(--background-primary)), var(--background-primary));
+  box-shadow: none;
+}
+
+.mos-learning-graph-p3-list > button:hover { border-color: color-mix(in srgb, var(--learning-branch-color) 62%, var(--background-modifier-border)); transform: translateX(2px); }
+.mos-learning-graph-p3-list small { color: color-mix(in srgb, var(--learning-branch-color) 72%, var(--text-muted)); font-size: var(--font-ui-smaller); }
+.mos-learning-graph-p3-list strong { font-size: var(--font-ui-small); line-height: 1.35; }
+.mos-learning-graph-p3-list em { position: absolute; top: 50%; right: .65rem; color: var(--text-muted); font-family: var(--font-monospace); font-size: var(--font-ui-smaller); font-style: normal; transform: translateY(-50%); }
+
+.mos-learning-graph-inspector > small {
+  color: var(--text-accent);
+  font-size: var(--font-ui-smaller);
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.mos-learning-graph-inspector h3,
+.mos-learning-graph-inspector h4 {
+  margin: 0.35rem 0;
+}
+
+.mos-learning-graph-inspector > p,
+.mos-learning-graph-card-detail > p {
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.mos-learning-graph-branch-button {
+  display: grid;
+  gap: 0.2rem;
+  width: 100%;
+  margin-top: 0.45rem;
+  padding: 0.65rem 0.75rem;
+  text-align: left;
+  border: 1px solid color-mix(in srgb, var(--learning-branch-color) 35%, var(--background-modifier-border));
+  border-radius: var(--radius-m);
+  color: var(--text-normal);
+  background: color-mix(in srgb, var(--learning-branch-color) 7%, var(--background-primary));
+}
+
+.mos-learning-graph-branch-button span {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+}
+
+.mos-learning-graph-topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.9rem;
+}
+
+.mos-learning-graph-topics button {
+  padding: 0.25rem 0.45rem;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 999px;
+  color: var(--text-muted);
+  background: var(--background-primary);
+  box-shadow: none;
+  font-size: var(--font-ui-smaller);
+}
+
+.mos-learning-graph-topics button:hover,
+.mos-learning-graph-topics button.is-active {
+  border-color: color-mix(in srgb, var(--interactive-accent) 52%, var(--background-modifier-border));
+  color: var(--text-normal);
+  background: color-mix(in srgb, var(--interactive-accent) 11%, var(--background-primary));
+}
+
+.mos-learning-graph-selection-empty {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.85rem;
+  border: 1px dashed var(--background-modifier-border);
+  border-radius: var(--radius-m);
+}
+
+.mos-learning-graph-selection-empty strong {
+  color: var(--text-normal);
+}
+
+.mos-learning-graph-selection-empty span {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  line-height: 1.6;
+}
+
+.mos-learning-graph-card-detail {
+  padding: 1rem;
+  border: 1px solid color-mix(in srgb, var(--learning-branch-color) 42%, var(--background-modifier-border));
+  border-top: 3px solid var(--learning-branch-color);
+  border-radius: var(--radius-l);
+  background: linear-gradient(145deg, color-mix(in srgb, var(--learning-branch-color) 9%, var(--background-primary)), var(--background-primary));
+  box-shadow: 0 .9rem 2rem rgba(5, 10, 20, .12);
+}
+
+.mos-learning-graph-card-copy { margin-top: .7rem; padding: .7rem; border: 1px solid var(--background-modifier-border); border-radius: var(--radius-m); background: color-mix(in srgb, var(--background-secondary) 72%, transparent); }
+.mos-learning-graph-card-copy.is-answer { border-color: color-mix(in srgb, var(--learning-branch-color) 34%, var(--background-modifier-border)); }
+.mos-learning-graph-card-copy > strong { color: color-mix(in srgb, var(--learning-branch-color) 74%, var(--text-normal)); font-size: var(--font-ui-smaller); }
+.mos-learning-graph-card-copy > p { margin: .35rem 0 0; color: var(--text-muted); line-height: 1.65; }
+
 .mos-learning-card.is-due {
   border-color: var(--color-orange);
 }
@@ -367,6 +1527,28 @@
 
   .mos-learning-detail-layout {
     grid-template-columns: 1fr;
+  }
+
+  .mos-learning-graph-tools,
+  .mos-learning-graph-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .mos-learning-graph-contextbar {
+    grid-column: 1;
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .mos-learning-graph-layout,
+  .mos-learning-graph-stage,
+  .mos-learning-graph-stage > svg {
+    min-height: 30rem;
+  }
+
+  .mos-learning-graph-inspector {
+    min-height: 14rem;
+    overflow: visible;
   }
 }
 
@@ -544,6 +1726,225 @@
 
   .mos-health-record {
     grid-template-columns: 1fr;
+  }
+}
+
+.mos-cabin-context-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0.4rem 0 1rem;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-m);
+  background: color-mix(in srgb, var(--background-secondary) 82%, transparent);
+}
+
+.mos-cabin-context-identity {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 8.5rem;
+}
+
+.mos-cabin-context-identity > div,
+.mos-cabin-context-identity > span {
+  color: var(--text-accent);
+}
+
+.mos-cabin-context-identity small {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+}
+
+.mos-cabin-context-counts {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.8rem;
+}
+
+.mos-cabin-context-count {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.28rem;
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+}
+
+.mos-cabin-context-count strong {
+  color: var(--text-normal);
+  font-size: var(--font-ui-medium);
+}
+
+.mos-cabin-context-health {
+  color: var(--text-warning);
+  font-size: var(--font-ui-smaller);
+  white-space: nowrap;
+}
+
+.mos-command-view {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 1.2rem 1.4rem 2.4rem;
+}
+
+.mos-command-header,
+.mos-command-section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.mos-command-heading {
+  min-width: 0;
+}
+
+.mos-command-heading h2,
+.mos-command-section-heading h3 {
+  margin: 0;
+}
+
+.mos-command-heading p {
+  margin: 0.35rem 0 0;
+  color: var(--text-muted);
+}
+
+.mos-command-stats {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+}
+
+.mos-command-stat {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-s);
+  background: var(--background-secondary);
+}
+
+.mos-command-stat strong {
+  font-size: 1.35rem;
+  color: var(--text-accent);
+}
+
+.mos-command-stat span,
+.mos-command-section-heading > span,
+.mos-command-task-meta,
+.mos-command-project-meta {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+}
+
+.mos-command-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-bottom: 1.2rem;
+}
+
+.mos-command-search {
+  flex: 1 1 16rem;
+  min-width: 12rem;
+}
+
+.mos-command-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.mos-command-filters button.is-active {
+  color: var(--text-on-accent);
+  background: var(--interactive-accent);
+}
+
+.mos-command-section {
+  margin-top: 1.1rem;
+}
+
+.mos-command-task-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.7rem;
+  margin-top: 0.65rem;
+}
+
+.mos-command-task-card,
+.mos-command-project-card {
+  display: grid;
+  gap: 0.45rem;
+  width: 100%;
+  padding: 0.85rem;
+  text-align: left;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-m);
+  background: var(--background-primary);
+  transition: border-color 120ms ease, transform 120ms ease;
+}
+
+.mos-command-task-card:hover,
+.mos-command-project-card:hover {
+  border-color: var(--interactive-accent);
+  transform: translateY(-1px);
+}
+
+.mos-command-task-card.is-blocked {
+  border-color: color-mix(in srgb, var(--text-warning) 60%, var(--background-modifier-border));
+}
+
+.mos-command-task-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  color: var(--text-accent);
+  font-size: var(--font-ui-smaller);
+}
+
+.mos-command-task-top em {
+  color: var(--text-muted);
+  font-style: normal;
+}
+
+.mos-command-task-meta,
+.mos-command-project-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.7rem;
+}
+
+.mos-command-task-card small,
+.mos-command-project-card small {
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.mos-command-project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.7rem;
+  margin-top: 0.65rem;
+}
+
+.mos-command-project-card p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+@media (max-width: 720px) {
+  .mos-cabin-context-bar,
+  .mos-command-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .mos-command-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 

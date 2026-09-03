@@ -8,6 +8,8 @@ const {
   knowledgeCardComputedProgress,
   knowledgeCardProgress,
   knowledgeCardState,
+  learningBranchPresentation,
+  learningCardTopic,
   learningContentEntry,
   learningThreadConfig,
   learningThreadEntry,
@@ -67,6 +69,7 @@ const branch = record("branch-1", "learning-branch", "Public data boundary", "Na
   entity_kind: "thread",
   thread_type: "learning-branch",
   learning_level: "P2",
+  learning_branch_order: 2,
   parent_thread: "thread-1",
   learning_goal: "Study the public/private boundary in depth"
 });
@@ -77,6 +80,22 @@ const branchCard = record("card-branch", "knowledge-card", "Sanitized fixtures",
 });
 const branchSource = record("asset-branch", "asset-pdf", "Fixture design", "Assets", {
   related_threads: ["branch-1"]
+});
+const secondBranch = record("branch-2", "learning-branch", "Release workflow", "Navigation", {
+  entity_kind: "thread",
+  thread_type: "learning-branch",
+  learning_level: "P2",
+  parent_thread: "thread-1",
+  learning_branch_key: "release",
+  learning_branch_order: 1,
+  learning_branch_color: "#ef8d6d"
+});
+const secondBranchCard = record("card-branch-2", "knowledge-card", "Release gate", "Navigation", {
+  related_thread: "branch-2",
+  knowledge_topic: "未分主题",
+  knowledge_path: "Release workflow · Candidate audit",
+  learning_lenses: ["Quick reference"],
+  read_count: 0
 });
 const unrelated = record("note-1", "note", "Unrelated", "Memory");
 const records = [thread, dueCard, newCard, masteredCard, sourceAsset, sourceTask, unrelated];
@@ -162,6 +181,24 @@ test("learning model nests customizable P2 branches below their P1 shelf", () =>
   assert.deepEqual(model.byId.get("branch-1").cards.map((card) => card.id), ["card-branch"]);
   assert.deepEqual(model.byId.get("branch-1").members.map((item) => item.frontmatter.entity_id), ["asset-branch"]);
   assert.deepEqual(model.totals, { threads: 1, branches: 1, cards: 1, due: 0, mastered: 0 });
+});
+
+test("multi-P2 learning shelves expose ordered colored sections and aggregate P3 cards", () => {
+  const model = buildLearningModel(
+    [...records, branch, branchCard, branchSource, secondBranch, secondBranchCard],
+    { now: new Date(2026, 7, 12) }
+  );
+  const shelf = model.byId.get("thread-1");
+  assert.equal(shelf.contentId, "");
+  assert.deepEqual(shelf.branches.map((item) => item.id), ["branch-2", "branch-1"]);
+  assert.deepEqual(shelf.branchSections.map((item) => item.title), ["Release workflow", "Public data boundary"]);
+  assert.deepEqual(shelf.aggregateCards.map((card) => card.id), ["card-branch-2", "card-branch"]);
+  assert.equal(shelf.aggregateCardCount, 2);
+  assert.equal(shelf.aggregateNewCount, 1);
+  assert.equal(shelf.aggregateProgress, 25);
+  assert.equal(shelf.branchSections[0].color, "#ef8d6d");
+  assert.equal(learningCardTopic(secondBranchCard), "Candidate audit");
+  assert.deepEqual(learningBranchPresentation(secondBranch), { key: "release", order: 1, color: "#ef8d6d" });
 });
 
 test("a body WikiLink does not silently make a knowledge card belong to a thread", () => {

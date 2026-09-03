@@ -14,8 +14,17 @@ const aiChangePlan = require("./ai-change-plan");
 const aiChangeJournal = require("./ai-change-journal");
 const aiProviderSandbox = require("./ai-provider-sandbox");
 const folderMounts = require("../storage/folder-mounts");
+const cabinKernel = require("../kernel");
+const commandModel = require("../apps/command/model");
+const intake = require("../intake");
 
 function createCoreServices(options = {}) {
+  const cabinRuntime = cabinKernel.createCabinRuntime({
+    manifests: options.cabinManifests,
+    recordQuery,
+    recordRelations
+  });
+  const intakeRuntime = intake.createIntakeRuntime({ adapters: options.intakeAdapters });
   return Object.freeze({
     storageProfile: typeof options.storageProfile === "function" ? options.storageProfile : () => null,
     mediaPreview: Object.freeze({ ...mediaPreview }),
@@ -31,7 +40,12 @@ function createCoreServices(options = {}) {
     aiChangePlan: Object.freeze({ ...aiChangePlan }),
     aiChangeJournal: Object.freeze({ ...aiChangeJournal }),
     aiProviderSandbox: Object.freeze({ ...aiProviderSandbox }),
-    folderMounts: Object.freeze({ ...folderMounts })
+    folderMounts: Object.freeze({ ...folderMounts }),
+    commandModel: Object.freeze({ ...commandModel }),
+    intake: Object.freeze({ ...intake }),
+    cabinKernel: Object.freeze({ ...cabinKernel }),
+    cabinRuntime,
+    intakeRuntime
   });
 }
 

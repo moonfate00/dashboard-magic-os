@@ -1,7 +1,7 @@
 "use strict";
 
 const { ItemView } = require("obsidian");
-const { renderEmptyState, createTranslatedButton } = require("../../ui/shared-shell");
+const { renderEmptyState, createTranslatedButton, renderCabinContextBar } = require("../../ui/shared-shell");
 const { loadVaultRecords } = require("../../storage/record-source");
 const { buildOrganizerModel } = require("./model");
 
@@ -38,7 +38,7 @@ class OrganizerView extends ItemView {
       roots,
       mounts: this.plugin.folderMounts()
     });
-    this.model = buildOrganizerModel(records);
+    this.model = buildOrganizerModel(records, { cabinRuntime: this.plugin.services?.cabinRuntime });
     this.render();
   }
 
@@ -58,6 +58,7 @@ class OrganizerView extends ItemView {
     copy.createEl("h2", { text: this.plugin.t("organizer.title") });
     copy.createEl("p", { text: this.plugin.t("organizer.description") });
     createTranslatedButton(header, this.plugin.i18n, "common.refresh", () => this.refresh(), { cls: "mod-cta" });
+    renderCabinContextBar(container, this.plugin.i18n, this.model?.shell);
     const collections = this.model?.roots || [];
     if (!collections.length) {
       renderEmptyState(container, this.plugin.i18n, {
@@ -110,6 +111,7 @@ class OrganizerView extends ItemView {
       count: collection.resolvedCount,
       mode: this.plugin.t(`organizer.mode.${["query", "hybrid"].includes(collection.mode) ? collection.mode : "manual"}`)
     }) });
+    renderCabinContextBar(container, this.plugin.i18n, this.model?.shell);
     if (!collection.members.length) {
       renderEmptyState(container, this.plugin.i18n, {
         titleKey: "organizer.collectionEmpty.title",

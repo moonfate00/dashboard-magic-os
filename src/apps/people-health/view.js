@@ -1,7 +1,7 @@
 "use strict";
 
 const { ItemView } = require("obsidian");
-const { renderEmptyState, createTranslatedButton } = require("../../ui/shared-shell");
+const { renderEmptyState, createTranslatedButton, renderCabinContextBar } = require("../../ui/shared-shell");
 const { loadVaultRecords } = require("../../storage/record-source");
 const { buildPeopleHealthModel } = require("./model");
 
@@ -38,7 +38,7 @@ class PeopleHealthView extends ItemView {
       roots,
       mounts: this.plugin.folderMounts()
     });
-    this.model = buildPeopleHealthModel(records);
+    this.model = buildPeopleHealthModel(records, { cabinRuntime: this.plugin.services?.cabinRuntime });
     this.render();
   }
 
@@ -59,6 +59,7 @@ class PeopleHealthView extends ItemView {
     copy.createEl("p", { text: this.plugin.t("health.description") });
     createTranslatedButton(header, this.plugin.i18n, "common.refresh", () => this.refresh(), { cls: "mod-cta" });
     container.createDiv({ cls: "mos-health-privacy-note", text: this.plugin.t("health.privacyNotice") });
+    renderCabinContextBar(container, this.plugin.i18n, this.model?.shell);
 
     const totals = this.model?.totals || { people: 0, healthRecords: 0, linkedRecords: 0, unassignedRecords: 0 };
     const stats = container.createDiv({ cls: "mos-health-stats" });
@@ -119,6 +120,7 @@ class PeopleHealthView extends ItemView {
     copy.createEl("h2", { text: person.name || this.plugin.t("common.untitled") });
     copy.createEl("p", { text: this.plugin.t("health.personSummary", { count: person.healthCount }) });
     createTranslatedButton(header, this.plugin.i18n, "health.openPersonNote", () => this.openFile(person.file));
+    renderCabinContextBar(container, this.plugin.i18n, this.model?.shell);
     container.createDiv({ cls: "mos-health-privacy-note", text: this.plugin.t("health.timelinePrivacyNotice") });
 
     if (!person.healthRecords.length) {

@@ -22,6 +22,8 @@ Dashboard Magic OS is developed as three explicit layers. Synchronization moves 
 
 | Capability | Status | Public location | Private location / role | Next synchronization action |
 | --- | --- | --- | --- | --- |
+| Five-cabin contracts and runtime | public-ahead | `src/cabins/`, `src/kernel/`, `src/ui/shared-shell.js` | Vendored into the private candidate and installed as `cabinRuntime`; legacy views remain unchanged | Adopt shared counts and actions through compatibility adapters; Command read surface is now public |
+| Five-cabin intake runtime and adapters | shared | `src/intake/` | Installed compatibility workbench consumes the same session, Assets media, and Navigation hierarchy contracts | Move additional cabin-specific inspectors onto the shared adapter registry without copying Vault data |
 | Locale and interface-language core | public-ahead | `src/i18n/` | Monolithic runtime strings | Private OS consumes locale service after application parity |
 | Storage profiles and onboarding | public-ahead | `src/storage/` | Dashboard constants and compatibility behavior | Backport profile accessors without moving existing files |
 | Brownfield folder mount registry | public-ahead | `src/storage/folder-mounts.js`, mount settings UI, record-source provenance | Private OS still hardcodes application roots | Backport this registry first, then replace private root arrays one application at a time |
@@ -32,11 +34,13 @@ Dashboard Magic OS is developed as three explicit layers. Synchronization moves 
 | AI Provider protocol | public-ahead | `src/services/ai-provider.js` | Provider protocol plus private runtime | Backport protocol only; never credentials or usage data |
 | AI Steward safety core | public-ahead | `src/services/ai-entitlement.js`, `ai-usage.js`, `ai-transport.js`, `ai-job-state.js` | Paid runtime and existing private workflow | Backport stable IDs and lifecycle guards; keep verification and credentials private |
 | AI Steward visible shell | public-ahead | `src/apps/ai-steward/` | Rich private AI hub and executable workflows | Keep public controls disabled until a reviewed private runtime adapter is connected |
+| Agent V2 five-cabin routing | public-ahead | `src/cabins/`, `src/kernel/` catalog | Private Shadow decomposition and result inspector consume `cabinRuntime.agentCatalog()` | Keep catalog read-only; connect live object drivers one cabin at a time |
 | AI change confirmation, journal, and rollback | public-ahead | `src/services/ai-change-plan.js`, `ai-change-journal.js`, recovery view, Obsidian adapter | Existing private writes plus dormant fixed-root and three-slot persistence adapters | Bundle the public core/UI into private runtime; keep real writes locked until it replaces each legacy write path |
 | AI private-runtime seam | public-ahead | `src/services/ai-runtime-adapter.js` | Entitlement verifier, SecretStorage, task runtime | Backport contract only; inject private implementation without copying claims, secrets, or jobs |
 | AI simulated execution lifecycle | public-ahead | `src/services/ai-execution-pipeline.js` | Existing private Provider workflows | Backport lifecycle guards only; real network and write actions remain disconnected |
 | AI Provider execution sandbox | public-ahead | `src/services/ai-provider-sandbox.js` | Monolithic private Provider call sites | Replace call sites through the contract; do not migrate runtime data, prompts, keys, or job notes |
 | Organizer read model and view | public-ahead | `src/apps/organizer/` | Rich read/write shelf implementation | Exercise read path, then add reviewed write operations |
+| Command read model and view | public-ahead | `src/apps/command/` | Legacy task and project workflows | Exercise queue and project projections, then connect reviewed transaction actions |
 | Organizer advanced editing | private-ahead | Deferred | Drag, batch, query editor, masonry | Extract as reversible slices after public read path validation |
 | Learning Threads read model and view | public-ahead | `src/apps/learning/` | Rich learning, review, and generation implementation | Exercise read path, then backport the shared model |
 | Learning review and AI generation | private-ahead | Deferred | Timed reading, review scheduling, quizzes, knowledge maps, generation pipeline | Extract write and AI behaviors as reversible slices |

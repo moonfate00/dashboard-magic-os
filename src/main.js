@@ -57,6 +57,11 @@ module.exports = class DashboardMagicOSPlugin extends Plugin {
       name: this.t("command.ai.name"),
       callback: () => this.openAISteward()
     });
+    this.commandCabinCommand = this.addCommand({
+      id: "open-command-cabin",
+      name: this.t("command.cabin.name"),
+      callback: () => this.openCommandCabin()
+    });
     this.settingTab = new DashboardMagicOSSettingTab(this.app, this);
     this.addSettingTab(this.settingTab);
     this.storageCapabilities = createObsidianStorageCapabilities(this.app);
@@ -122,6 +127,7 @@ module.exports = class DashboardMagicOSPlugin extends Plugin {
     if (this.learningCommand) this.learningCommand.name = this.t("command.learning.name");
     if (this.peopleHealthCommand) this.peopleHealthCommand.name = this.t("command.health.name");
     if (this.aiStewardCommand) this.aiStewardCommand.name = this.t("command.ai.name");
+    if (this.commandCabinCommand) this.commandCabinCommand.name = this.t("command.cabin.name");
     this.app?.workspace?.trigger?.("dashboard-magic-os:locale-changed", locale);
     return locale;
   }
@@ -305,6 +311,10 @@ module.exports = class DashboardMagicOSPlugin extends Plugin {
 
   async openPeopleHealth() {
     return activateApplication(this, this.applications.peopleHealth.viewType);
+  }
+
+  async openCommandCabin() {
+    return activateApplication(this, this.applications.command.viewType);
   }
 
   createAIRuntimeAdapter() {

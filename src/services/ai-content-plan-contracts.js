@@ -4,7 +4,7 @@ const { publicURL } = require("./ai-planning-contracts");
 
 const MAX_CLASSIFICATION_CONTEXT_BYTES = 1536 * 1024;
 const MAX_LEARNING_CONTEXT_BYTES = 1536 * 1024;
-const MODULE_IDS = new Set(["command", "assets", "social", "navigation"]);
+const MODULE_IDS = new Set(["command", "assets", "social", "navigation", "memory"]);
 const BODY_PROFILES = new Set([
   "bili-verbatim-light", "bili-verbatim-deep", "web-article-deep",
   "os-intake-standard", "os-intake-person", "os-intake-organization",

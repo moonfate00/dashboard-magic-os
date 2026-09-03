@@ -1,11 +1,12 @@
 "use strict";
 
 const { assertSafeVaultPath } = require("./profiles");
+const { CABIN_IDS } = require("../kernel/contracts");
 
 const FOLDER_MOUNT_SCHEMA_VERSION = 1;
 const MAX_FOLDER_MOUNTS = 96;
 const MAX_MOUNT_PATH_LENGTH = 480;
-const FOLDER_MOUNT_MODULES = Object.freeze(["auto", "command", "assets", "social", "navigation", "memory"]);
+const FOLDER_MOUNT_MODULES = Object.freeze(["auto", ...CABIN_IDS]);
 const FOLDER_MOUNT_ROLES = Object.freeze([
   "auto", "library", "raw", "knowledge", "output", "media", "people", "health", "tasks", "memory", "story"
 ]);
