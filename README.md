@@ -64,6 +64,8 @@ The credential-free AI lifecycle is verified with a deterministic, non-networked
 
 The five cabins now share a unified object inspector, unprofiled-object queue, transition guard, reversible operation plan, and workspace checkpoint boundary. See [P7 Unified Object Workbench Acceptance](docs/P7_OBJECT_WORKBENCH_ACCEPTANCE.md).
 
+The next migration is governed by a replacement-first audit: new shared capabilities must retire duplicated catalogs, classifiers, write paths, and workflow shells instead of accumulating beside them. See [P8 Lean Replacement Audit](docs/P8_LEAN_REPLACEMENT_AUDIT.md).
+
 ## License
 
 Public repository source is available under the [MIT License](LICENSE). Private paid-service components are not included in this repository.
