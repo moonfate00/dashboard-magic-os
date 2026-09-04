@@ -62,6 +62,8 @@ The fourth P4 application slice keeps the paid AI Steward entrance visible while
 
 The credential-free AI lifecycle is verified with a deterministic, non-networked simulation in [P4 AI Simulation Pipeline Acceptance](docs/P4_AI_SIMULATION_ACCEPTANCE.md).
 
+The five cabins now share a unified object inspector, unprofiled-object queue, transition guard, reversible operation plan, and workspace checkpoint boundary. See [P7 Unified Object Workbench Acceptance](docs/P7_OBJECT_WORKBENCH_ACCEPTANCE.md).
+
 ## License
 
 Public repository source is available under the [MIT License](LICENSE). Private paid-service components are not included in this repository.

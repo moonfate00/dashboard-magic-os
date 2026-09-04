@@ -19,7 +19,9 @@ function stableHash(value) {
 }
 
 function canonicalPrivacy(value, fallback = "inherit") {
-  const privacy = String(value || "").trim().toLowerCase();
+  const aliases = { high: "sensitive", personal: "private", protected: "private", shared: "internal" };
+  const raw = String(value || "").trim().toLowerCase();
+  const privacy = aliases[raw] || raw;
   return PRIVACY_LEVELS.includes(privacy) ? privacy : fallback;
 }
 
@@ -46,8 +48,8 @@ function createRecordEnvelope(record, registry) {
     privacy: canonicalPrivacy(frontmatter.privacy, definition?.privacyDefault || "inherit"),
     path,
     source: Object.freeze({
-      kind: String(record.source?.kind || record.sourceKind || (record.mountId ? "mount" : "vault")),
-      mountId: String(record.source?.mountId || record.mountId || ""),
+      kind: String(record.source?.kind || record.sourceKind || (record.sourceMount || record.mountId ? "mount" : "vault")),
+      mountId: String(record.source?.mountId || record.sourceMount?.id || record.mountId || ""),
       path
     }),
     record

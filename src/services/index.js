@@ -32,6 +32,13 @@ function createCoreServices(options = {}) {
     globalSearch: Object.freeze({ ...globalSearch }),
     recordQuery: Object.freeze({ ...recordQuery }),
     recordRelations: Object.freeze({ ...recordRelations }),
+    objectWorkbench: Object.freeze({
+      assessObjectTransition: cabinKernel.assessObjectTransition,
+      buildObjectInspectorModel: cabinKernel.buildObjectInspectorModel,
+      createObjectOperationPlan: cabinKernel.createObjectOperationPlan,
+      createWorkspaceCheckpoint: cabinKernel.createWorkspaceCheckpoint,
+      discoverUnprofiledObjects: cabinKernel.discoverUnprofiledObjects
+    }),
     aiProvider: Object.freeze({ ...aiProvider }),
     aiEntitlement: Object.freeze({ ...aiEntitlement }),
     aiJobState: Object.freeze({ ...aiJobState }),

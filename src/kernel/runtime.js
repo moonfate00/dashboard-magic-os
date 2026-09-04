@@ -6,6 +6,7 @@ const { createCabinRegistry } = require("./cabin-registry");
 const { createEventBus } = require("./event-bus");
 const { runHealthAudit } = require("./health-audit");
 const { createRecordEnvelope, summarizeEnvelopes } = require("./record-envelope");
+const { createObjectWorkbench } = require("./object-workbench");
 
 function createCabinRuntime(options = {}) {
   const recordQuery = options.recordQuery || recordQueryDefault;
@@ -45,7 +46,9 @@ function createCabinRuntime(options = {}) {
       })];
     })));
     const health = runHealthAudit({ registry, index, relationIndex });
-    return Object.freeze({ registry, index, relationIndex, cabins, health });
+    const snapshotState = { registry, index, relationIndex, cabins, health };
+    const workbench = createObjectWorkbench(snapshotState);
+    return Object.freeze({ ...snapshotState, workbench });
   }
 
   return Object.freeze({ registry, events, agentCatalog, snapshot });

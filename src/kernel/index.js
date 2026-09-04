@@ -5,11 +5,13 @@ const { createCabinRegistry } = require("./cabin-registry");
 const { createEventBus } = require("./event-bus");
 const { runHealthAudit } = require("./health-audit");
 const recordEnvelope = require("./record-envelope");
+const objectWorkbench = require("./object-workbench");
 const { createCabinRuntime } = require("./runtime");
 
 module.exports = {
   ...contracts,
   ...recordEnvelope,
+  ...objectWorkbench,
   createCabinRegistry,
   createCabinRuntime,
   createEventBus,
