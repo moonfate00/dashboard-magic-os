@@ -13,7 +13,7 @@ The main source of bloat is not the number of user features. It is the number of
 The current installed compatibility runtime contains:
 
 - 22 view engine identifiers;
-- 65 classes, including 63 modal classes;
+- 66 classes, including 63 modal classes;
 - one main view with 124 mutable state assignments and 888 methods;
 - 144 direct `processFrontMatter` call sites;
 - 24 direct confirmation call sites;
