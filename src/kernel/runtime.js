@@ -30,11 +30,14 @@ function createCabinRuntime(options = {}) {
 
   function snapshot(records = [], snapshotOptions = {}) {
     const input = Array.isArray(records) ? records.filter(Boolean) : [];
-    const index = recordQuery.buildRecordQueryIndex(input, snapshotOptions.query || {});
+    const index = snapshotOptions.index || recordQuery.buildRecordQueryIndex(input, snapshotOptions.query || {});
     const relationIndex = recordRelations.buildRecordRelationIndex(index, snapshotOptions.relations || {});
     const byCabin = Object.fromEntries(registry.ids.map((id) => [id, []]));
     input.forEach((record) => {
-      const envelope = createRecordEnvelope(record, registry);
+      const requestedCabinId = typeof snapshotOptions.resolveCabinId === "function"
+        ? snapshotOptions.resolveCabinId(record, registry)
+        : "";
+      const envelope = createRecordEnvelope(record, registry, { cabinId: requestedCabinId });
       if (envelope) byCabin[envelope.cabinId].push(envelope);
     });
     const cabins = Object.freeze(Object.fromEntries(registry.ids.map((id) => {

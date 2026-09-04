@@ -58,6 +58,14 @@ Lean architecture does not mean one generic interface for everything.
 
 This is the next implementation slice. It changes architecture before changing appearance.
 
+Status: implemented on 2026-09-04.
+
+- Public manifests now own the installed object aliases and view ids. The host keeps only a validated presentation overlay for labels, colors, folders, templates, and presets.
+- One runtime snapshot now supplies record ownership, the record index, the relation index, counts, health, and the object workbench.
+- Brownfield mounts may assign an untyped record to exactly one cabin without rewriting its note.
+- The private compatibility facades for module records, Codex links, relations, and object inspection delegate to that snapshot.
+- Four parallel caches (`recordQueryIndexCache`, `recordRelationIndexCache`, `codexRelationGraphCache`, and `codexLinkCache`) were removed. The private architecture check rejects their return.
+
 ### Slice 2: one mutation path
 
 1. Add an Obsidian object command executor for both manual and Agent-originated plans.

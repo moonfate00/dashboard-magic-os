@@ -20,7 +20,7 @@ module.exports = defineCabinManifest({
     { id: "archive-hub", labelKey: "cabin.social.view.archive-hub", kind: "list", primary: true, filters: ["scope"] },
     { id: "directory", labelKey: "cabin.social.view.directory", kind: "list", filters: ["scope"] },
     { id: "relations", labelKey: "cabin.social.view.relations", kind: "graph", filters: ["scope"] },
-    { id: "timeline", labelKey: "cabin.social.view.timeline", kind: "timeline", filters: ["scope"] },
+    { id: "interactions", labelKey: "cabin.social.view.timeline", kind: "timeline", filters: ["scope"] },
     { id: "interaction-matrix", labelKey: "cabin.social.view.interaction-matrix", kind: "table", filters: ["scope"] },
     { id: "items", labelKey: "cabin.social.view.items", kind: "gallery", filters: ["scope"] },
     { id: "followups", labelKey: "cabin.social.view.followups", kind: "board", filters: ["scope"] },

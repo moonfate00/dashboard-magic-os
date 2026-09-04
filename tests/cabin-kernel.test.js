@@ -87,6 +87,28 @@ test("one runtime produces cabin counts, virtual identities, relations, and heal
   assert.equal(snapshot.health.findings.some((item) => item.ruleId === "unresolved-relation"), true);
 });
 
+test("host assignment can place brownfield records in exactly one cabin without rewriting them", () => {
+  const runtime = createCabinRuntime();
+  const record = { path: "OldVault/Unsorted/Note.md", title: "Legacy note", frontmatter: {} };
+  const before = JSON.stringify(record);
+  const snapshot = runtime.snapshot([record], {
+    resolveCabinId(candidate) { return candidate.path.startsWith("OldVault/") ? "navigation" : ""; }
+  });
+  assert.equal(snapshot.cabins.navigation.records.length, 1);
+  assert.equal(snapshot.cabins.assets.records.length, 0);
+  assert.equal(snapshot.cabins.navigation.records[0].record, record);
+  assert.equal(JSON.stringify(record), before);
+});
+
+test("a host may supply the one prebuilt query index used by the snapshot", () => {
+  const runtime = createCabinRuntime();
+  const record = { path: "Tasks/One.md", title: "One", frontmatter: { type: "task", module: "command" } };
+  const index = require("../src/services/record-query").buildRecordQueryIndex([record]);
+  const snapshot = runtime.snapshot([record], { index });
+  assert.equal(snapshot.index, index);
+  assert.equal(snapshot.relationIndex.recordIndex, index);
+});
+
 test("the Agent catalog exposes callable domain actions without executable functions", () => {
   const catalog = createCabinRuntime().agentCatalog();
   assert.equal(catalog.length, 5);

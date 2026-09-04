@@ -9,20 +9,24 @@ module.exports = defineCabinManifest({
   accent: "#8d9df0",
   storageRoles: ["raw", "knowledge", "output", "story"],
   objectTypes: [
-    { id: "learning-thread", aliases: ["course", "story-thread"], relationFields: ["parent_thread", "related_threads"] },
+    { id: "learning-thread", aliases: ["course", "story-thread", "context-thread"], relationFields: ["parent_thread", "related_threads"] },
     { id: "learning-branch", aliases: ["knowledge-branch"], relationFields: ["parent_thread", "related_threads"] },
     { id: "knowledge-card", aliases: ["learning-card"], relationFields: ["related_thread", "related_nodes", "sources"] },
     { id: "knowledge-map", aliases: ["learning-map"], relationFields: ["root_thread", "nodes"] },
     { id: "hobby-note", aliases: ["interest", "hobby"], relationFields: ["related_threads", "related_assets", "sources"] },
-    { id: "source-note", aliases: ["study-note", "raw-note"], relationFields: ["related_thread", "sources"] },
+    { id: "source-note", aliases: ["study-note", "raw-note", "life-note", "work-note"], relationFields: ["related_thread", "sources"] },
     { id: "output", aliases: ["deliverable"], relationFields: ["related_thread", "sources"] }
   ],
   views: [
-    { id: "learning-trails", labelKey: "cabin.navigation.view.learning-trails", kind: "list", primary: true },
-    { id: "knowledge-graph", labelKey: "cabin.navigation.view.knowledge-graph", kind: "graph" },
+    { id: "domains", labelKey: "cabin.navigation.view.domains", kind: "list", primary: true },
+    { id: "thread-map", labelKey: "cabin.navigation.view.thread-map", kind: "graph" },
+    { id: "thread-grid", labelKey: "cabin.navigation.view.thread-grid", kind: "table" },
     { id: "knowledge-base", labelKey: "cabin.navigation.view.knowledge-base", kind: "table" },
     { id: "pipeline", labelKey: "cabin.navigation.view.pipeline", kind: "board" },
-    { id: "outputs", labelKey: "cabin.navigation.view.outputs", kind: "gallery" }
+    { id: "learning-trail", labelKey: "cabin.navigation.view.learning-trails", kind: "timeline" },
+    { id: "outputs", labelKey: "cabin.navigation.view.outputs", kind: "gallery" },
+    { id: "knowledge-map", labelKey: "cabin.navigation.view.knowledge-graph", kind: "graph" },
+    { id: "gaps", labelKey: "cabin.navigation.view.gaps", kind: "detail" }
   ],
   actions: [
     { id: "create-learning-thread", labelKey: "cabin.navigation.action.create-learning-thread", authority: "write", transactionRequired: true, objectTypes: ["learning-thread"], agentCallable: true },

@@ -12,16 +12,17 @@ module.exports = defineCabinManifest({
     { id: "asset-image", aliases: ["image-asset"], relationFields: ["collections", "used_by"] },
     { id: "asset-video", aliases: ["video-asset"], relationFields: ["collections", "used_by"] },
     { id: "asset-audio", aliases: ["audio-asset"], relationFields: ["collections", "used_by"] },
-    { id: "asset-document", aliases: ["document-asset", "asset-pdf"], relationFields: ["collections", "used_by"] },
+    { id: "asset-document", aliases: ["document-asset", "asset-pdf", "asset-evidence", "asset-archive"], relationFields: ["collections", "used_by"] },
     { id: "asset-link", aliases: ["bookmark", "web-asset"], relationFields: ["collections", "used_by"] },
     { id: "asset-collection", aliases: ["shelf"], relationFields: ["asset_members"] },
     { id: "asset-scene", aliases: ["scene"], relationFields: ["source_asset", "used_by"] }
   ],
   views: [
     { id: "media-wall", labelKey: "cabin.assets.view.media-wall", kind: "gallery", primary: true },
-    { id: "shelves", labelKey: "cabin.assets.view.shelves", kind: "board" },
+    { id: "shelf", labelKey: "cabin.assets.view.shelves", kind: "board" },
     { id: "inventory", labelKey: "cabin.assets.view.inventory", kind: "table" },
-    { id: "pipeline", labelKey: "cabin.assets.view.pipeline", kind: "board" },
+    { id: "inbox", labelKey: "cabin.assets.view.pipeline", kind: "board" },
+    { id: "sources", labelKey: "cabin.assets.view.sources", kind: "list" },
     { id: "usage", labelKey: "cabin.assets.view.usage", kind: "graph" }
   ],
   actions: [

@@ -9,7 +9,7 @@ test("every public social view declares the shared scope facet", () => {
     "archive-hub",
     "directory",
     "relations",
-    "timeline",
+    "interactions",
     "interaction-matrix",
     "items",
     "followups",

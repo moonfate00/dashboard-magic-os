@@ -25,10 +25,11 @@ function canonicalPrivacy(value, fallback = "inherit") {
   return PRIVACY_LEVELS.includes(privacy) ? privacy : fallback;
 }
 
-function createRecordEnvelope(record, registry) {
+function createRecordEnvelope(record, registry, options = {}) {
   if (!record || typeof record !== "object") throw new TypeError("record envelope requires a record");
   if (!registry || typeof registry.resolveRecord !== "function") throw new TypeError("record envelope requires a cabin registry");
-  const cabin = registry.resolveRecord(record);
+  const requestedCabinId = String(options.cabinId || "").trim().toLowerCase();
+  const cabin = (requestedCabinId ? registry.get(requestedCabinId) : null) || registry.resolveRecord(record);
   if (!cabin) return null;
   const definition = registry.objectTypeForRecord(record);
   const frontmatter = recordFrontmatter(record);

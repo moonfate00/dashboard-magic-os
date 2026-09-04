@@ -17,9 +17,12 @@ module.exports = defineCabinManifest({
   ],
   views: [
     { id: "queue", labelKey: "cabin.command.view.queue", kind: "list", primary: true },
-    { id: "projects", labelKey: "cabin.command.view.projects", kind: "board" },
-    { id: "calendar", labelKey: "cabin.command.view.calendar", kind: "timeline" },
-    { id: "relations", labelKey: "cabin.command.view.relations", kind: "graph" }
+    { id: "day", labelKey: "cabin.command.view.day", kind: "list" },
+    { id: "week", labelKey: "cabin.command.view.week", kind: "timeline" },
+    { id: "month", labelKey: "cabin.command.view.month", kind: "timeline" },
+    { id: "year", labelKey: "cabin.command.view.year", kind: "timeline" },
+    { id: "data", labelKey: "cabin.command.view.data", kind: "graph" },
+    { id: "gantt", labelKey: "cabin.command.view.gantt", kind: "timeline" }
   ],
   actions: [
     { id: "capture-task", labelKey: "cabin.command.action.capture-task", authority: "write", transactionRequired: true, objectTypes: ["task"], agentCallable: true },
