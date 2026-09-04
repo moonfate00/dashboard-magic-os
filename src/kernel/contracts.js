@@ -67,7 +67,11 @@ function normalizeView(candidate) {
     id: contractId(candidate.id, "views.id"),
     labelKey: translationKey(candidate.labelKey, "views.labelKey"),
     kind: enumValue(candidate.kind, CABIN_VIEW_KINDS, "views.kind"),
-    primary: candidate.primary === true
+    primary: candidate.primary === true,
+    filters: uniqueStrings(candidate.filters, "views.filters", {
+      allowEmpty: true,
+      pattern: /^[a-z][a-z0-9-]{1,63}$/
+    })
   });
 }
 

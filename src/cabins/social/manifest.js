@@ -17,11 +17,15 @@ module.exports = defineCabinManifest({
     { id: "health-record", aliases: ["medical-record"], privacyDefault: "sensitive", relationFields: ["person", "patient"] }
   ],
   views: [
-    { id: "directory", labelKey: "cabin.social.view.directory", kind: "list", primary: true },
-    { id: "relations", labelKey: "cabin.social.view.relations", kind: "graph" },
-    { id: "timeline", labelKey: "cabin.social.view.timeline", kind: "timeline" },
-    { id: "followups", labelKey: "cabin.social.view.followups", kind: "board" },
-    { id: "health", labelKey: "cabin.social.view.health", kind: "detail" }
+    { id: "archive-hub", labelKey: "cabin.social.view.archive-hub", kind: "list", primary: true, filters: ["scope"] },
+    { id: "directory", labelKey: "cabin.social.view.directory", kind: "list", filters: ["scope"] },
+    { id: "relations", labelKey: "cabin.social.view.relations", kind: "graph", filters: ["scope"] },
+    { id: "timeline", labelKey: "cabin.social.view.timeline", kind: "timeline", filters: ["scope"] },
+    { id: "interaction-matrix", labelKey: "cabin.social.view.interaction-matrix", kind: "table", filters: ["scope"] },
+    { id: "items", labelKey: "cabin.social.view.items", kind: "gallery", filters: ["scope"] },
+    { id: "followups", labelKey: "cabin.social.view.followups", kind: "board", filters: ["scope"] },
+    { id: "health-ledger", labelKey: "cabin.social.view.health-ledger", kind: "table", filters: ["scope"] },
+    { id: "privacy", labelKey: "cabin.social.view.privacy", kind: "detail", filters: ["scope"] }
   ],
   actions: [
     { id: "create-person", labelKey: "cabin.social.action.create-person", authority: "write", transactionRequired: true, objectTypes: ["person"], agentCallable: true },

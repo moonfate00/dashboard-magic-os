@@ -3,6 +3,7 @@
 const command = require("./command/manifest");
 const assets = require("./assets/manifest");
 const social = require("./social/manifest");
+const socialScope = require("./social/scope");
 const navigation = require("./navigation/manifest");
 const memory = require("./memory/manifest");
 
@@ -14,5 +15,6 @@ module.exports = {
   command,
   memory,
   navigation,
-  social
+  social,
+  socialScope
 };
