@@ -2,6 +2,7 @@
 
 const mediaPreview = require("./media-preview");
 const recordQuery = require("./record-query");
+const globalSearch = require("./global-search");
 const recordRelations = require("./record-relations");
 const aiProvider = require("./ai-provider");
 const aiEntitlement = require("./ai-entitlement");
@@ -28,6 +29,7 @@ function createCoreServices(options = {}) {
   return Object.freeze({
     storageProfile: typeof options.storageProfile === "function" ? options.storageProfile : () => null,
     mediaPreview: Object.freeze({ ...mediaPreview }),
+    globalSearch: Object.freeze({ ...globalSearch }),
     recordQuery: Object.freeze({ ...recordQuery }),
     recordRelations: Object.freeze({ ...recordRelations }),
     aiProvider: Object.freeze({ ...aiProvider }),
