@@ -100,6 +100,20 @@ test("validation rejects traversal, system paths, deletion, duplicates, binary p
   });
 });
 
+test("an exact reviewed mounted path is writable without opening its parent directory", () => {
+  const candidate = plan([{ kind: "update", path: "Legacy/People/a.md", content: "after" }]);
+  assert.equal(validateChangePlan(candidate, {
+    profile: PORTABLE_STORAGE_PROFILE,
+    allowedPaths: ["Legacy/People/a.md"]
+  }).operations[0].path, "Legacy/People/a.md");
+  assert.throws(() => validateChangePlan(plan([
+    { kind: "update", path: "Legacy/People/b.md", content: "after" }
+  ]), {
+    profile: PORTABLE_STORAGE_PROFILE,
+    allowedPaths: ["Legacy/People/a.md"]
+  }), (error) => error.code === "validation");
+});
+
 test("prepare freezes originals and apply requires explicit single-use confirmation", async () => {
   const storage = createStorage({ "MagicOS/Records/Memory/existing.md": "before" });
   const transitions = [];

@@ -13,6 +13,7 @@ const aiRuntimeAdapter = require("./ai-runtime-adapter");
 const aiExecutionPipeline = require("./ai-execution-pipeline");
 const aiChangePlan = require("./ai-change-plan");
 const aiChangeJournal = require("./ai-change-journal");
+const objectCommand = require("./object-command");
 const aiProviderSandbox = require("./ai-provider-sandbox");
 const folderMounts = require("../storage/folder-mounts");
 const cabinKernel = require("../kernel");
@@ -48,6 +49,7 @@ function createCoreServices(options = {}) {
     aiExecutionPipeline: Object.freeze({ ...aiExecutionPipeline }),
     aiChangePlan: Object.freeze({ ...aiChangePlan }),
     aiChangeJournal: Object.freeze({ ...aiChangeJournal }),
+    objectCommand: Object.freeze({ ...objectCommand }),
     aiProviderSandbox: Object.freeze({ ...aiProviderSandbox }),
     folderMounts: Object.freeze({ ...folderMounts }),
     commandModel: Object.freeze({ ...commandModel }),

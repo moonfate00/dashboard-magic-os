@@ -73,6 +73,15 @@ Status: implemented on 2026-09-04.
 3. Remove their local confirmation and rollback implementations once parity tests pass.
 4. Leave direct host writes only for narrowly defined bootstrap, import, and recovery adapters.
 
+Status: in progress since 2026-09-05; the shared authority and first replacement tranche are implemented.
+
+- The public object command executor now materializes semantic frontmatter changes into exact-content create/update operations, then delegates confirmation, journaling, verification, and rollback to the existing AI change protocol.
+- Exact reviewed paths allow a user-selected brownfield mount to be edited without granting write access to its parent folder or neighboring notes.
+- Manual profile edits, scope changes, stage moves, external links, asset relations, storyline relations, bilateral social relations, and linked-file backlinks now use this command path.
+- The two primary intake committers (`createCommandTaskNote` and `createCabinObjectNote`) use the same verified creation path, covering manual classification and AI classification without a second creator.
+- Agent V2 no longer owns a parallel journal/snapshot/compensation executor; it supplies operations to the same mutation protocol factory.
+- Remaining migration work is limited to legacy AI patch-batch presentation/recovery, asset post-processing, and a reviewed list of bootstrap/import/recovery writes. Slice 2 is not complete until those formal-object bypasses are retired or explicitly classified as host adapters.
+
 ### Slice 3: shared projections
 
 1. Extract relation matrix, graph neighborhood, and swimlane timeline projections.

@@ -65,6 +65,11 @@ function pathWithinRoots(path, roots) {
   return roots.some((root) => path.startsWith(`${root}/`));
 }
 
+function reviewedPaths(values = []) {
+  const input = values instanceof Set ? [...values] : Array.isArray(values) ? values : [];
+  return new Set(input.map((value) => normalizeRecordPath(value)));
+}
+
 function freezePlan(plan) {
   plan.operations.forEach(Object.freeze);
   Object.freeze(plan.operations);
@@ -77,6 +82,7 @@ function validateChangePlan(input = {}, options = {}) {
   if (version !== CHANGE_PLAN_VERSION) fail("validation", "Unsupported AI change plan version");
   const profile = options.profile;
   const roots = recordRoots(profile);
+  const allowedPaths = reviewedPaths(options.allowedPaths);
   if (!roots.length) fail("validation", "AI change plan requires an active storage profile");
   if (!Array.isArray(input.operations) || !input.operations.length || input.operations.length > MAX_OPERATIONS) {
     fail("validation", "AI change plan has an invalid operation count");
@@ -90,7 +96,9 @@ function validateChangePlan(input = {}, options = {}) {
     const kind = String(candidate?.kind || "").trim().toLowerCase();
     if (!CHANGE_KINDS.includes(kind)) fail("validation", "AI change plan contains an unsupported operation");
     const path = normalizeRecordPath(candidate?.path);
-    if (!pathWithinRoots(path, roots)) fail("validation", "AI change plan targets a path outside managed record storage");
+    if (!pathWithinRoots(path, roots) && !allowedPaths.has(path)) {
+      fail("validation", "AI change plan targets a path outside managed record storage");
+    }
     if (seenPaths.has(path)) fail("validation", "AI change plan targets the same record more than once");
     seenPaths.add(path);
     if (typeof candidate?.content !== "string" || candidate.content.includes("\0")) {
@@ -157,6 +165,7 @@ function createAIChangeProtocol(options = {}) {
   const ttlMs = Math.max(1000, Math.min(60 * 60 * 1000, Number(options.confirmationTtlMs) || DEFAULT_CONFIRMATION_TTL_MS));
   const onTransition = typeof options.onTransition === "function" ? options.onTransition : async () => {};
   const journal = options.journal || null;
+  const allowedPaths = options.allowedPaths;
   requireJournal(journal);
   const confirmations = new WeakMap();
 
@@ -169,7 +178,7 @@ function createAIChangeProtocol(options = {}) {
   }
 
   function preview(input) {
-    return validateChangePlan(input, { profile });
+    return validateChangePlan(input, { profile, allowedPaths });
   }
 
   async function prepare(input) {
@@ -288,6 +297,8 @@ function createAIChangeProtocol(options = {}) {
         if (journalSession) await journal.markApplying(journalSession, operation.id);
         if (operation.kind === "create") await capabilities.create(operation.path, operation.content);
         else await capabilities.modify(operation.path, operation.content);
+        const written = await capabilities.read(operation.path);
+        if (written !== operation.content) fail("verification-failed", "AI change verification failed after storage mutation");
         applied.push(snapshot);
         pendingSnapshot = null;
         if (journalSession) await journal.markApplied(journalSession, operation.id);

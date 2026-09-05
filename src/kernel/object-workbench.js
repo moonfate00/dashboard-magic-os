@@ -300,7 +300,7 @@ function assessObjectTransition(record, patch = {}, registry, options = {}) {
   const targetEnvelope = createRecordEnvelope(projectedRecord, registry);
   const risks = [];
   const sourceId = recordEntityId(record);
-  if (Object.prototype.hasOwnProperty.call(patch, "entity_id") && cleanText(patch.entity_id) !== sourceId) {
+  if (sourceId && Object.prototype.hasOwnProperty.call(patch, "entity_id") && cleanText(patch.entity_id) !== sourceId) {
     risks.push(transitionRisk("stable-identity-change", "block", "entity_id", sourceId, patch.entity_id, "稳定对象 ID 不能通过普通编辑修改或清空"));
   }
   if (!targetEnvelope) {
@@ -347,9 +347,10 @@ function assessObjectTransition(record, patch = {}, registry, options = {}) {
   });
 }
 
-function operationId(kind, records, patch) {
-  const identity = records.map((record) => recordEntityId(record) || record.path || record.title).join("|");
-  return `object-op:${kind}:${stableHash(`${identity}:${JSON.stringify(patch || {})}`)}`;
+function operationId(kind, changes) {
+  const identity = changes.map((change) => recordEntityId(change.record) || change.record.path || change.record.title).join("|");
+  const mutations = changes.map((change) => ({ patch: change.patch, removeFields: change.removeFields }));
+  return `object-op:${kind}:${stableHash(`${identity}:${JSON.stringify(mutations)}`)}`;
 }
 
 function createObjectOperationPlan(input = {}) {
@@ -357,11 +358,27 @@ function createObjectOperationPlan(input = {}) {
   if (!["update", "move", "split", "merge", "create", "archive", "link"].includes(kind)) {
     throw new TypeError("object operation kind is invalid");
   }
-  const records = (Array.isArray(input.records) ? input.records : input.record ? [input.record] : []).filter(Boolean);
+  const sharedPatch = input.patch && typeof input.patch === "object" && !Array.isArray(input.patch) ? { ...input.patch } : {};
+  const sharedRemoveFields = Array.isArray(input.removeFields) ? input.removeFields : [];
+  const requestedChanges = Array.isArray(input.changes) && input.changes.length
+    ? input.changes
+    : (Array.isArray(input.records) ? input.records : input.record ? [input.record] : []).filter(Boolean)
+      .map((record) => ({ record, patch: sharedPatch, removeFields: sharedRemoveFields }));
+  const changes = requestedChanges.map((candidate) => {
+    const record = candidate?.record;
+    if (!record || typeof record !== "object") throw new TypeError("object operation change requires a record");
+    const patch = candidate.patch && typeof candidate.patch === "object" && !Array.isArray(candidate.patch) ? { ...candidate.patch } : {};
+    const removeFields = [...new Set((Array.isArray(candidate.removeFields) ? candidate.removeFields : [])
+      .map((field) => cleanText(field))
+      .filter((field) => /^[a-z][a-z0-9_]{0,79}$/i.test(field)))]
+      .sort();
+    const assessmentPatch = { ...patch, ...Object.fromEntries(removeFields.map((field) => [field, undefined])) };
+    return { record, patch, removeFields, assessmentPatch };
+  });
+  const records = changes.map((change) => change.record);
   if (kind !== "create" && !records.length) throw new TypeError("object operation requires at least one record");
   if (!input.registry?.resolveRecord) throw new TypeError("object operation requires a cabin registry");
-  const patch = input.patch && typeof input.patch === "object" && !Array.isArray(input.patch) ? { ...input.patch } : {};
-  const assessments = records.map((record) => assessObjectTransition(record, patch, input.registry, input.options || {}));
+  const assessments = changes.map((change) => assessObjectTransition(change.record, change.assessmentPatch, input.registry, input.options || {}));
   const blocked = assessments.some((item) => item.decision === "block");
   const confirmationRequired = blocked || assessments.some((item) => item.confirmationRequired) || ["split", "merge", "move"].includes(kind);
   const checkpoint = freezeList(records.map((record) => ({
@@ -371,7 +388,7 @@ function createObjectOperationPlan(input = {}) {
     frontmatter: Object.freeze({ ...recordFrontmatter(record) })
   })));
   return Object.freeze({
-    id: operationId(kind, records, patch),
+    id: operationId(kind, changes),
     schema: "magic-os-object-operation/v1",
     kind,
     status: blocked ? "blocked" : "review",
@@ -380,7 +397,13 @@ function createObjectOperationPlan(input = {}) {
     transactionRequired: true,
     reversible: true,
     recordCount: records.length,
-    patch: Object.freeze(patch),
+    patch: Object.freeze(sharedPatch),
+    changes: freezeList(changes.map((change) => ({
+      entityId: recordEntityId(change.record),
+      path: cleanText(change.record.path),
+      patch: Object.freeze({ ...change.patch }),
+      removeFields: Object.freeze([...change.removeFields])
+    }))),
     assessments: Object.freeze(assessments),
     checkpoint
   });
